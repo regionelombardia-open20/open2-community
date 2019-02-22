@@ -1,0 +1,44 @@
+{
+    "name": "lispa/amos-community",
+    "description": "Sistema AMOS per le community",
+    "keywords": ["amos", "yii2", "community"],
+    "homepage": "http://git.lispa.it/lispa/amos-community",
+    "type": "component",
+    "proscription": "BSD-3-Clause",
+    "support": {
+        "issues": "http://git.lispa.it/lispa/amos-community/issues",
+        "forum": "http://www.example.com/forum/",
+        "wiki": "http://git.lispa.it/lispa/amos-community/wikis/home",
+        "source": "http://git.lispa.it/lispa/amos-community/tree/master"
+    },
+    "require": {
+        "php": ">=5.4.0",
+        "lispa/amos-core" : "*",
+        "lispa/amos-admin" : "*",
+        "lispa/amos-dashboard" : "*",
+        "lispa/amos-cwh" : "*",
+        "lispa/amos-notify" : "*",
+        "lispa/amos-seo" : "*",
+        "yiidoc/yii2-redactor": "*",
+        "lispa/amos-attachments" : "*",
+        "moonlandsoft/yii2-phpexcel": "*"
+    },
+    "config": {
+        "process-timeout": 1800,
+        "secure-http": false
+    },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "lispa\\amos\\community\\": "src"
+        }
+    },
+    "require-dev": {
+        "yiisoft/yii2-faker": "*"
+    }
+}
