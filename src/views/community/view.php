@@ -141,7 +141,7 @@ $isLoggedUserParticipant = $model->isNetworkUser();
                             Yii::getLogger()->log($e->getMessage(), Logger::LEVEL_ERROR);
                         }
                         ?>
-                    <?php
+                        <?php
                     endif;
                 endforeach;
                 if (!$isLoggedUserParticipant) {
@@ -155,8 +155,8 @@ $isLoggedUserParticipant = $model->isNetworkUser();
             endif;
             ?>
         </div>
-        
-        
+
+
         <?php
         //The user can see subcommunities accordion if the community is OPEN Type or if the user is an active member otherwise
         if (($model->community_type_id == CommunityType::COMMUNITY_TYPE_OPEN) || $isLoggedUserParticipant) {
@@ -209,7 +209,7 @@ $isLoggedUserParticipant = $model->isNetworkUser();
                 </div>
             </div>
         </div>
-        
+
         <?php if ($isLoggedUserParticipant && $model->hide_participants == 0) { ?>
             <div class="member-section-sidebar col-xs-12 nop" id="section-member">
                 <?= Html::tag('h2', AmosIcons::show('globe') . AmosCommunity::t('amoscommunity', '#members_title')) ?>
@@ -220,13 +220,24 @@ $isLoggedUserParticipant = $model->isNetworkUser();
                             'viewM2MWidgetGenericSearch' => true,
                         ],
                         'isUpdate' => false,
-                    
+
                     ]);
                     ?>
                 </div>
             </div>
         <?php } ?>
-        
+
+        <?php if(Yii::$app->user->can('ADMIN') && Yii::$app->getModule('community') && Yii::$app->getModule('community')->enableUserJoinedReportDownload) { ?>
+            <div class="member-section-sidebar col-xs-12 nop" id="section-download-reports">
+                <?= Html::tag('h2', AmosIcons::show('download') . ' ' . AmosCommunity::t('amoscommunity', '#download_user_reports')) ?>
+                <div class="col-xs-12 m-b-20">
+                    <div style="text-align: center;">
+                        <?= Html::a(AmosIcons::show('download') . ' ' . AmosCommunity::t('amoscommunity', '#download_user_joined_report'), ['user-joined-report-download', 'communityId' => $model->id], ['class' => 'btn btn-primary']); ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
         <?php if (!empty(\Yii::$app->getModule('tag'))) { ?>
             <div class="tags-section-sidebar col-xs-12 nop" id="section-tags">
                 <?= ListTagsWidget::widget([

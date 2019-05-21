@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Lombardia Informatica S.p.A.
  * OPEN 2.0
@@ -10,7 +9,6 @@
  */
 
 namespace lispa\amos\community\controllers;
-
 
 use lispa\amos\community\AmosCommunity;
 use lispa\amos\community\assets\AmosCommunityAsset;
@@ -59,70 +57,95 @@ class JoinController extends CrudController
      */
     public function behaviors()
     {
-        $behaviors = ArrayHelper::merge([], [
-            'access' => [
-                'class' => AccessControl::className(),
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'actions' => [
-                            'index',
+        $behaviors = ArrayHelper::merge([],
+            [
+                'access' => [
+                    'class' => AccessControl::className(),
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'actions' => [
+                                'index',
+                                'live-chat',
+                            ],
+                            'roles' => ['@'],
                         ],
-                        'roles' => [UpdateOwnNetworkCommunity::className()]
-                    ],
-                    [
-                        'allow' => true,
-                        'actions' => [
-                            'remove'
+                        [
+                            'allow' => true,
+                            'actions' => [
+                                'remove'
+                            ],
+                            'roles' => ['COMMUNITY_MEMBER', 'COMMUNITY_READER', 'AMMINISTRATORE_COMMUNITY', 'BASIC_USER']
                         ],
-                        'roles' => ['COMMUNITY_MEMBER', 'COMMUNITY_READER', 'AMMINISTRATORE_COMMUNITY', 'BASIC_USER']
-                    ],
+                    ]
+                ],
+                'verbs' => [
+                    'class' => VerbFilter::className(),
+                    'actions' => [
+                        'delete' => ['post', 'get']
+                    ]
                 ]
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post', 'get']
-                ]
-            ]
-        ]);
+            ]);
         return $behaviors;
     }
 
-    public function actionIndex($layout = null, $id = null)
+    public function actionIndex($layout = null, $id = null, $subscribe = null, $urlRedirect = null)
     {
+        /** @var  $model Community*/
         $model = $this->findModel($id);
 
         $userCommunity = CommunityUserMm::findOne(['user_id' => Yii::$app->user->id, 'community_id' => $id]);
 
+        if($subscribe == 1 && $model->community_type_id == 1 && empty($userCommunity)){
+            $module = \Yii::$app->getModule('community');
+            if($module) {
+                $module->createCommunityUser($model->id, CommunityUserMm::STATUS_ACTIVE, CommunityUserMm::ROLE_PARTICIPANT, \Yii::$app->user->id);
+                $userCommunity = CommunityUserMm::findOne(['user_id' => Yii::$app->user->id, 'community_id' => $id]);
+            }
+        }
+
+
+
         /**
          * If The User is not subscribed to community
          */
-        if(empty($userCommunity)) {
-            $this->addFlash('danger', AmosCommunity::t('amosadmin', 'You Can\'t access a community you are not a member of'));
+        if (empty($model)) {
+            return $this->redirect(['/dashboard']);
+        }
+        if (empty($userCommunity)) {
+            if ($model->community_type_id == 2) {
 
-            return $this->redirect(Url::previous());
+                $this->addFlash('danger',
+                    AmosCommunity::t('amosadmin', 'You Can\'t access a community you are not a member of'));
+                return $this->redirect(['/community/community/view', 'id' => $id]);
+            } else if ($model->community_type_id == 3) {
+
+                return $this->redirect(['/dashboard']);
+            }
         }
 
-        if ($model != null) {
-            $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh)) {
-                $moduleCwh->setCwhScopeInSession([
-                    'community' => $id,
-                ],
+
+        $moduleCwh = \Yii::$app->getModule('cwh');
+        if (isset($moduleCwh)) {
+            $moduleCwh->setCwhScopeInSession([
+                'community' => $id,
+            ],
                 [
                     'mm_name' => 'community_user_mm',
                     'entity_id_field' => 'community_id',
                     'entity_id' => $id
                 ]);
-            }
         }
+
+        if($subscribe == 1 && !empty($urlRedirect)){
+            return $this->redirect($urlRedirect);
+        }
+
 
         $this->setListsBreadcrumbs($model);
         return $this->render('index', [
             'model' => $model
         ]);
-
     }
 
     /**
@@ -138,15 +161,22 @@ class JoinController extends CrudController
     }
 
     /**
+     * @return string
+     */
+    public function actionLiveChat() {
+        return $this->render('live-chat');
+    }
+
+    /**
      * Used to set page title and breadcrumbs.
      *
      * @param Community $model Page title (ie. Created by, ...)
      */
     private function setListsBreadcrumbs($model)
     {
-        if($model->context != Community::className()){
-            $contextModel = Yii::createObject($model->context);
-            $callingModel = $contextModel::findOne(['community_id' => $model->id]);
+        if ($model->context != Community::className()) {
+            $contextModel                            = Yii::createObject($model->context);
+            $callingModel                            = $contextModel::findOne(['community_id' => $model->id]);
 //            $createRedirectUrlParams = [
 //                $callingModel->getPluginModule() . '/' . $callingModel->getPluginController() . '/' . $callingModel->getRedirectAction(),
 //                'id' => $callingModel->id,
@@ -157,13 +187,13 @@ class JoinController extends CrudController
                 'url' => Url::previous(),
                 'remove_action' => '/community/join/remove'
             ];
-        }else {
+        } else {
             Yii::$app->view->params['breadcrumbs'][] = [
                 'label' => AmosCommunity::t('amoscommunity', 'Community'),
                 'url' => \yii\helpers\Url::to('/community'),
                 'remove_action' => '/community/join/remove'
             ];
         }
-        Yii::$app->view->params['breadcrumbs'][] = AmosCommunity::t('amoscommunity', "Dashboard" );
+        Yii::$app->view->params['breadcrumbs'][] = AmosCommunity::t('amoscommunity', "Dashboard");
     }
 }

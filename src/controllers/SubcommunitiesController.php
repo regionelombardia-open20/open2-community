@@ -70,6 +70,7 @@ class SubcommunitiesController extends CommunityController
         $this->view->params['currentDashboard'] = $this->getCurrentDashboard();
         $this->setListsBreadcrumbs($pageTitle);
         return $this->render('@vendor/lispa/amos-community/src/views/community/index', [
+            'enabledHierarchy' => false,
             'dataProvider' => $this->getDataProvider(),
             'model' => $this->getModelSearch(),
             'currentView' => $this->getCurrentView(),

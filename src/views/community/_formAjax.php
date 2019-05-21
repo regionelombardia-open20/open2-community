@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * Lombardia Informatica S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    lispa\amos\community\views\community
+ * @category   CategoryName
+ */
+
+/**
  * @var yii\web\View $this
  * @var lispa\amos\community\models\Community $model
  * @var yii\widgets\ActiveForm $form

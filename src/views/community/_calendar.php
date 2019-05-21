@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Lombardia Informatica S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    lispa\amos\community\views\community
+ * @category   CategoryName
+ */
+
 /*
  * Personalizzare a piacimento la vista
  * $model è il model legato alla tabella del db

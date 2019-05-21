@@ -19,6 +19,7 @@ use lispa\amos\core\user\User;
 use lispa\amos\core\utilities\Email;
 use lispa\amos\cwh\models\CwhAuthAssignment;
 use lispa\amos\cwh\utility\CwhUtil;
+use lispa\amos\dashboard\models\AmosWidgets;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -50,6 +51,8 @@ use yii\helpers\ArrayHelper;
  * @property \lispa\amos\core\user\User $updatedByUser
  * @property \lispa\amos\core\user\User[] $communityUsers
  * @property \lispa\amos\community\models\CommunityUserMm[] $communityUserMms
+ * @property AmosWidgets[] $amosWidgetsIcons
+ * @property AmosWidgets[] $amosWidgetsIGraphics
  * @property \lispa\amos\community\models\Community[] $subcommunities
  *
  * @package lispa\amos\community\models\base
@@ -170,7 +173,32 @@ abstract class Community extends NetworkModel
     {
         return $this->communityType->name;
     }
-    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCommunityAmosWidgetsMms()
+    {
+        return $this->hasMany(\lispa\amos\community\models\CommunityAmosWidgetsMm::className(), ['community_id' => 'id']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAmosWidgetsIcons()
+    {
+        return $this->hasMany(AmosWidgets::className(), [ 'id' => 'amos_widgets_id'])->andWhere(['type' => 'ICON'])->via('communityAmosWidgetsMms');
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAmosWidgetsGraphics()
+    {
+        return $this->hasMany(AmosWidgets::className(), [ 'id' => 'amos_widgets_id'])->andWhere(['type' => 'GRAPHIC'])->via('communityAmosWidgetsMms');
+    }
+
+
+
+
+
     /**
      * Before deleting the community, deletion of related records:
      * - subcommunities if present (and releted records)

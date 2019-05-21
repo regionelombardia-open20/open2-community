@@ -13,10 +13,11 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "lispa/amos-core" : "*",
         "lispa/amos-admin" : "*",
-        "lispa/amos-dashboard" : "*",
+        "lispa/amos-attachments" : "*",
+        "lispa/amos-core" : "*",
         "lispa/amos-cwh" : "*",
+        "lispa/amos-dashboard" : "*",
         "lispa/amos-notify" : "*",
         "lispa/amos-seo" : "*",
         "yiidoc/yii2-redactor": "*",

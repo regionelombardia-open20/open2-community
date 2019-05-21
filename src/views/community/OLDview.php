@@ -5,7 +5,7 @@
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    lispa\amos\community\views\community
  * @category   CategoryName
  */
 

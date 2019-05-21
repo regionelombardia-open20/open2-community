@@ -46,6 +46,11 @@ class UserNetworkWidget extends Widget
      * @var string $gridId
      */
     public $gridId = 'user-community-grid';
+    
+    /**
+     * @var AmosCommunity $communityModule
+     */
+    private $communityModule = null;
 
     /**
      * widget initialization
@@ -58,6 +63,7 @@ class UserNetworkWidget extends Widget
             throw new \Exception(AmosCommunity::t('amoscommunity', 'Missing user id'));
         }
         AmosCommunityAsset::register($this->getView());
+        $this->communityModule = AmosCommunity::instance();
     }
 
     /**
@@ -65,6 +71,10 @@ class UserNetworkWidget extends Widget
      */
     public function run()
     {
+        if (!$this->communityModule->enableUserNetworkWidget) {
+            return '';
+        }
+        
         $gridId = $this->gridId;
         $url = \Yii::$app->urlManager->createUrl([
             '/community/community/user-network',

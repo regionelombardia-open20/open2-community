@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Lombardia Informatica S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    lispa\amos\community\views\community
+ * @category   CategoryName
+ */
+
 use lispa\amos\community\AmosCommunity;
 use lispa\amos\community\models\Community;
 use lispa\amos\community\utilities\CommunityUtil;
@@ -17,6 +26,7 @@ $moduleTag = Yii::$app->getModule('tag');
 
 /** @var AmosCommunity $moduleCommunity */
 $moduleCommunity = Yii::$app->getModule(AmosCommunity::getModuleName());
+$enableAutoOpenSearchPanel = !isset(\Yii::$app->params['enableAutoOpenSearchPanel']) || \Yii::$app->params['enableAutoOpenSearchPanel'] === true;
 
 ?>
 <div class="community-search element-to-toggle" data-toggle-element="form-search">
@@ -25,8 +35,10 @@ $moduleCommunity = Yii::$app->getModule(AmosCommunity::getModuleName());
         'action' => (isset($originAction) ? [$originAction] : ['index']),
         'method' => 'get',
     ]);
-    echo Html::hiddenInput("enableSearch", "1");
+    
+    echo Html::hiddenInput("enableSearch", $enableAutoOpenSearchPanel);
     echo Html::hiddenInput("currentView", Yii::$app->request->getQueryParam('currentView'));
+    
     ?>
 
     <div class="col-xs-12">
@@ -61,33 +73,35 @@ $moduleCommunity = Yii::$app->getModule(AmosCommunity::getModuleName());
 //            'pluginEvents' => [
 //                "select2:open" => "dynamicInsertOpening"
 //            ]
-            ])->label($model->getAttributeLabel('communityType'), ['for' => 'communityType' . $model->id]) ?>
-        </div>
-    <?php endif; ?>
+      ])->label($model->getAttributeLabel('communityType'), ['for' => 'communityType' . $model->id])
+      ?>
+</div>
+<?php endif; ?>
 
-    <?php if (isset($moduleTag) && in_array(Community::className(), $moduleTag->modelsEnabled) && $moduleTag->behaviors): ?>
-        <div class="col-xs-12">
-            <?php
-            $params = \Yii::$app->request->getQueryParams();
-            echo \lispa\amos\tag\widgets\TagWidget::widget([
-                'model' => $model,
-                'attribute' => 'tagValues',
-                'form' => $form,
-                'isSearch' => true,
-                'form_values' => isset($params[$model->formName()]['tagValues']) ? $params[$model->formName()]['tagValues'] : []
-            ]);
-            ?>
-        </div>
-    <?php endif; ?>
+<?php if (isset($moduleTag) && in_array(Community::className(), $moduleTag->modelsEnabled) && $moduleTag->behaviors): ?>
+<div class="col-xs-12">
+<?php
+          $params = \Yii::$app->request->getQueryParams();
+          /* echo \lispa\amos\tag\widgets\TagWidget::widget([
+            'model' => $model,
+            'attribute' => 'tagValues',
+            'form' => $form,
+            'isSearch' => true,
+            'form_values' => isset($params[$model->formName()]['tagValues']) ? $params[$model->formName()]['tagValues'] : []
+            ]); */
+          ?>
+      </div>
+<?php endif; ?>
 
-    <div class="col-xs-12">
-        <div class="pull-right">
-            <?= Html::a(AmosCommunity::tHtml('amoscommunity', 'Cancel'), [Yii::$app->controller->action->id, 'currentView' => Yii::$app->request->getQueryParam('currentView')],
-                ['class' => 'btn btn-secondary', 'title' => AmosCommunity::t('amoscommunity', 'Cancel search')]) ?>
-            <?= Html::submitButton(AmosCommunity::tHtml('amoscommunity', 'Search'), ['class' => 'btn btn-navigation-primary', 'title' => AmosCommunity::t('amoscommunity', 'Start search')]) ?>
-        </div>
-    </div>
+<div class="col-xs-12">
+  <div class="pull-right">
+  <?= Html::a(AmosCommunity::tHtml('amoscommunity', 'Cancel'), [Yii::$app->controller->action->id, 'currentView' => Yii::$app->request->getQueryParam('currentView')],
+    ['class' => 'btn btn-secondary', 'title' => AmosCommunity::t('amoscommunity', 'Cancel search')])
+  ?>
+  <?= Html::submitButton(AmosCommunity::tHtml('amoscommunity', 'Search'), ['class' => 'btn btn-navigation-primary', 'title' => AmosCommunity::t('amoscommunity', 'Start search')]) ?>
+  </div>
+</div>
 
-    <div class="clearfix"></div>
-    <?php ActiveForm::end(); ?>
+<div class="clearfix"></div>
+<?php ActiveForm::end(); ?>
 </div>

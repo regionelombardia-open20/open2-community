@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 ?>
 
-<div class="community-view col-xs-12 nop">
+<div class="community-view">
     <div class="col-xs-12">
         <h2><?= AmosCommunity::t('amoscommunity', '#deleted_community_text'); ?></h2>
     </div>

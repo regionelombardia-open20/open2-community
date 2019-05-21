@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Lombardia Informatica S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    lispa\amos\community\views\community
+ * @category   CategoryName
+ */
+
 use lispa\amos\community\widgets\mini\CommunityMembersMiniWidget;
 use lispa\amos\community\widgets\mini\SubcommunitiesMiniWidget;
 use lispa\amos\core\forms\TextEditorWidget;
@@ -46,6 +55,7 @@ $viewTabContents = $moduleCommunity->viewTabContents;
 $bypassWorkflow = $moduleCommunity->bypassWorkflow;
 $showSubcommunities = $moduleCommunity->showSubcommunities;
 $hideContentsModels = $moduleCommunity->hideContentsModels;
+$enableConfigureCommunityDashboard = $moduleCommunity->enableConfigureCommunityDashboard;
 
 $currentStatus = $model->status;
 $draftStatus = $model->getDraftStatus();
@@ -224,6 +234,7 @@ $form = ActiveForm::begin([
                     <div class="col-xs-12 receiver-section">
                         <?= DestinatariPlusTagWidget::widget([
                             'model' => $model,
+                            'moduleCwh' => $moduleCwh
                         ]); ?>
                     </div>
                 </div>
@@ -290,6 +301,12 @@ $form = ActiveForm::begin([
             <?php endif; ?>
         </div>
     </div>
+
+    <?php if($enableConfigureCommunityDashboard) {?>
+        <div class="row">
+            <?= \lispa\amos\community\widgets\ConfigureDashboardCommunityWidget::widget(['model' => $model]) ?>
+        </div>
+    <?php }?>
 
     <div class="row hidden">
         <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>

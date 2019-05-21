@@ -15,6 +15,8 @@ use lispa\amos\attachments\models\File;
 use lispa\amos\community\AmosCommunity;
 use lispa\amos\core\user\User;
 use lispa\amos\core\widget\WidgetIcon;
+use lispa\amos\core\widget\WidgetAbstract;
+use lispa\amos\core\icons\AmosIcons;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -23,20 +25,20 @@ use yii\helpers\ArrayHelper;
  */
 class WidgetIconAccademyDocument extends WidgetIcon
 {
+
     /**
      * @var bool $downloadEnabled
      */
     private $downloadEnabled = false;
-    
+
     /**
      * @inheritdoc
      */
     public function init()
     {
         parent::init();
-        
+
         $url = [''];
-        
         if (isset(\Yii::$app->params['isPoi']) && (\Yii::$app->params['isPoi'] === true)) {
             $moduleCwh = \Yii::$app->getModule('cwh');
             if (!is_null($moduleCwh)) {
@@ -58,7 +60,7 @@ class WidgetIconAccademyDocument extends WidgetIcon
                 }
             }
         }
-        
+
         $this->setLabel(AmosCommunity::tHtml('amoscommunity', 'Proposta allegata'));
         $this->setDescription(AmosCommunity::t('amoscommunity', 'Visualizza la tua proposta'));
         $this->setIcon('file-text-o');
@@ -67,12 +69,24 @@ class WidgetIconAccademyDocument extends WidgetIcon
         $this->setCode('COMMUNITY_ACCADEMY_DOCUMENT');
         $this->setModuleName('community');
         $this->setNamespace(__CLASS__);
-        $this->setClassSpan(ArrayHelper::merge($this->getClassSpan(), [
+
+        $paramsClassSpan = [
             'bk-backgroundIcon',
-            'color-lightPrimary'
-        ]));
+            'color-primary'
+        ];
+
+        if (!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+            $paramsClassSpan = [];
+        }
+
+        $this->setClassSpan(
+            ArrayHelper::merge(
+                $this->getClassSpan(),
+                $paramsClassSpan
+            )
+        );
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -81,6 +95,8 @@ class WidgetIconAccademyDocument extends WidgetIcon
         if (!$this->downloadEnabled) {
             return false;
         }
+
         return parent::isVisible();
     }
+
 }

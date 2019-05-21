@@ -48,7 +48,7 @@ IMPORT STYLE-CUSTOM
   }
 }
 
-.my-community-report{
+.my-community-report {
   height: 170px;
 }
 
@@ -112,6 +112,26 @@ COMMUNITY DASHBOARD
  */
 .community-dashboard-container {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+/**
+COMMUNITY INDEX
+ */
+.community-index {
+  .grid-view table td[title='Logo'] {
+    .hierarchy {
+      float: left;
+      margin-right: @margin-min;
+      .am-long-arrow-return {
+        transform: scaleX(-1);
+        -moz-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        -ms-transform: scaleX(-1);
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 /**
@@ -180,7 +200,7 @@ COMMUNITY CARD VIEW
         color: @secondary-color;
         padding-top: @padding-min;
         padding-bottom: @padding-min;
-        &:hover{
+        &:hover {
           border-radius: 0; /* override */
         }
       }
@@ -217,7 +237,7 @@ COMMUNITY CARD VIEW
       margin-top: 4px;
       color: contrast(@community-card-background-body);
     }
-    .btn.btn-join-community{ /* override */
+    .btn.btn-join-community { /* override */
       border: none;
       box-shadow: none;
       text-transform: capitalize;

@@ -31,6 +31,7 @@ use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
+
 /**
  * Class Community
  * This is the model class for table "community".
@@ -42,49 +43,57 @@ use yii\helpers\Url;
  */
 class Community extends \lispa\amos\community\models\base\Community implements CommunityContextInterface
 {
+
     /**
      * @var    string    COMMUNITY_WORKFLOW    Community Workflow ID
      */
     const COMMUNITY_WORKFLOW = 'CommunityWorkflow';
-    
+
     /**
      * @var    string    COMMUNITY_WORKFLOW_STATUS_DRAFT        ID status draft in the model workflow (editing in progress)
      */
     const COMMUNITY_WORKFLOW_STATUS_DRAFT = 'CommunityWorkflow/DRAFT';
-    
+
     /**
      * @var    string    COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE        ID status to be validated in the model workflow
      */
     const COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE = 'CommunityWorkflow/TOVALIDATE';
-    
+
     /**
      * @var    string    COMMUNITY_WORKFLOW_STATUS_VALIDATED        ID status validated in the model workflow
      */
     const COMMUNITY_WORKFLOW_STATUS_VALIDATED = 'CommunityWorkflow/VALIDATED';
-    
+
     /**
      * @var    string    COMMUNITY_WORKFLOW_STATUS_NOT_VALIDATED        ID status not validated in the model workflow
      */
     const COMMUNITY_WORKFLOW_STATUS_NOT_VALIDATED = 'CommunityWorkflow/NOTVALIDATED';
-    
+
+    /** @var string */
+    const ROLE_COMMUNITY_MANAGER = 'COMMUNITY_MANAGER';
+
+    /**
+     * @var    string    COMMUNITY_DEFAULT_NETWORK_ID        ID default newtwork configuration id = 3 for community
+     */
+    const COMMUNITY_DEFAULT_NETWORK_ID = 3;
+
     /**
      * @var mixed $communityLogo Community logo.
      */
     //public $communityLogo;
-    
+
     /**
      * @var mixed $communityCoverImage Community cover image.
      */
     public $communityCoverImage;
-    
+
     /**
      * @var bool $backToEdit - used in Community form
      * if true, name or description have been modified and community is in published status and community goes back to edit status
      */
     public $backToEdit;
+    public $level = 0;
 
-    const ROLE_COMMUNITY_MANAGER = 'COMMUNITY_MANAGER';
-    
     /**
      * @inheritdoc
      */
@@ -103,32 +112,32 @@ class Community extends \lispa\amos\community\models\base\Community implements C
             }
         }
     }
-    
+
     /**
      * @inheritdoc
      */
     public function afterFind()
     {
         parent::afterFind();
-        
+
         //$this->communityLogo = $this->getCommunityLogo()->one();
         $this->communityCoverImage = $this->getCommunityCoverImage()->one();
     }
-    
+
     /**
      * Getter for $this->communityLogo;
      * @return \yii\db\ActiveQuery
      */
-   /* public function getCommunityLogo()
-    {
-        return $this->communityLogo = $this->hasOneFile('communityLogo')->one();
-    }*/
+    /* public function getCommunityLogo()
+     {
+         return $this->communityLogo = $this->hasOneFile('communityLogo')->one();
+     }*/
 
     public function getModelImage()
     {
         return $this->modelImage = $this->hasOneFile('communityLogo')->one();
     }
-    
+
     /**
      * Getter for $this->communityCoverImage;
      * @return \yii\db\ActiveQuery
@@ -137,7 +146,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return $this->hasOneFile('communityCoverImage');
     }
-    
+
     /**
      * Url of community avatar img (logo)
      *
@@ -157,12 +166,12 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         }
 
         if (!is_null($this->communityLogo)) {
-            if($getPublicUrl){
+            if ($getPublicUrl) {
                 $url = $this->communityLogo->getWebUrl($dimension, $absolute, true);
             } else {
                 $url = $this->communityLogo->getUrl($dimension, $absolute, true);
             }
-        } else{
+        } else {
             $url = \Yii::$app->getUrlManager()->createAbsoluteUrl(Url::to('/img/img_default.jpg'));
         }
         return $url;
@@ -178,7 +187,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return $this->getAvatarUrl($dimension, true);
     }
-    
+
     /**
      */
     public function rules()
@@ -189,7 +198,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
             [['backToEdit'], 'integer']
         ]);
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -199,7 +208,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
             'communityLogo' => AmosCommunity::t('amoscommunity', 'Logo')
         ]);
     }
-    
+
     public function representingColumn()
     {
         return [
@@ -207,7 +216,73 @@ class Community extends \lispa\amos\community\models\base\Community implements C
             'name',
         ];
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    public function getBaseRole()
+    {
+        $baseRole = CommunityUserMm::ROLE_PARTICIPANT;
+        $moduleCommunity = Yii::$app->getModule('community');
+        if ($moduleCommunity->extendRoles) {
+            $baseRole = CommunityUserMm::ROLE_READER;
+        }
+        return $baseRole;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRolePermissions($role)
+    {
+        switch ($role) {
+            case CommunityUserMm::ROLE_READER:
+                return [];
+                break;
+            case CommunityUserMm::ROLE_AUTHOR:
+                return ['CWH_PERMISSION_VALIDATE'];
+                break;
+            case CommunityUserMm::ROLE_EDITOR:
+                return ['CWH_PERMISSION_CREATE', 'CWH_PERMISSION_VALIDATE'];
+                break;
+            case CommunityUserMm::ROLE_PARTICIPANT:
+                return ['CWH_PERMISSION_CREATE'];
+                break;
+            case CommunityUserMm::ROLE_COMMUNITY_MANAGER:
+                return ['CWH_PERMISSION_CREATE', 'CWH_PERMISSION_VALIDATE'];
+                break;
+            default:
+                return ['CWH_PERMISSION_CREATE'];
+                break;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCommunityModel()
+    {
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getNextRole($role)
+    {
+        switch ($role) {
+            case CommunityUserMm::ROLE_PARTICIPANT:
+                return CommunityUserMm::ROLE_COMMUNITY_MANAGER;
+                break;
+            case CommunityUserMm::ROLE_COMMUNITY_MANAGER:
+                return CommunityUserMm::ROLE_PARTICIPANT;
+                break;
+            default:
+                return CommunityUserMm::ROLE_PARTICIPANT;
+                break;
+        }
+    }
+
     /**
      * @inheritdoc
      */
@@ -238,7 +313,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
                 'schema' => 'NewsArticle'
             ]
         ]);
-        
+
         $cwhModule = Yii::$app->getModule('cwh');
         $tagModule = Yii::$app->getModule('tag');
         if (isset($cwhModule) && isset($tagModule)) {
@@ -250,13 +325,13 @@ class Community extends \lispa\amos\community\models\base\Community implements C
                     'tagValueNameAttribute' => 'nome',
                 ]
             ];
-            
+
             $behaviors = ArrayHelper::merge($behaviors, $cwhTaggable);
         }
-        
+
         return $behaviors;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -278,81 +353,21 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         }
         return $roles;
     }
-    
+
     /**
-     * @inheritdoc
-     */
-    public function getBaseRole()
-    {
-        $baseRole = CommunityUserMm::ROLE_PARTICIPANT;
-        $moduleCommunity = Yii::$app->getModule('community');
-        if ($moduleCommunity->extendRoles) {
-            $baseRole = CommunityUserMm::ROLE_READER;
-        }
-        return $baseRole;
-    }
-    
-    /**
-     * @inheritdoc
+     *
+     * @return string
      */
     public function getManagerRole()
     {
-        return CommunityUserMm::ROLE_COMMUNITY_MANAGER;
-    }
-    
-    /**
-     * @inheritdoc
-     */
-    public function getRolePermissions($role)
-    {
-        switch ($role) {
-            case CommunityUserMm::ROLE_READER:
-                return [];
-                break;
-            case CommunityUserMm::ROLE_AUTHOR:
-                return ['CWH_PERMISSION_VALIDATE'];
-                break;
-            case CommunityUserMm::ROLE_EDITOR:
-                return ['CWH_PERMISSION_CREATE', 'CWH_PERMISSION_VALIDATE'];
-                break;
-            case CommunityUserMm::ROLE_PARTICIPANT:
-                return ['CWH_PERMISSION_CREATE'];
-                break;
-            case CommunityUserMm::ROLE_COMMUNITY_MANAGER:
-                return ['CWH_PERMISSION_CREATE', 'CWH_PERMISSION_VALIDATE'];
-                break;
-            default:
-                return ['CWH_PERMISSION_CREATE'];
-                break;
+        $roleName = CommunityUserMm::ROLE_COMMUNITY_MANAGER;
+        if (!empty($this->context) && strcmp($this->context, Community::className())) {
+            $obj = new $this->context;
+            $roleName = $obj->getManagerRole();
         }
+        return $roleName;
     }
-    
-    /**
-     * @inheritdoc
-     */
-    public function getCommunityModel()
-    {
-        return $this;
-    }
-    
-    /**
-     * @inheritdoc
-     */
-    public function getNextRole($role)
-    {
-        switch ($role) {
-            case CommunityUserMm::ROLE_PARTICIPANT:
-                return CommunityUserMm::ROLE_COMMUNITY_MANAGER;
-                break;
-            case CommunityUserMm::ROLE_COMMUNITY_MANAGER:
-                return CommunityUserMm::ROLE_PARTICIPANT;
-                break;
-            default:
-                return CommunityUserMm::ROLE_PARTICIPANT;
-                break;
-        }
-    }
-    
+
     /**
      * @inheritdoc
      */
@@ -360,7 +375,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return 'community';
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -368,7 +383,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return 'community';
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -376,13 +391,13 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return 'update';
     }
-    
+
     public function getAdditionalAssociationTargetQuery($communityId)
     {
         $communityUserMms = CommunityUserMm::find()->andWhere(['community_id' => $communityId]);
         return User::find()->andFilterWhere(['not in', 'id', $communityUserMms->select('user_id')]);
     }
-    
+
     /**
      * Add CWH permissions based on the role for which a permissions array has been specified,
      * Remove CWH permissions on community domain in case of role degradation
@@ -473,7 +488,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
             }
         }
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -481,7 +496,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return Yii::$app->getUser()->id;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -489,7 +504,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return CommunityUserMm::tableName();
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -497,7 +512,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return 'community_id';
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -505,18 +520,18 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return 'user_id';
     }
-    
+
     public function getMmClassName()
     {
         return CommunityUserMm::className();
     }
-    
+
     /**
      * @inheritdoc
      */
     public function isNetworkUser($networkId = null, $userId = null, $onlyActiveStatus = false)
     {
-        if(!isset($networkId)){
+        if (!isset($networkId)) {
             $networkId = $this->id;
         }
         if (!isset($userId)) {
@@ -532,7 +547,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         }
         return false;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -551,7 +566,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         }
         return false;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -559,7 +574,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return self::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -567,7 +582,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return self::COMMUNITY_WORKFLOW_STATUS_VALIDATED;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -575,7 +590,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return self::COMMUNITY_WORKFLOW_STATUS_DRAFT;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -583,7 +598,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return 'COMMUNITY_VALIDATOR';
     }
-    
+
     /**
      * @param int|null $userId - if null the logged user id is considered
      * @return bool
@@ -620,19 +635,22 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         ]);
         return !is_null($communityMm);
     }
-    
+
     /**
      * @param null $userId
      * @param bool $isUpdate
      * @return string
      */
-    
     public function getUserNetworkWidget($userId = null, $isUpdate = false)
     {
+        if (is_null(Yii::$app->getModule(AmosCommunity::getModuleName()))) {
+            return '';
+        }
         return UserNetworkWidget::widget(['userId' => $userId, 'isUpdate' => $isUpdate]);
     }
 
-    public static function getVisibility(){
+    public static function getVisibility()
+    {
         return "0";
     }
 
@@ -647,11 +665,11 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         $query = $communitySearch->buildQuery($params, 'all', $onlyActiveStatus, $userId);
 
         /** @var ActiveQuery $queryJoined */
-        $queryJoined = $this->getUserNetworkQuery($userId, $params, false)->select(static::tableName().'.id')->column();
-        if(!empty($queryJoined)){
-            $query->andWhere(['not in', static::tableName().'.id' , $queryJoined]);
+        $queryJoined = $this->getUserNetworkQuery($userId, $params, false)->select(static::tableName() . '.id')->column();
+        if (!empty($queryJoined)) {
+            $query->andWhere(['not in', static::tableName() . '.id', $queryJoined]);
         }
-        $query->andWhere(static::tableName().'.deleted_at is null');
+        $query->andWhere(static::tableName() . '.deleted_at is null');
 
         return $query;
     }
@@ -663,7 +681,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return $this->name;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -671,20 +689,20 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return $this->__shortText($this->description, 100);
     }
-    
+
     /**
      * @return string
      */
     public function getDescription($truncate)
     {
         $ret = $this->description;
-        
+
         if ($truncate) {
             $ret = $this->__shortText($this->description, 200);
         }
         return $ret;
     }
-    
+
 
     /**
      * @return string The url to view a single model
@@ -693,7 +711,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return "/community/community/view";
     }
-    
+
     /**
      * @return mixed
      */
@@ -701,7 +719,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return new CommunityGrammar();
     }
-    
+
     /**
      * @return array The columns ti show as default in GridViewWidget
      */
@@ -710,7 +728,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         // TODO: Implement getGridViewColumns() method.
         return [];
     }
-    
+
     /**
      * @return string The classname of the generic dashboard widget to access the plugin
      */
@@ -718,20 +736,24 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     {
         return WidgetIconCommunityDashboard::className();
     }
-    
+
     /**
-     * @return bool
+     *
+     * @return type
      */
     public function sendNotification()
     {
-        $ret = false;
-        
-        if ($this->context == self::className()) {
-            $ret = true;
-        }
-        return $ret;
+//    $ret = false;
+//
+//    if ($this->context == self::className()) {
+//      $ret = true;
+//    }
+//
+//    return $ret;
+
+        return ($this->context == self::className());
     }
-    
+
     /**
      * Get Id of configuration record for network model Community
      * @return int $cwhConfigId
@@ -739,18 +761,24 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     public static function getCwhConfigId()
     {
         //default newtwork configuration id = 3 for community
-        $cwhConfigId = 3;
+        $cwhConfigId = self::COMMUNITY_DEFAULT_NETWORK_ID;
         $cwhConfig = CwhConfig::findOne(['tablename' => self::tableName()]);
         if (!is_null($cwhConfig)) {
             $cwhConfigId = $cwhConfig->id;
         }
+
         return $cwhConfigId;
     }
 
+    /**
+     *
+     * @return boolean
+     */
     public function hasSubNetworks()
     {
         return true;
     }
+
     /**
      * Query for communities in user network.
      * @param int|null $userId - if null the logged userId is considered.
@@ -765,7 +793,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         $communitySearch = new CommunitySearch();
         return $communitySearch->buildQuery($params, 'own-interest', $onlyActiveStatus, $userId);
     }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -775,12 +803,89 @@ class Community extends \lispa\amos\community\models\base\Community implements C
             ->andWhere([\lispa\amos\community\models\CommunityUserMm::tableName() . '.status' => \lispa\amos\community\models\CommunityUserMm::STATUS_ACTIVE])
             ->andWhere([\lispa\amos\community\models\CommunityUserMm::tableName() . '.role' => \lispa\amos\community\models\CommunityUserMm::ROLE_COMMUNITY_MANAGER]);
     }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getCommunityManagers()
     {
         return $this->hasMany(\lispa\amos\core\user\User::className(), ['id' => 'user_id'])->via('communityManagerMms');
+    }
+
+    /**
+     * Return the recordset of all recipients relative to the networks
+     * associated to the relative user (they may be different? check it!)
+     *
+     * @param type $networkIds
+     * @param type $usersId
+     */
+    public function getListOfRecipients($networkIds = [], $usersId = [])
+    {
+        $query = new \yii\db\Query();
+        $query->select([
+            "concat('" . Community::tableName() . "', '-', community_user_mm.community_id) AS objID",
+            'community.id', 'community.name', 'community.status', 'validated_once', 'visible_on_edit',
+            'community.created_by', 'community.deleted_at',
+            'community_user_mm.id', 'community_user_mm.community_id', 'community_user_mm.community_id AS reference',
+            'community_user_mm.status', 'community_user_mm.user_id', 'community_user_mm.deleted_at'
+        ])
+            ->from(static::tableName())
+            ->leftJoin('community_user_mm', 'community_user_mm.community_id = community.id
+          AND community_user_mm.deleted_at IS NULL
+          AND community_user_mm.status = \'' . CommunityUserMm::STATUS_ACTIVE . '\'')
+            ->where(['community.id' => $networkIds])
+            ->andWhere([
+                'community_user_mm.user_id' => $usersId,
+                'community.deleted_at' => null,
+                'community.status' => self::COMMUNITY_WORKFLOW_STATUS_VALIDATED
+            ]);
+
+        return $query->all();
+    }
+
+    /**
+     * @return bool
+     */
+    public function showParticipantWidget(){
+        if($this->getAmosWidgetsIcons()->count() > 0) {
+            $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'lispa\amos\admin\widgets\icons\WidgetIconUserProfile'])->count();
+            return $count > 0;
+        }
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function showSubCommunityWidget(){
+        if($this->getAmosWidgetsIcons()->count() > 0) {
+            $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'lispa\amos\community\widgets\icons\WidgetIconCommunityDashboard'])->count();
+            return $count > 0;
+        }
+        return true;
+    }
+
+    /**
+     *
+     */
+    public function saveDashboardCommunity(){
+        $id = $this->id;
+        $canPersonalize = \Yii::$app->user->can('COMMUNITY_WIDGETS_ADMIN_PERSONALIZE');
+        $ids = \Yii::$app->request->post('amosWidgetsIds');
+        if($canPersonalize){
+            CommunityAmosWidgetsMm::deleteAll(['community_id' => $id]);
+        }else {
+            CommunityAmosWidgetsMm::deleteAll(['community_id' => $id, 'personalized' => 0]);
+        }
+
+        foreach ((Array) $ids as $amos_widgets_id){
+            $communityWidget = new CommunityAmosWidgetsMm();
+            $communityWidget->community_id = $id;
+            $communityWidget->amos_widgets_id = $amos_widgets_id;
+            if($canPersonalize){
+                $communityWidget->personalized = 1;
+            }
+            $communityWidget->save(false);
+        }
     }
 }

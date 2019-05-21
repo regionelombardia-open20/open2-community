@@ -48,7 +48,7 @@ class CommunityUtil
     public function isManagerLoggedUser($model)
     {
         $foundRow = CommunityUserMm::findOne([
-            'community_id' => $model->community_id,
+            'community_id' => $model->id,
             'user_id' => \Yii::$app->getUser()->getId(),
             'role' => $model->getManagerRole()
         ]);
@@ -330,7 +330,7 @@ class CommunityUtil
         $communityUserMm = CommunityUserMm::find()
             ->andWhere(['user_id' => \Yii::$app->user->id])
             ->andWhere(['community_id' => $model->id])
-            ->andWhere(['role' => CommunityUserMm::ROLE_COMMUNITY_MANAGER])
+            ->andWhere(['role' =>  $model->getManagerRole()])
             ->one();
         if (!empty($communityUserMm)) {
             return true;

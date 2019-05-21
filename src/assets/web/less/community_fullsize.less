@@ -1,0 +1,249 @@
+/**
+IMPORT AMOS-LAYOUT VARIABLES
+ */
+@import (optional) "../../vendor/lispa/amos-layout/src/assets/resources/base/less/v2/variables.less";
+@import (optional) "../../vendor/lispa/amos-layout/src/assets/resources/base/less/v2/utility.less";
+/**
+IMPORT STYLE-CUSTOM
+ */
+@import (optional) "../../backend/web/less/style_custom.less";
+
+
+/**
+COMMUNITY DASHBOARD
+ */
+.network-breadcrumb,
+.community-dashboard-container {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.network-infos {
+  .listbox-label {
+    width: max-content;
+  }
+
+  .network-name {
+    float: left;
+  }
+
+  .btn {
+    width: 30px;
+    font-size: 1.8em;
+    padding: 3px 5px;
+    line-height: 0;
+    height: 30px;
+    position: relative;
+    top: 9px;
+    left: 5px;
+  }
+}
+
+
+/**
+COMMUNITY INDEX
+ */
+.community-index {
+  .grid-view table td[title='Logo'] {
+    .hierarchy {
+      float: left;
+      margin-right: @margin-min;
+      .am-long-arrow-return {
+        transform: scaleX(-1);
+        -moz-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        -ms-transform: scaleX(-1);
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+/**
+COMMUNITY VIEW
+ */
+.community-view {
+  .header-widget {
+    position: relative;
+    margin: @margin-medium 0;
+    .manage { /* override */
+      margin-top: 0;
+    }
+    .amos-tooltip {
+      float: right;
+    }
+  }
+  .header {
+    background-color: @light-background-color;
+    margin-bottom: @margin-default;
+    overflow: hidden;
+    max-height: 350px;
+    .img-responsive {
+      margin: 0 auto;
+    }
+    .title {
+      background-color: rgba(255, 255, 255, 0.8);
+      position: absolute;
+      bottom: 0px;
+      min-height: 80px;
+      h2 {
+        font-weight: bold;
+        margin-top: @margin-medium;
+        color: @black-color;
+      }
+    }
+  }
+  .community-content-section,
+  .community-content-count-section {
+    margin-top: 50px; /* same as first-accordion class */
+  }
+}
+
+/**
+COMMUNITY CARD VIEW
+ */
+@community-card-background-header: @light-background-color;
+@community-card-background-body: @primary-color;
+@community-card-background-footer: @primary-color;
+
+.card-container.community-card-container {
+  margin: 0 0 @margin-default;
+  border: solid @border-color-default 1px;
+  background: @white-color;
+  height: 305px;
+  .icon-header {
+    height: 150px;
+    background-color: @community-card-background-header;
+    position: relative;
+    .manage {
+      margin: 0;
+      position: absolute;
+      right: 0;
+      z-index: 3;
+      background: @white-color;
+      .manage-menu {
+        color: @secondary-color;
+        padding-top: @padding-min;
+        padding-bottom: @padding-min;
+        &:hover {
+          border-radius: 0; /* override */
+        }
+      }
+    }
+    .community-image {
+      height: 200px;
+      overflow: hidden;
+      .img-responsive {
+        margin: 0 auto;
+      }
+    }
+  }
+  .icon-body {
+    padding: @padding-min @padding-medium;
+    text-align: left;
+    height: 125px;
+    background-color: @white-color;
+    .title {
+      color: @black-color;
+      font-weight: bold;
+      text-decoration: none;
+      a {
+        color: initial;
+      }
+    }
+  }
+  .icon-footer {
+    height: 30px;
+    background-color: @community-card-background-footer;
+    position: absolute;
+    bottom: 0;
+    .amos-tooltip {
+      margin-left: @margin-default;
+      margin-top: 4px;
+      color: contrast(@community-card-background-body);
+    }
+    .btn.btn-join-community { /* override */
+      border: none;
+      box-shadow: none;
+      text-transform: capitalize;
+      font-weight: normal;
+      font-size: 1.3em;
+      padding: 2px @padding-medium 0;
+      margin: 0;
+      height: 30px;
+      .am {
+        font-size: 1em;
+        margin-left: @margin-min;
+        position: relative;
+        top: 1px;
+      }
+    }
+  }
+}
+
+/**
+COMMUNITY PUBLISHED CONTENTS WIDGET
+show contents count in community view
+ */
+.community-content-count-section {
+  border: 1px solid @border-color-default;
+  border-right: 0;
+  border-left: 0;
+  padding: 20px;
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  text-align: center;
+  .content-widget-item {
+    display: flex;
+    flex-direction: column;
+    .dash {
+      font-size: 1.5em;
+    }
+    .counter {
+      font-weight: bold;
+      margin: @margin-min 0;
+    }
+    .model-label {
+      text-transform: capitalize;
+    }
+  }
+}
+
+/* widget hackathon */
+.graphics-dashboard-container {
+  .box-widget.hackathon-widget {
+    height: 170px;
+    .box-widget-toolbar {
+      background-color: #009788;
+      color: #ffffff;
+      border-bottom: 1px solid #fff;
+    }
+    section {
+      //background-color: #009788;
+      background: -webkit-linear-gradient(left, #F6D222 50%, #F3C228 50%);
+      background: -moz-linear-gradient(left, #F6D222 50%, #F3C228 50%);
+      background: -ms-linear-gradient(left, #F6D222 50%, #F3C228 50%);
+      width: 100%;
+      height: 135px;
+      text-align: center;
+      img {
+        height: 100%;
+      }
+      .btn {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+      }
+    }
+  }
+}
+
+.community-description {
+  background-color: #ededed;
+  padding: 30px 0;
+
+  + .sub-dashboard-graphics {
+      margin-top: 0;
+  }
+}

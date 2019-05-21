@@ -12,6 +12,7 @@
 namespace lispa\amos\community\models\base;
 
 use lispa\amos\community\AmosCommunity;
+use lispa\amos\core\record\Record;
 
 /**
  * Class CommunityUserMm
@@ -23,6 +24,9 @@ use lispa\amos\community\AmosCommunity;
  * @property integer $user_id
  * @property string $status
  * @property string $role
+ * @property string $invited_at
+ * @property string $invitation_accepted_at
+ * @property string $invitation_partner_of
  * @property string $created_at
  * @property string $updated_at
  * @property string $deleted_at
@@ -32,11 +36,12 @@ use lispa\amos\community\AmosCommunity;
  *
  * @property \lispa\amos\community\models\Community $community
  * @property \lispa\amos\core\user\User $user
+ * @property \lispa\amos\core\user\User $partnerOf
  *
  * @package backend\modules\corsi\models\base
  */
-class CommunityUserMm extends \lispa\amos\core\record\Record {
-
+class CommunityUserMm extends Record
+{
     /**
      * constants for role and status of community members
      */
@@ -51,38 +56,45 @@ class CommunityUserMm extends \lispa\amos\core\record\Record {
     const STATUS_WAITING_OK_USER = 'INVITED';
     const STATUS_INVITE_IN_PROGRESS = 'INVITING';
     const STATUS_MANAGER_TO_CONFIRM = 'MANAGER_TO_CONFIRM';
-
+    
     /**
      * @inheritdoc
      */
-    public static function tableName() {
+    public static function tableName()
+    {
         return 'community_user_mm';
     }
-
+    
     /**
      * @inheritdoc
      */
-    public function rules() {
+    public function rules()
+    {
         return [
             [['community_id', 'user_id', 'status', 'role'], 'required'],
-            [['community_id', 'user_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
+            [['community_id', 'user_id', 'invitation_partner_of', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [['status', 'role'], 'string'],
-            [['created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['created_at', 'updated_at', 'deleted_at', 'invited_at', 'invitation_accepted_at'], 'safe'],
             [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => \lispa\amos\community\models\Community::className(), 'targetAttribute' => ['community_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \lispa\amos\core\user\User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [['invitation_partner_of'], 'exist', 'skipOnError' => true, 'targetClass' => \lispa\amos\core\user\User::className(), 'targetAttribute' => ['invitation_partner_of' => 'id']],
         ];
     }
-
+    
     /**
      * @inheritdoc
      */
-    public function attributeLabels() {
+    public function attributeLabels()
+    {
         return [
             'id' => AmosCommunity::t('amoscommunity', 'ID'),
             'community_id' => AmosCommunity::t('amoscommunity', 'Community ID'),
             'user_id' => AmosCommunity::t('amoscommunity', 'User ID'),
+            'invitation_partner_of' => AmosCommunity::t('amoscommunity', '#invitation_partner_of'),
             'status' => AmosCommunity::t('amoscommunity', 'Status'),
             'role' => AmosCommunity::t('amoscommunity', 'Role'),
+            'invited_at' => AmosCommunity::t('amoscommunity', '#invited_at'),
+            'invitation_accepted_at' => AmosCommunity::t('amoscommunity', '#invitation_accepted_at'),
             'created_at' => AmosCommunity::t('amoscommunity', 'Created at'),
             'updated_at' => AmosCommunity::t('amoscommunity', 'Updated at'),
             'deleted_at' => AmosCommunity::t('amoscommunity', 'Deleted at'),
@@ -91,12 +103,13 @@ class CommunityUserMm extends \lispa\amos\core\record\Record {
             'deleted_by' => AmosCommunity::t('amoscommunity', 'Deleted by'),
         ];
     }
-
+    
     /**
      * Return all states
      * @return array States of the community user
      */
-    public static function getUserStates() {
+    public static function getUserStates()
+    {
         return [
             self::STATUS_ACTIVE,
             self::STATUS_REJECTED,
@@ -106,19 +119,28 @@ class CommunityUserMm extends \lispa\amos\core\record\Record {
             self::STATUS_MANAGER_TO_CONFIRM
         ];
     }
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCommunity() {
+    public function getCommunity()
+    {
         return $this->hasOne(\lispa\amos\community\models\Community::className(), ['id' => 'community_id']);
     }
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUser() {
+    public function getUser()
+    {
         return $this->hasOne(\lispa\amos\core\user\User::className(), ['id' => 'user_id']);
     }
-
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPartnerOf()
+    {
+        return $this->hasOne(\lispa\amos\core\user\User::className(), ['id' => 'invitation_partner_of']);
+    }
 }

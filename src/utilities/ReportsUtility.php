@@ -19,7 +19,7 @@ use lispa\amos\community\models\CommunityReport;
 use lispa\amos\core\user\User;
 use moonland\phpexcel\Excel;
 use yii\base\Model;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 
@@ -27,7 +27,7 @@ use yii\helpers\ArrayHelper;
  * Class ReportsUtility
  * @package lispa\amos\community\utilities
  */
-class ReportsUtility extends Object
+class ReportsUtility extends BaseObject
 {
     /**
      * @var null|\amos\statistics\Module $statisticsModule

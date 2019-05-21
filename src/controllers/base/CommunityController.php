@@ -23,6 +23,7 @@ use lispa\amos\core\icons\AmosIcons;
 use lispa\amos\dashboard\controllers\TabDashboardControllerTrait;
 use Yii;
 use yii\helpers\Url;
+use lispa\amos\core\widget\WidgetAbstract;
 
 /**
  * Class CommunityController
@@ -87,7 +88,12 @@ class CommunityController extends CrudController
         $this->setAvailableViews($availableViews);
 
         parent::init();
-        $this->setUpLayout();
+
+        if(!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+            $this->view->pluginIcon = 'ic ic-community';
+        }
+
+        $this->setUpLayout('list');
     }
 
     /**
@@ -96,6 +102,8 @@ class CommunityController extends CrudController
      */
     public function actionIndex($layout = NULL)
     {
+        $this->setUpLayout('list');
+
         Url::remember();
         $this->setDataProvider($this->getModelSearch()->searchAll(Yii::$app->request->getQueryParams()));
         return parent::actionIndex();
@@ -114,7 +122,25 @@ class CommunityController extends CrudController
             return $this->redirect(['deleted-community', 'id' => $id]);
         }
         Url::remember();
-        $this->setUpLayout('main');
+
+        if(!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+            $this->setUpLayout('main_community');
+
+            $moduleCwh = \Yii::$app->getModule('cwh');
+            if (isset($moduleCwh)) {
+                $moduleCwh->setCwhScopeInSession([
+                    'community' => $id,
+                ],
+                    [
+                        'mm_name' => 'community_user_mm',
+                        'entity_id_field' => 'community_id',
+                        'entity_id' => $id
+                    ]);
+            }
+        }else {
+            $this->setUpLayout('main');
+        }
+
         $this->model = $this->findModel($id);
         if ($this->model->load(Yii::$app->request->post()) && $this->model->save()) {
             return $this->redirect(['view', 'id' => $this->model->id]);
@@ -164,6 +190,7 @@ class CommunityController extends CrudController
                 $model->validated_once = 1;
             }
             if ($model->save($validateOnSave)) {
+                $model->saveDashboardCommunity();
                 //the loggerd user creating community will be automatically a participant of the community with role community manager
                 $loggedUserId = Yii::$app->getUser()->getId();
                 $userCommunity = new CommunityUserMm();
@@ -241,6 +268,7 @@ class CommunityController extends CrudController
     {
         Url::remember();
         $this->setUpLayout('form');
+
         /** @var Community $model */
         $model = $this->findModel($id);
         $communityModule = Yii::$app->getModule('community');
@@ -257,6 +285,7 @@ class CommunityController extends CrudController
 
             if ($model->validate()) {
                 if ($model->save()) {
+                    $model->saveDashboardCommunity();
                     $this->addFlash('success', AmosCommunity::t('amoscommunity', 'Community updated successfully.'));
                     return $this->redirectOnUpdate($model, $previousStatus);
                 } else {

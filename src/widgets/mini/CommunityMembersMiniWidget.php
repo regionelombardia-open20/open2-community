@@ -238,7 +238,13 @@ JS
                 'format' => 'raw'
             ],
         ];
-        if ($this->viewEmail) {
+                
+        $view_email_partecipants = false;
+        if (isset(Yii::$app->getModule('community')->view_email_partecipants)) {
+            $view_email_partecipants = Yii::$app->getModule('community')->view_email_partecipants;
+        }
+        
+        if ($view_email_partecipants || ($this->viewEmail)) {
             $itemsMittente['email'] = [
                 'label' => AmosCommunity::t('amoscommunity', 'Email'),
                 'headerOptions' => [
@@ -499,7 +505,7 @@ JS
         $viewAllModal = $this->renderViewAllModal($query);
         return
             $message
-            . "<div id='" . $gridId . "' data-pjax-container='" . $gridId . "-pjax' data-pjax-timeout=\"1000\">" . $widget . "</div>"
+            . "<div id='" . $gridId . "' data-pjax-container='" . $gridId . "-pjax' data-pjax-timeout=\"1000\" class=\"table-responsive\">" . $widget . "</div>"
             . $viewAllModal;
     }
     

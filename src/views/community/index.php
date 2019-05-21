@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Lombardia Informatica S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    lispa\amos\community\views\community
+ * @category   CategoryName
+ */
+
 use lispa\amos\community\AmosCommunity;
 use lispa\amos\community\assets\AmosCommunityAsset;
 use lispa\amos\community\models\Community;
@@ -24,6 +33,8 @@ use yii\web\View;
 $communityModule = Yii::$app->getModule('community');
 $fixedCommunityType = !is_null($communityModule->communityType);
 $bypassWorkflow = $communityModule->bypassWorkflow;
+
+
 
 $isDemo = (isset(\Yii::$app->params['isDemo']) && (\Yii::$app->params['isDemo'])) ? true : false;
 
@@ -65,8 +76,12 @@ $columns = [];
 $columns['logo_id'] = [
     'label' => AmosCommunity::t('amoscommunity', 'Logo'),
     'format' => 'raw',
-    'value' => function ($model) {
-        return CommunityCardWidget::widget(['model' => $model]);
+    'value' => function ($model)use($enabledHierarchy) {
+        $options = ['model' => $model];
+        if($enabledHierarchy){
+            $options['enableHierarchy'] = true;
+        }
+        return CommunityCardWidget::widget($options);
     }
 ];
 $columns['name'] = 'name';

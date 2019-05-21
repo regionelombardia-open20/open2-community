@@ -17,6 +17,10 @@ use lispa\amos\core\widget\WidgetIcon;
 use lispa\amos\dashboard\models\AmosUserDashboards;
 use lispa\amos\dashboard\models\AmosUserDashboardsWidgetMm;
 use lispa\amos\dashboard\models\AmosWidgets;
+use lispa\amos\core\widget\WidgetAbstract;
+use lispa\amos\core\icons\AmosIcons;
+
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -25,63 +29,147 @@ use yii\helpers\ArrayHelper;
  */
 class WidgetIconCommunityDashboard extends WidgetIcon
 {
-    /**
-     * @inheritdoc
-     */
-    public function isVisible()
-    {
-        $moduleCwh = \Yii::$app->getModule('cwh');
-        if (isset($moduleCwh)) {
-            /** @var \lispa\amos\cwh\AmosCwh $moduleCwh */
-            if (!empty($moduleCwh->getCwhScope())) {
-                $scope = $moduleCwh->getCwhScope();
-                if (isset($scope['community'])) {
-                    $community = Community::findOne($scope['community']);
-                    if (!is_null($community) && ($community->context == Community::className())) {
-                        return parent::isVisible();
-                    }
-                    return false;
-                }
-            }
-        }
-        return parent::isVisible();
-    }
-    
+
     /**
      * @inheritdoc
      */
     public function init()
     {
         parent::init();
-        
+
         $this->setLabel(AmosCommunity::tHtml('amoscommunity', 'Community'));
         $this->setDescription(AmosCommunity::t('amoscommunity', 'Community module'));
-        
-        $this->setIcon('group');
-        
+
+        $paramsClassSpan = [
+            'bk-backgroundIcon',
+            'color-primary'
+        ];
+
+        if (!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+            $this->setIconFramework(AmosIcons::IC);
+            $this->setIcon('community');
+            $paramsClassSpan = [];
+        } else {
+            $this->setIcon('group');
+        }
+
         $url = ['/community'];
-        $moduleCwh = \Yii::$app->getModule('cwh');
-        if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
-            $scope = $moduleCwh->getCwhScope();
-            if (isset($scope['community'])) {
-                $url = ['/community/subcommunities/my-communities', 'id' => $scope['community']];
-                $this->setLabel(AmosCommunity::tHtml('amoscommunity', '#widget_subcommunities_title'));
-                $this->setDescription(AmosCommunity::t('amoscommunity', '#widget_subcommunities_description'));
-            }
+        $scopeId = $this->checkScope('community');
+        if ($scopeId !== false) {
+            $url = ['/community/subcommunities/my-communities', 'id' => $scopeId];
+            $this->setLabel(AmosCommunity::tHtml('amoscommunity', '#widget_subcommunities_title'));
+            $this->setDescription(AmosCommunity::t('amoscommunity', '#widget_subcommunities_description'));
         }
         $this->setUrl($url);
-        
+
         $this->setCode('COMMUNITY_MODULE');
         $this->setModuleName('community-dashboard');
         $this->setNamespace(__CLASS__);
-        $this->setBulletCount($this->getBulletCountChildWidgets());
-        $this->setClassSpan(ArrayHelper::merge($this->getClassSpan(), [
-            'bk-backgroundIcon',
-            'color-lightPrimary'
-        ]));
-        
+
+        $this->setClassSpan(
+            ArrayHelper::merge(
+                $this->getClassSpan(),
+                $paramsClassSpan
+            )
+        );
+
+        $this->setBulletCount(
+            $this->makeBulletCounter(\Yii::$app->user->id)
+        );
     }
-    
+
+    /**
+     * 
+     * @param type $user_id
+     * @return type
+     */
+    public function makeBulletCounter($user_id = null)
+    {
+        return $this->getBulletCountChildWidgets($user_id);
+    }
+
+    /**
+     * @throws \yii\base\InvalidConfigException
+     * 
+     * @param type $user_id
+     * @return int - the sum of bulletCount internal widget
+     */
+    private function getBulletCountChildWidgets($user_id = null)
+    {
+        /** @var AmosUserDashboards $userModuleDashboard */
+        $userModuleDashboard = AmosUserDashboards::findOne([
+            'user_id' => $user_id,
+            'module' => AmosCommunity::getModuleName()
+        ]);
+
+        if (is_null($userModuleDashboard)) {
+            return 0;
+        }
+
+        $listWidgetChild = $userModuleDashboard->amosUserDashboardsWidgetMms;
+        if (is_null($listWidgetChild)) {
+            return 0;
+        }
+
+        /** @var AmosUserDashboardsWidgetMm $widgetChild */
+        $nameSpace = $this->getNamespace();
+        $tmp = [];
+        foreach ($listWidgetChild as $widgetChild) {
+            if ($widgetChild->amos_widgets_classname != $nameSpace) {
+                $tmp[] = $widgetChild->amos_widgets_classname;
+            }
+        }
+
+        $query = new Query();
+        $query
+            ->select([
+                'id', 'classname', 'type', 'module', 'status', 'child_of',
+                'dashboard_visible', 'deleted_at'
+            ])
+            ->from(AmosWidgets::tableName())
+            ->andWhere([
+                'classname' => $tmp,
+                'type' => AmosWidgets::TYPE_ICON,
+            ]);
+        
+        $amosWidgets = $query->all();
+
+        $count = 0;
+        foreach ($amosWidgets as $k => $amosWidget) {
+            $widget = \Yii::createObject($amosWidget['classname']);
+            
+            $count += (int)$widget->getBulletCount();
+        }
+
+        return $count;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isVisible()
+    {
+        $moduleCwh = \Yii::$app->getModule('cwh');
+
+        if (isset($moduleCwh)) {
+            /** @var \lispa\amos\cwh\AmosCwh $moduleCwh */
+            if (!empty($moduleCwh->getCwhScope())) {
+                $scope = $moduleCwh->getCwhScope();
+                if (isset($scope['community'])) {
+                    $community = Community::findOne($scope['community']);
+
+                    if (!is_null($community) && ($community->context == Community::className())) {
+                        return parent::isVisible();
+                    }
+
+                    return false;
+                }
+            }
+        }
+
+        return parent::isVisible();
+    }
+
     /**
      * @return string
      */
@@ -89,66 +177,39 @@ class WidgetIconCommunityDashboard extends WidgetIcon
     {
         return AmosCommunity::t('amoscommunity', 'Community dashboard');
     }
-    
-    /* TEMPORANEA */
-    
+
+    /**
+     * Aggiunge all'oggetto container tutti i widgets recuperati dal controller del modulo
+     * 
+     * @return type
+     */
     public function getOptions()
     {
-        $options = parent::getOptions();
-        
-        //aggiunge all'oggetto container tutti i widgets recuperati dal controller del modulo
-        return ArrayHelper::merge($options, ["children" => $this->getWidgetsIcon()]);
+        return ArrayHelper::merge(
+            parent::getOptions(),
+            ['children' => $this->getWidgetsIcon()]
+        );
     }
-    
+
+    /**
+     * 
+     * @return type
+     */
     public function getWidgetsIcon()
     {
         $widgets = [];
-        
+
         $WidgetIconNewsCategorie = new WidgetIconCommunity();
         if ($WidgetIconNewsCategorie->isVisible()) {
             $widgets[] = $WidgetIconNewsCategorie->getOptions();
         }
-        
+
         $WidgetIconNewsCreatedBy = new WidgetIconTipologiaCommunity();
         if ($WidgetIconNewsCreatedBy->isVisible()) {
             $widgets[] = $WidgetIconNewsCreatedBy->getOptions();
         }
-        
+
         return $widgets;
     }
-    
-    /**
-     * @return int - the sum of bulletCount internal widget
-     * @throws \yii\base\InvalidConfigException
-     */
-    private function getBulletCountChildWidgets()
-    {
-        /** @var AmosUserDashboards $userModuleDashboard */
-        $userModuleDashboard = AmosUserDashboards::findOne([
-            'user_id' => \Yii::$app->user->id,
-            'module' => AmosCommunity::getModuleName()
-        ]);
-        if (is_null($userModuleDashboard)) return 0;
-        
-        $listWidgetChild = $userModuleDashboard->amosUserDashboardsWidgetMms;
-        if (is_null($listWidgetChild)) return 0;
-        
-        $count = 0;
-        /** @var AmosUserDashboardsWidgetMm $widgetChild */
-        foreach ($listWidgetChild as $widgetChild) {
-            if ($widgetChild->amos_widgets_classname != $this->getNamespace()) {
-                $amosWidget = AmosWidgets::findOne(['classname' => $widgetChild->amos_widgets_classname]);
-                if (!empty($amosWidget)) {
-                    if ($amosWidget->type == AmosWidgets::TYPE_ICON) {
-                        $widget = \Yii::createObject($widgetChild->amos_widgets_classname);
-                        $val = $widget->getBulletCount();
-                        
-                        $bulletCount = empty($val) ? 0 : $val;
-                        $count = $count + $bulletCount;
-                    }
-                }
-            }
-        }
-        return $count;
-    }
+
 }

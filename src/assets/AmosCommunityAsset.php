@@ -12,6 +12,7 @@
 namespace lispa\amos\community\assets;
 
 use yii\web\AssetBundle;
+use lispa\amos\core\widget\WidgetAbstract;
 
 /**
  * Class AmosCommunityAsset
@@ -34,6 +35,11 @@ class AmosCommunityAsset extends AssetBundle
     public function init()
     {
         $moduleL = \Yii::$app->getModule('layout');
+
+        if(!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS){
+            $this->css = ['less/community_fullsize.less'];
+        }
+
         if(!empty($moduleL))
         {
             $this->depends [] = 'lispa\amos\layout\assets\BaseAsset';
