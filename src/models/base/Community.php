@@ -1,25 +1,25 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models\base;
+namespace open20\amos\community\models\base;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\exceptions\CommunityException;
-use lispa\amos\community\utilities\EmailUtil;
-use lispa\amos\core\record\NetworkModel;
-use lispa\amos\core\user\User;
-use lispa\amos\core\utilities\Email;
-use lispa\amos\cwh\models\CwhAuthAssignment;
-use lispa\amos\cwh\utility\CwhUtil;
-use lispa\amos\dashboard\models\AmosWidgets;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\exceptions\CommunityException;
+use open20\amos\community\utilities\EmailUtil;
+use open20\amos\core\record\NetworkModel;
+use open20\amos\core\user\User;
+use open20\amos\core\utilities\Email;
+use open20\amos\cwh\models\CwhAuthAssignment;
+use open20\amos\cwh\utility\CwhUtil;
+use open20\amos\dashboard\models\AmosWidgets;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -46,16 +46,16 @@ use yii\helpers\ArrayHelper;
  * @property string $context
  * @property integer $parent_id
  *
- * @property \lispa\amos\community\models\CommunityType $communityType
- * @property \lispa\amos\core\user\User $createdByUser
- * @property \lispa\amos\core\user\User $updatedByUser
- * @property \lispa\amos\core\user\User[] $communityUsers
- * @property \lispa\amos\community\models\CommunityUserMm[] $communityUserMms
+ * @property \open20\amos\community\models\CommunityType $communityType
+ * @property \open20\amos\core\user\User $createdByUser
+ * @property \open20\amos\core\user\User $updatedByUser
+ * @property \open20\amos\core\user\User[] $communityUsers
+ * @property \open20\amos\community\models\CommunityUserMm[] $communityUserMms
  * @property AmosWidgets[] $amosWidgetsIcons
  * @property AmosWidgets[] $amosWidgetsIGraphics
- * @property \lispa\amos\community\models\Community[] $subcommunities
+ * @property \open20\amos\community\models\Community[] $subcommunities
  *
- * @package lispa\amos\community\models\base
+ * @package open20\amos\community\models\base
  */
 abstract class Community extends NetworkModel
 {
@@ -79,7 +79,7 @@ abstract class Community extends NetworkModel
             [['description'], 'string' /*, 'max' => 500*/],
             [['context'], 'string'],
             [['logo_id', 'cover_image_id'], 'number'],
-            [['hide_participants', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['hide_participants', 'force_workflow', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id', 'hits'], 'integer'],
             [['status', 'name'], 'string', 'max' => 255],
         ];
@@ -119,7 +119,7 @@ abstract class Community extends NetworkModel
      */
     public function getCommunityUserMms()
     {
-        return $this->hasMany(\lispa\amos\community\models\CommunityUserMm::className(), ['community_id' => 'id'])->inverseOf('community')
+        return $this->hasMany(\open20\amos\community\models\CommunityUserMm::className(), ['community_id' => 'id'])->inverseOf('community')
             ->from([CommunityUserMm::tableName() => CommunityUserMm::tableName()])
             ->innerJoin(User::tableName() . ' usr1', CommunityUserMm::tableName() . '.user_id = usr1.id and usr1.deleted_at IS NULL')
             ->innerJoin('user_profile', 'usr1.id = user_profile.user_id')
@@ -131,7 +131,7 @@ abstract class Community extends NetworkModel
      */
     public function getCommunityType()
     {
-        return $this->hasOne(\lispa\amos\community\models\CommunityType::className(), ['id' => 'community_type_id']);
+        return $this->hasOne(\open20\amos\community\models\CommunityType::className(), ['id' => 'community_type_id']);
     }
     
     /**
@@ -139,7 +139,7 @@ abstract class Community extends NetworkModel
      */
     public function getCommunityUsers()
     {
-        return $this->hasMany(\lispa\amos\core\user\User::className(), ['id' => 'user_id'])->via('communityUserMms');
+        return $this->hasMany(\open20\amos\core\user\User::className(), ['id' => 'user_id'])->via('communityUserMms');
     }
     
     /**
@@ -147,7 +147,7 @@ abstract class Community extends NetworkModel
      */
     public function getCreatedByUser()
     {
-        return $this->hasOne(\lispa\amos\core\user\User::className(), ['id' => 'created_by']);
+        return $this->hasOne(\open20\amos\core\user\User::className(), ['id' => 'created_by']);
     }
     
     /**
@@ -155,7 +155,7 @@ abstract class Community extends NetworkModel
      */
     public function getUpdatedByUser()
     {
-        return $this->hasOne(\lispa\amos\core\user\User::className(), ['id' => 'updated_by']);
+        return $this->hasOne(\open20\amos\core\user\User::className(), ['id' => 'updated_by']);
     }
     
     /**
@@ -163,7 +163,7 @@ abstract class Community extends NetworkModel
      */
     public function getSubcommunities()
     {
-        return $this->hasMany(\lispa\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere(['context' => self::className()]);
+        return $this->hasMany(\open20\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere(['context' => self::className()]);
     }
     
     /**
@@ -178,7 +178,7 @@ abstract class Community extends NetworkModel
      */
     public function getCommunityAmosWidgetsMms()
     {
-        return $this->hasMany(\lispa\amos\community\models\CommunityAmosWidgetsMm::className(), ['community_id' => 'id']);
+        return $this->hasMany(\open20\amos\community\models\CommunityAmosWidgetsMm::className(), ['community_id' => 'id']);
     }
     /**
      * @return \yii\db\ActiveQuery
@@ -215,7 +215,7 @@ abstract class Community extends NetworkModel
         
         /** @var AmosCommunity $communityModule */
         $communityModule = \Yii::$app->getModule(AmosCommunity::getModuleName());
-        $cwhConfigId = \lispa\amos\community\models\Community::getCwhConfigId();
+        $cwhConfigId = \open20\amos\community\models\Community::getCwhConfigId();
         
         if ($communityModule->deleteCommunityWithSubcommunities) {
             try {
@@ -259,7 +259,7 @@ abstract class Community extends NetworkModel
     }
     
     /**
-     * @param \lispa\amos\community\models\CommunityUserMm $communityUserMm
+     * @param \open20\amos\community\models\CommunityUserMm $communityUserMm
      * @return bool
      */
     protected function deletedCommunityParticipantsMail($communityUserMm)
@@ -275,4 +275,13 @@ abstract class Community extends NetworkModel
         $tos = [$communityUserMm->user->email];
         return Email::sendMail($from, $tos, $subject, $text);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCommunityUserField()
+    {
+        return $this->hasMany(\open20\amos\community\models\CommunityUserField::className(), [ 'community_id' => 'id']);
+    }
+
 }

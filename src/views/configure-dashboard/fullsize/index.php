@@ -1,39 +1,41 @@
 <?php
 
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\views\AmosGridView;
-use lispa\amos\core\views\DataProviderView;
-use lispa\amos\dashboard\AmosDashboard;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\views\AmosGridView;
+use open20\amos\core\views\DataProviderView;
+use open20\amos\dashboard\AmosDashboard;
 use yii\helpers\Html;
 
-/* * @var \lispa\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
-/* * @var \lispa\amos\dashboard\models\AmosWidgets $widgetIconSelectable * */
-/* * @var \lispa\amos\dashboard\models\AmosWidgets $widgetGraphicSelectable * */
+/* * @var \open20\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
+/* * @var \open20\amos\dashboard\models\AmosWidgets $widgetIconSelectable * */
+/* * @var \open20\amos\dashboard\models\AmosWidgets $widgetGraphicSelectable * */
 /* * @var array $widgetSelected * */
 
 /* * @var \yii\web\View $this * */
 AmosIcons::map($this);
 
-$this->title = AmosDashboard::t('amosdashboard', 'Gestisci widget');
-
-if ($currentDashboard->module != 'dashboard') {
-    $this->params['breadcrumbs'][] = ['label' => AmosDashboard::t('amosdashboard',
-            'Amministrazione '.$currentDashboard->module), 'url' => Yii::$app->urlManager->createUrl([$currentDashboard->module])];
-}
+$this->title = AmosDashboard::t('amosdashboard', 'Configurazione dashboard: ').$model->name;
 
 
 $this->params['breadcrumbs'][]  = $this->title;
 $this->params['widgetSelected'] = $widgetSelected;
 
-\lispa\amos\dashboard\assets\DashboardFullsizeAsset::register($this);
+\open20\amos\dashboard\assets\DashboardFullsizeAsset::register($this);
 ?>
 <div class="dashboard-default-index dashboard-manager">
 
-    <?php $form                           = ActiveForm::begin(); ?>
+    <?php $form     = ActiveForm::begin(); ?>
 
-    <?= Html::hiddenInput('module', $currentDashboard->module) ?>
-    <?= Html::hiddenInput('slide', $currentDashboard->slide) ?>
     <input type="hidden" id="saveDashboardUrl" value="<?= Yii::$app->urlManager->createUrl(['dashboard/manager/save-dashboard-order']); ?>"/>
 
     <div class="col-xs-12">
@@ -49,13 +51,13 @@ $this->params['widgetSelected'] = $widgetSelected;
                 'summary' => false,
                 'columns' => [
                     [
-                        'class' => 'lispa\amos\core\views\grid\CheckboxColumn',
-                        'name' => 'amosWidgetsClassnames[]',
+                        'class' => 'open20\amos\core\views\grid\CheckboxColumn',
+                        'name' => 'amosWidgetsIds[]',
                         'checkboxOptions' => function ($model, $key, $index, $column) {
                             return [
                                 'id' => \yii\helpers\StringHelper::basename($model['classname']),
-                                'value' => $model['classname'],
-                                'checked' => in_array($model['classname'], $this->params['widgetSelected'])
+                                'value' => $model['id'],
+                                'checked' => in_array($model['id'], $this->params['widgetSelected'])
                             ];
                         }
                     ],
@@ -65,21 +67,23 @@ $this->params['widgetSelected'] = $widgetSelected;
                         'format' => 'html',
                         'value' => function ($model) {
                             $object          = \Yii::createObject($model['classname']);
-                            $object->setUrl('');
-                            $backgroundColor = Yii::createObject($model['classname'])->getClassSpan();
-                            if (!$backgroundColor) {
-                                $backgroundColor = [1 => 'color-base'];
-                            }
+                            if($object->isVisible()) {
+                                $object->setUrl('');
+                                $backgroundColor = Yii::createObject($model['classname'])->getClassSpan();
+                                if (!$backgroundColor) {
+                                    $backgroundColor = [1 => 'color-base'];
+                                }
 
-                            if (!$backgroundColor[1]) {
-                                $backgroundColor = [1 => 'bk-backgroundIcon'];
-                            }
+                                if (!$backgroundColor[1]) {
+                                    $backgroundColor = [1 => 'bk-backgroundIcon'];
+                                }
 
-                            if (!$backgroundColor[2]) {
-                                $backgroundColor = [2 => 'color-base'];
+                                if (!$backgroundColor[2]) {
+                                    $backgroundColor = [2 => 'color-base'];
+                                }
+                                return '<p class="' . $backgroundColor[1] . ' ' . $backgroundColor[2] . '">' . AmosIcons::show(Yii::createObject($model['classname'])->getIcon(),
+                                        '', 'dash') . '</p>';
                             }
-                            return '<p class="'.$backgroundColor[1].' '.$backgroundColor[2].'">'.AmosIcons::show(Yii::createObject($model['classname'])->getIcon(),
-                                    '', 'dash').'</p>';
                         }
                     ],
                     [
@@ -134,13 +138,13 @@ $this->params['widgetSelected'] = $widgetSelected;
                     'label' => 'Plugin',
                 ],
                 [
-                    'class' => 'lispa\amos\core\views\grid\CheckboxColumn',
-                    'name' => 'amosWidgetsClassnames[]',
+                    'class' => 'open20\amos\core\views\grid\CheckboxColumn',
+                    'name' => 'amosWidgetsIds[]',
                     'checkboxOptions' => function ($model, $key, $index, $column) {
                         return [
                             'id' => \yii\helpers\StringHelper::basename($model['classname']),
-                            'value' => $model['classname'],
-                            'checked' => in_array($model['classname'], $this->params['widgetSelected'])
+                            'value' => $model['id'],
+                            'checked' => in_array($model['id'], $this->params['widgetSelected'])
                         ];
                     }
                 ],

@@ -1,20 +1,20 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models;
+namespace open20\amos\community\models;
 
 use yii\db\ActiveQuery;
 
 /**
  * Interface CommunityContextInterface
- * @package lispa\amos\community\models
+ * @package open20\amos\community\models
  */
 interface CommunityContextInterface
 {

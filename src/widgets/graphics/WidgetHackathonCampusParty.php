@@ -1,18 +1,27 @@
 <?php
 
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
 /*
- * To change this proscription header, choose Proscription Headers in Project Properties.
+ * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
-namespace lispa\amos\community\widgets\graphics;
+namespace open20\amos\community\widgets\graphics;
 
-use lispa\amos\core\widget\WidgetGraphic;
-use lispa\amos\community\AmosCommunity;
+use open20\amos\core\widget\WidgetGraphic;
+use open20\amos\community\AmosCommunity;
 use Yii;
 use yii\helpers\Url;
-use lispa\amos\community\utilities\CommunityUtil;
+use open20\amos\community\utilities\CommunityUtil;
 
 
 class WidgetHackathonCampusParty extends WidgetGraphic

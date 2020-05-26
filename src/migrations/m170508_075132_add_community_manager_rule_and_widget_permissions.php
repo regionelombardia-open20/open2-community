@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\community\models\Community;
-use lispa\amos\community\rules\UpdateCommunitiesManagerRule;
-use lispa\amos\community\rules\ValidateSubcommunitiesRule;
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\community\models\Community;
+use open20\amos\community\rules\UpdateCommunitiesManagerRule;
+use open20\amos\community\rules\ValidateSubcommunitiesRule;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\helpers\ArrayHelper;
 use yii\rbac\Permission;
 
@@ -103,7 +103,7 @@ class m170508_075132_add_community_manager_rule_and_widget_permissions extends A
     {
         return [
             [
-                'name' => 'lispa\amos\community\widgets\icons\WidgetIconToValidateCommunities',
+                'name' => 'open20\amos\community\widgets\icons\WidgetIconToValidateCommunities',
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Dashboard permission for widget ' . 'WidgetIconToValidateCommunities',
                 'ruleName' => null,
@@ -111,7 +111,7 @@ class m170508_075132_add_community_manager_rule_and_widget_permissions extends A
                 'dontRemove' => true
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCommunity::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCommunity::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Dashboard permission for widget ' . 'WidgetIconCommunity',
                 'ruleName' => null,
@@ -119,7 +119,7 @@ class m170508_075132_add_community_manager_rule_and_widget_permissions extends A
                 'dontRemove' => true
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCommunityDashboard::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCommunityDashboard::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Dashboard permission for widget ' . 'WidgetIconCommunityDashboard',
                 'ruleName' => null,
@@ -127,7 +127,7 @@ class m170508_075132_add_community_manager_rule_and_widget_permissions extends A
                 'dontRemove' => true
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCreatedByCommunities::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCreatedByCommunities::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Dashboard permission for widget ' . 'WidgetIconCreatedByCommunity',
                 'ruleName' => null,
@@ -135,7 +135,7 @@ class m170508_075132_add_community_manager_rule_and_widget_permissions extends A
                 'dontRemove' => true
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconMyCommunities::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconMyCommunities::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Dashboard permission for widget ' . 'WidgetIconMyCommunities',
                 'ruleName' => null,

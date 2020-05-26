@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
@@ -19,7 +19,7 @@ class m170201_153634_remove_community_type_widget_and_permissions extends \yii\d
      */
     public function safeUp()
     {
-        $classNameWidget = 'lispa\amos\community\widgets\icons\WidgetIconTipologiaCommunity';
+        $classNameWidget = 'open20\amos\community\widgets\icons\WidgetIconTipologiaCommunity';
         //remove from dashbords-widgets mm
         $this->delete('amos_user_dashboards_widget_mm', ['amos_widgets_classname' => $classNameWidget]);
         // remove from amos-widgets

@@ -1,31 +1,31 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers;
+namespace open20\amos\community\controllers;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\assets\AmosCommunityAsset;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityAmosWidgetsMm;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\community\rbac\UpdateOwnNetworkCommunity;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\community\widgets\ConfigureDashboardCommunityWidget;
-use lispa\amos\core\controllers\CrudController;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\widget\WidgetAbstract;
-use lispa\amos\dashboard\AmosDashboard;
-use lispa\amos\dashboard\models\AmosWidgets;
-use lispa\amos\dashboard\models\search\AmosWidgetsSearch;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityAmosWidgetsMm;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\community\rbac\UpdateOwnNetworkCommunity;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\community\widgets\ConfigureDashboardCommunityWidget;
+use open20\amos\core\controllers\CrudController;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\widget\WidgetAbstract;
+use open20\amos\dashboard\AmosDashboard;
+use open20\amos\dashboard\models\AmosWidgets;
+use open20\amos\dashboard\models\search\AmosWidgetsSearch;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;

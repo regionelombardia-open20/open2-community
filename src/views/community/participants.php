@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\widgets\CommunityMembersWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\widgets\CommunityMembersWidget;
 
 $this->title = AmosCommunity::t('amoscommunity', 'Participants');
 $this->params['breadcrumbs'][] = ['label' => AmosCommunity::t('amoscommunity', 'Community'), 'url' => ['join', 'id' => $model->id]];
@@ -21,5 +21,7 @@ echo CommunityMembersWidget::widget([
     'targetUrlParams' => [
         'viewM2MWidgetGenericSearch' => true,
     ],
-    'checkManagerRole' => true
+    'checkManagerRole' => true,
+    'targetUrlInvitation' => $targetUrlInvitation,
+    'invitationModule' => $invitationModule,
 ]);

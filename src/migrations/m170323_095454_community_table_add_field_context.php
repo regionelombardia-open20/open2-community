@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
@@ -26,7 +26,7 @@ class m170323_095454_community_table_add_field_context extends Migration
     public function safeUp()
     {
         $this->addColumn(self::COMMUNITY, 'context', 'varchar(255)');
-        $this->update(self::COMMUNITY, ['context' => \lispa\amos\community\models\Community::className()]);
+        $this->update(self::COMMUNITY, ['context' => \open20\amos\community\models\Community::className()]);
         return true;
     }
     /**

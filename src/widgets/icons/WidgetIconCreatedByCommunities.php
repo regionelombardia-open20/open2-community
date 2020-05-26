@@ -1,27 +1,30 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\icons
+ * @package    open20\amos\community\widgets\icons
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets\icons;
+namespace open20\amos\community\widgets\icons;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\core\widget\WidgetIcon;
-use lispa\amos\core\widget\WidgetAbstract;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\core\widget\WidgetIcon;
+use open20\amos\core\widget\WidgetAbstract;
+use open20\amos\core\icons\AmosIcons;
+
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\search\CommunitySearch;
+
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class WidgetIconCreatedByCommunities
- * @package lispa\amos\community\widgets\icons
+ * @package open20\amos\community\widgets\icons
  */
 class WidgetIconCreatedByCommunities extends WidgetIcon
 {
@@ -35,13 +38,12 @@ class WidgetIconCreatedByCommunities extends WidgetIcon
 
         $paramsClassSpan = [
             'bk-backgroundIcon',
-            'color-primary'
         ];
 
         $this->setLabel(AmosCommunity::tHtml('amoscommunity', 'Communities created by me'));
         $this->setDescription(AmosCommunity::t('amoscommunity', 'View the list of communities created by me'));
 
-        if (!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+        if (!empty(Yii::$app->params['dashboardEngine']) && Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
             $this->setIconFramework(AmosIcons::IC);
             $this->setIcon('community');
             $paramsClassSpan = [];
@@ -67,26 +69,14 @@ class WidgetIconCreatedByCommunities extends WidgetIcon
             )
         );
 
-        $this->setBulletCount(
-            $this->makeBulletCounter(null)
-        );
-    }
-
-    /**
-     * Make the number to set in the bullet count.
-     * 
-     * @param type $user_id
-     * @return type
-     */
-    public function makeBulletCounter($user_id = null)
-    {
-        $modelSearch = new CommunitySearch();
-        $query = $modelSearch->searchCreatedByMeQuery([]);
-
-        return $query
-            ->andWhere([Community::tableName() . '.status' => $modelSearch->getDraftStatus()])
-            ->asArray()
-            ->count();
+//        $search = new CommunitySearch();
+//        $this->setBulletCount(
+//            $this->makeBulletCounter(
+//                Yii::$app->getUser()->getId(),
+//                Community::className(),
+//                $search->buildQuery([], 'created-by')
+//            )
+//        );
     }
 
     /**

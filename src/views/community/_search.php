@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\core\helpers\Html;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
- * @var lispa\amos\community\models\search\CommunitySearch $model
+ * @var open20\amos\community\models\search\CommunitySearch $model
  * @var yii\widgets\ActiveForm $form
  */
 
@@ -82,7 +82,7 @@ $enableAutoOpenSearchPanel = !isset(\Yii::$app->params['enableAutoOpenSearchPane
 <div class="col-xs-12">
 <?php
           $params = \Yii::$app->request->getQueryParams();
-          /* echo \lispa\amos\tag\widgets\TagWidget::widget([
+          /* echo \open20\amos\tag\widgets\TagWidget::widget([
             'model' => $model,
             'attribute' => 'tagValues',
             'form' => $form,

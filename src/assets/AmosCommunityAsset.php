@@ -1,26 +1,26 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\assets;
+namespace open20\amos\community\assets;
 
 use yii\web\AssetBundle;
-use lispa\amos\core\widget\WidgetAbstract;
+use open20\amos\core\widget\WidgetAbstract;
 
 /**
  * Class AmosCommunityAsset
- * @package lispa\amos\community\assets
+ * @package open20\amos\community\assets
  */
 class AmosCommunityAsset extends AssetBundle
 {
-    public $sourcePath = '@vendor/lispa/amos-community/src/assets/web';
+    public $sourcePath = '@vendor/open20/amos-community/src/assets/web';
 
     public $js = [
         'js/community.js'
@@ -42,13 +42,13 @@ class AmosCommunityAsset extends AssetBundle
 
         if(!empty($moduleL))
         {
-            $this->depends [] = 'lispa\amos\layout\assets\BaseAsset';
-            $this->depends [] = 'lispa\amos\layout\assets\SpinnerWaitAsset';
+            $this->depends [] = 'open20\amos\layout\assets\BaseAsset';
+            $this->depends [] = 'open20\amos\layout\assets\SpinnerWaitAsset';
         }
         else
         {
-            $this->depends [] = 'lispa\amos\core\views\assets\AmosCoreAsset';
-            $this->depends [] = 'lispa\amos\core\views\assets\SpinnerWaitAsset';
+            $this->depends [] = 'open20\amos\core\views\assets\AmosCoreAsset';
+            $this->depends [] = 'open20\amos\core\views\assets\SpinnerWaitAsset';
         }
         parent::init();
     }

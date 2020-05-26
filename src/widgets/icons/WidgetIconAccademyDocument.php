@@ -1,27 +1,31 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\icons
+ * @package    open20\amos\community\widgets\icons
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets\icons;
+namespace open20\amos\community\widgets\icons;
 
-use lispa\amos\attachments\models\File;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\user\User;
-use lispa\amos\core\widget\WidgetIcon;
-use lispa\amos\core\widget\WidgetAbstract;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\core\user\User;
+use open20\amos\core\widget\WidgetIcon;
+use open20\amos\core\widget\WidgetAbstract;
+use open20\amos\core\icons\AmosIcons;
+
+use open20\amos\attachments\models\File;
+
+use open20\amos\community\AmosCommunity;
+
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class WidgetIconAccademyDocument
- * @package lispa\amos\community\widgets\icons
+ * @package open20\amos\community\widgets\icons
  */
 class WidgetIconAccademyDocument extends WidgetIcon
 {
@@ -39,15 +43,15 @@ class WidgetIconAccademyDocument extends WidgetIcon
         parent::init();
 
         $url = [''];
-        if (isset(\Yii::$app->params['isPoi']) && (\Yii::$app->params['isPoi'] === true)) {
-            $moduleCwh = \Yii::$app->getModule('cwh');
+        if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true)) {
+            $moduleCwh = Yii::$app->getModule('cwh');
             if (!is_null($moduleCwh)) {
-                /** @var \lispa\amos\cwh\AmosCwh $moduleCwh */
+                /** @var \open20\amos\cwh\AmosCwh $moduleCwh */
                 $cwhScope = $moduleCwh->getCwhScope();
                 if (!is_null($cwhScope) && (count($cwhScope) > 0)) {
                     if ($cwhScope['community'] == 2761) {
                         /** @var User $loggedUser */
-                        $loggedUser = \Yii::$app->user->identity;
+                        $loggedUser = Yii::$app->user->identity;
                         $registrazioneLabLombardia = \openinnovation\landing\models\LandingLaboratorioLombardia::findOne(['email' => $loggedUser->email]);
                         if (!is_null($registrazioneLabLombardia) && !is_null($registrazioneLabLombardia->getProposal())) {
                             /** @var File $proposal */
@@ -75,7 +79,7 @@ class WidgetIconAccademyDocument extends WidgetIcon
             'color-primary'
         ];
 
-        if (!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+        if (!empty(Yii::$app->params['dashboardEngine']) && Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
             $paramsClassSpan = [];
         }
 

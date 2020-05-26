@@ -1,21 +1,21 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\rules;
+namespace open20\amos\community\rules;
 
-use lispa\amos\community\models\Community;
-use lispa\amos\core\rules\DefaultOwnContentRule;
+use open20\amos\community\models\Community;
+use open20\amos\core\rules\DefaultOwnContentRule;
 
 /**
  * Class UpdateCommunitiesManagerRule
- * @package lispa\amos\community\rules
+ * @package open20\amos\community\rules
  */
 class UpdateCommunitiesManagerRule extends DefaultOwnContentRule
 {

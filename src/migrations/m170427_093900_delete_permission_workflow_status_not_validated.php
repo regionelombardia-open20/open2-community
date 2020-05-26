@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
-use lispa\amos\community\models\Community;
+use open20\amos\community\models\Community;
 
 /**
  * Class m170427_093900_delete_permission_workflow_status_not_validated

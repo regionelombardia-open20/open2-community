@@ -1,20 +1,20 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\widgets\icons\WidgetIconAccademyDocument;
 
 /**
  * @var $this \yii\web\View
- * @var $model \lispa\amos\community\models\Community
+ * @var $model \open20\amos\community\models\Community
  */
 // title not active in layout view_network
 //$this->title = AmosCommunity::t('amoscommunity', 'Welcome to the community!');
@@ -28,7 +28,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
     <ul id="widgets-icon" class="bk-sortableIcon plugin-list p-t-25" role="menu">
 
         <?php if ($model->hide_participants == 0) { ?>
-            <li class="item-widget col-custom" data-code="lispa\amos\admin\widgets\icons\WidgetIconUserProfile">
+            <li class="item-widget col-custom" data-code="open20\amos\admin\widgets\icons\WidgetIconUserProfile">
                 <a href="/community/community/participants?communityId=<?= $model->id ?>"
                    title=<?= AmosCommunity::t('amoscommunity', "#platform_user_list") ?> role="menuitem"
                    class="sortableOpt1">
@@ -53,9 +53,9 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             $widgetSubcommunities = Yii::createObject($model->getPluginWidgetClassname());
             echo $widgetSubcommunities::widget();
         }
-        if ($model->context == 'lispa\amos\projectmanagement\models\Projects') {
-            /** @var \lispa\amos\core\record\Record $contentObject */
-            $contentObject = Yii::createObject(lispa\amos\projectmanagement\models\Projects::className());
+        if ($model->context == 'open20\amos\projectmanagement\models\Projects') {
+            /** @var \open20\amos\core\record\Record $contentObject */
+            $contentObject = Yii::createObject(open20\amos\projectmanagement\models\Projects::className());
             $widgetClassname = $contentObject->getPluginWidgetClassname();
             $widget = Yii::createObject($widgetClassname);
             echo $widget::widget();
@@ -64,40 +64,40 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
         // Community accademy POI
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && ($model->id == 2761)) {
             if (!empty(Yii::$app->getModule('chat')) && (Yii::$app->getModule('chat')->assistanceUserId != Yii::$app->user->id)) {
-                /** @var \lispa\amos\core\record\Record $contentObject */
-                $widgetClassname = \lispa\amos\chat\widgets\icons\WidgetIconChatAssistance::className();
+                /** @var \open20\amos\core\record\Record $contentObject */
+                $widgetClassname = \open20\amos\chat\widgets\icons\WidgetIconChatAssistance::className();
                 $widget = Yii::createObject($widgetClassname);
                 echo $widget::widget();
             }
-            /** @var \lispa\amos\core\record\Record $contentObject */
+            /** @var \open20\amos\core\record\Record $contentObject */
             $widgetClassname = WidgetIconAccademyDocument::className();
             $widget = Yii::createObject($widgetClassname);
             echo $widget::widget();
         }
 
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && ($model->id == 2795|| $model->id == 2794 || $model->id == 2793 )) {
-            /** @var \lispa\amos\core\record\Record $contentObject */
-            $utility = new \lispa\amos\community\utilities\CommunityUtil();
-//            $community = \lispa\amos\community\models\Community::findOne(\Yii::$app->request->get('id'));
-//            $userMm = \lispa\amos\community\models\CommunityUserMm::findOne([
+            /** @var \open20\amos\core\record\Record $contentObject */
+            $utility = new \open20\amos\community\utilities\CommunityUtil();
+//            $community = \open20\amos\community\models\Community::findOne(\Yii::$app->request->get('id'));
+//            $userMm = \open20\amos\community\models\CommunityUserMm::findOne([
 //                'community_id' => \Yii::$app->request->get('id'),
 //                'user_id' => \Yii::$app->getUser()->getId(),
-//                'role' => \lispa\amos\community\models\Community::ROLE_COMMUNITY_MANAGER
+//                'role' => \open20\amos\community\models\Community::ROLE_COMMUNITY_MANAGER
 //            ]);
 //
 //            if(!empty($userMm)){
-//                $widgetClassname1 = lispa\amos\sondaggi\widgets\icons\WidgetIconSondaggi::className();
+//                $widgetClassname1 = open20\amos\sondaggi\widgets\icons\WidgetIconSondaggi::className();
 //                $widget1 = Yii::createObject($widgetClassname1);
 //            }else {
-                $widgetClassname1 = lispa\amos\sondaggi\widgets\icons\WidgetIconCompilaSondaggi::className();
+                $widgetClassname1 = open20\amos\sondaggi\widgets\icons\WidgetIconCompilaSondaggi::className();
                 $widget1 = Yii::createObject($widgetClassname1);
 //            }
 
-            $widgetClassname4 = \lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
+            $widgetClassname4 = \open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
             $widget4 = Yii::createObject($widgetClassname4);
-            $widgetClassname5 = lispa\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
+            $widgetClassname5 = open20\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
             $widget5 = Yii::createObject($widgetClassname5);
-            $widgetClassname6 = \lispa\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
+            $widgetClassname6 = \open20\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
             $widget6 = Yii::createObject($widgetClassname6);
             echo $widget1::widget();
             echo $widget4::widget();
@@ -106,11 +106,11 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
         }
 
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && ($model->id == 2782)) {
-            $widgetClassname6 = \lispa\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
+            $widgetClassname6 = \open20\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
             $widget6 = Yii::createObject($widgetClassname6);
-            $widgetClassname4 = \lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
+            $widgetClassname4 = \open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
             $widget4 = Yii::createObject($widgetClassname4);
-            $widgetClassname5 = lispa\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
+            $widgetClassname5 = open20\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
             $widget5 = Yii::createObject($widgetClassname5);
             echo $widget6::widget();
             echo $widget4::widget();
@@ -118,9 +118,9 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
         }
 
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && ($model->id == 2772 )) {
-            $widgetClassname1 = lispa\amos\partnershipprofiles\widgets\icons\WidgetIconPartnershipProfilesDashboard::className();
-            $widgetClassname2 = lispa\amos\partnershipprofiles\widgets\icons\WidgetIconExpressionsOfInterestDashboard::className();
-            $widgetClassname3 = open2\amos\ticket\widgets\icons\WidgetIconTicketDashboard::className();
+            $widgetClassname1 = open20\amos\partnershipprofiles\widgets\icons\WidgetIconPartnershipProfilesDashboard::className();
+            $widgetClassname2 = open20\amos\partnershipprofiles\widgets\icons\WidgetIconExpressionsOfInterestDashboard::className();
+            $widgetClassname3 = open20\amos\ticket\widgets\icons\WidgetIconTicketDashboard::className();
             $widget1 = Yii::createObject($widgetClassname1);
             $widget2 = Yii::createObject($widgetClassname2);
             $widget3 = Yii::createObject($widgetClassname3);
@@ -132,8 +132,8 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
         }
 
        if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && ($model->id == 2837 )) {
-            $widgetClassname1 = \lispa\amos\news\widgets\icons\WidgetIconNewsDashboard ::className();
-            $widgetClassname2 = \lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
+            $widgetClassname1 = \open20\amos\news\widgets\icons\WidgetIconNewsDashboard ::className();
+            $widgetClassname2 = \open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
             $widget1 = Yii::createObject($widgetClassname1);
             $widget2 = Yii::createObject($widgetClassname2);
 
@@ -143,13 +143,13 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
         }
 
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && (in_array($model->id, [2839]))) {
-            $widgetClassname6 = \lispa\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
+            $widgetClassname6 = \open20\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
             $widget6 = Yii::createObject($widgetClassname6);
-            $widgetClassname4 = \lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
+            $widgetClassname4 = \open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
             $widget4 = Yii::createObject($widgetClassname4);
-            $widgetClassname5 = lispa\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
+            $widgetClassname5 = open20\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
             $widget5 = Yii::createObject($widgetClassname5);
-            $widgetClassname3 = \lispa\amos\sondaggi\widgets\icons\WidgetIconCompilaSondaggi::className();
+            $widgetClassname3 = \open20\amos\sondaggi\widgets\icons\WidgetIconCompilaSondaggi::className();
             $widget3 = Yii::createObject($widgetClassname3);
             echo $widget4::widget();
             echo $widget6::widget();
@@ -158,11 +158,11 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
         }
 
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && (in_array($model->id, [2831 ]))) {
-            $widgetClassname6 = \lispa\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
+            $widgetClassname6 = \open20\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
             $widget6 = Yii::createObject($widgetClassname6);
-            $widgetClassname4 = \lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
+            $widgetClassname4 = \open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
             $widget4 = Yii::createObject($widgetClassname4);
-            $widgetClassname5 = lispa\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
+            $widgetClassname5 = open20\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
             $widget5 = Yii::createObject($widgetClassname5);
             $widgetClassname3 = \backend\widgets\icons\WidgetIconSondaggiStatiAvanzamento::className();
             $widget3 = Yii::createObject($widgetClassname3);
@@ -173,11 +173,11 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
         }
 
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && (in_array($model->id ,[2814,2815,2816,2817,2818,2819,2820,2840,  2826,2828,2830]))) {
-            $widgetClassname6 = \lispa\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
+            $widgetClassname6 = \open20\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard::className();
             $widget6 = Yii::createObject($widgetClassname6);
-            $widgetClassname4 = \lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
+            $widgetClassname4 = \open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard::className();
             $widget4 = Yii::createObject($widgetClassname4);
-            $widgetClassname5 = lispa\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
+            $widgetClassname5 = open20\amos\news\widgets\icons\WidgetIconNewsDashboard::className();
             $widget5 = Yii::createObject($widgetClassname5);
             echo $widget5::widget();
             echo $widget4::widget();
@@ -192,7 +192,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
                 [2750, 2761, 2769, 2772, 2795, 2794, 2793, 2782, 2837,  2814,2815,2816,2817,2818,2819,2820,2840, 2839 , 2831,2826,2828,2830])) {
 
         } else {
-            echo \lispa\amos\dashboard\widgets\SubDashboardWidget::widget([
+            echo \open20\amos\dashboard\widgets\SubDashboardWidget::widget([
                 'model' => $model,
                 'widgets_type' => 'ICON',
             ]);
@@ -204,8 +204,8 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
     <div class="m-t-30"></div>
     <?php
     if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && in_array($model->id, [2761])) {
-        \lispa\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
-        $widgetClassname1 = \lispa\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
+        \open20\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
+        $widgetClassname1 = \open20\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
         $widget1 = Yii::createObject($widgetClassname1);
         echo '<div id="bk-pluginGrafici" class="sub-dashboard-graphics">' .
             '<div class="graphics-dashboard-container">' .
@@ -218,7 +218,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '</div>' .
             '</div>';
     } else if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && in_array($model->id, [2750])) {
-        \lispa\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
+        \open20\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
 
         $allWidget = '';
 
@@ -230,11 +230,11 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
 
         $widgetClassname1 = \openinnovation\landing\widgets\graphics\WidgetGraphicDownloadTicket::className();
         $widget1 = Yii::createObject($widgetClassname1);
-        $widgetClassname2 = \lispa\amos\chat\widgets\graphics\WidgetGraphicChatAssistance::className();
+        $widgetClassname2 = \open20\amos\chat\widgets\graphics\WidgetGraphicChatAssistance::className();
         $widget2 = Yii::createObject($widgetClassname2);
-        $widgetClassname3 = \lispa\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
+        $widgetClassname3 = \open20\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
         $widget3 = Yii::createObject($widgetClassname3);
-        $widgetClassname4 = \lispa\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
+        $widgetClassname4 = \open20\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
         $widget4 = Yii::createObject($widgetClassname4);
 
         if($widget1->isVisible()){
@@ -256,10 +256,10 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '</div>';
     }
     else if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && in_array($model->id, [2769])) {
-        \lispa\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
-        $widgetClassname1 = \lispa\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
+        \open20\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
+        $widgetClassname1 = \open20\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
         $widget1 = Yii::createObject($widgetClassname1);
-        $widgetClassname2 = \lispa\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
+        $widgetClassname2 = \open20\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
         $widget2 = Yii::createObject($widgetClassname2);
         echo '<div id="bk-pluginGrafici" class="sub-dashboard-graphics">' .
             '<div class="graphics-dashboard-container">' .
@@ -274,7 +274,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '</div>';
     }
     else if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && in_array($model->id, [2772])) {
-        \lispa\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
+        \open20\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
         $widgetClassname1 = \openinnovation\landing\widgets\graphics\WidgetGraphicCountdown::className();
         $widget1 = Yii::createObject($widgetClassname1);
 //        $widgetClassname2 = \openinnovation\landing\widgets\graphics\WidgetGraphicLiveChat::className();
@@ -292,7 +292,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '</div>';
     }
     else if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && in_array($model->id, [ 2795, 2794, 2793])) {
-        \lispa\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
+        \open20\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
         $allWidget = '';
 
         echo '<div id="bk-pluginGrafici" class="sub-dashboard-graphics">' .
@@ -302,13 +302,13 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '<div class="grid-sizer"></div>';
 
 
-        $widgetClassname2 = \lispa\amos\chat\widgets\graphics\WidgetGraphicChatAssistance::className();
+        $widgetClassname2 = \open20\amos\chat\widgets\graphics\WidgetGraphicChatAssistance::className();
         $widget2 = Yii::createObject($widgetClassname2);
-        $widgetClassname3 = \lispa\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
+        $widgetClassname3 = \open20\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
         $widget3 = Yii::createObject($widgetClassname3);
-        $widgetClassname4 = lispa\amos\discussioni\widgets\graphics\WidgetGraphicsUltimeDiscussioni::className();
+        $widgetClassname4 = open20\amos\discussioni\widgets\graphics\WidgetGraphicsUltimeDiscussioni::className();
         $widget4 = Yii::createObject($widgetClassname4);
-        $widgetClassname5 = lispa\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
+        $widgetClassname5 = open20\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
         $widget5 = Yii::createObject($widgetClassname5);
 
 
@@ -326,7 +326,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '</div>';
     }
     else if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && in_array($model->id, [2837])) {
-        \lispa\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
+        \open20\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
         $allWidget = '';
 
         echo '<div id="bk-pluginGrafici" class="sub-dashboard-graphics">' .
@@ -335,11 +335,11 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '<div class="grid">' .
             '<div class="grid-sizer"></div>';
 
-        $widgetClassname2 = \lispa\amos\chat\widgets\graphics\WidgetGraphicChatAssistance::className();
+        $widgetClassname2 = \open20\amos\chat\widgets\graphics\WidgetGraphicChatAssistance::className();
         $widget2 = Yii::createObject($widgetClassname2);
-        $widgetClassname3 = \lispa\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
+        $widgetClassname3 = \open20\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
         $widget3 = Yii::createObject($widgetClassname3);
-        $widgetClassname5 = lispa\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
+        $widgetClassname5 = open20\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
         $widget5 = Yii::createObject($widgetClassname5);
 
         $allWidget .= '<div data-code="' . $widget2::classname() . '" data-module-name>' . $widget2::widget() . '</div>';
@@ -353,7 +353,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '</div>';
     }
     else if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && in_array($model->id, [2839,   2814,2815,2816,2817,2818,2819,2820,2840,  2831,2826,2828,2830])) {
-        \lispa\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
+        \open20\amos\dashboard\assets\SubDashboardAsset::register(\Yii::$app->getView());
         $allWidget = '';
 
         echo '<div id="bk-pluginGrafici" class="sub-dashboard-graphics">' .
@@ -362,11 +362,11 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '<div class="grid">' .
             '<div class="grid-sizer"></div>';
 
-        $widgetClassname2 =  lispa\amos\discussioni\widgets\graphics\WidgetGraphicsUltimeDiscussioni::className();
+        $widgetClassname2 =  open20\amos\discussioni\widgets\graphics\WidgetGraphicsUltimeDiscussioni::className();
         $widget2 = Yii::createObject($widgetClassname2);
-        $widgetClassname3 = \lispa\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
+        $widgetClassname3 = \open20\amos\news\widgets\graphics\WidgetGraphicsUltimeNews::className();
         $widget3 = Yii::createObject($widgetClassname3);
-        $widgetClassname5 = lispa\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
+        $widgetClassname5 = open20\amos\documenti\widgets\graphics\WidgetGraphicsUltimiDocumenti::className();
         $widget5 = Yii::createObject($widgetClassname5);
 
         $allWidget .= '<div data-code="' . $widget2::classname() . '" data-module-name>' . $widget2::widget() . '</div>';
@@ -380,7 +380,7 @@ use lispa\amos\community\widgets\icons\WidgetIconAccademyDocument;
             '</div>';
     }
     else {
-        echo \lispa\amos\dashboard\widgets\SubDashboardWidget::widget([
+        echo \open20\amos\dashboard\widgets\SubDashboardWidget::widget([
             'model' => $model,
             'widgets_type' => 'GRAPHIC',
         ]);

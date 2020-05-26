@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community\email
+ * @package    open20\amos\community\views\community\email
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
+use open20\amos\community\AmosCommunity;
 
 ?>
 

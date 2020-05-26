@@ -1,38 +1,38 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\assets\AmosCommunityAsset;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\rbac\UpdateOwnNetworkCommunity;
-use lispa\amos\community\rules\ValidateSubcommunitiesRule;
-use lispa\amos\community\widgets\CommunityCardWidget;
-use lispa\amos\community\widgets\JoinCommunityWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\views\DataProviderView;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\models\Community;
+use open20\amos\community\rbac\UpdateOwnNetworkCommunity;
+use open20\amos\community\rules\ValidateSubcommunitiesRule;
+use open20\amos\community\widgets\CommunityCardWidget;
+use open20\amos\community\widgets\JoinCommunityWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\views\DataProviderView;
 use yii\helpers\Url;
-use yii\web\View;
-
+use yii\web\View; 
+  
 /**
  * @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
- * @var lispa\amos\community\models\search\CommunitySearch $model
- * @var \lispa\amos\dashboard\models\AmosUserDashboards $currentDashboard
+ * @var open20\amos\community\models\search\CommunitySearch $model
+ * @var \open20\amos\dashboard\models\AmosUserDashboards $currentDashboard
  * @var string $currentView
  */
-
+  
 $communityModule = Yii::$app->getModule('community');
 $fixedCommunityType = !is_null($communityModule->communityType);
-$bypassWorkflow = $communityModule->bypassWorkflow;
+$bypassWorkflow = $communityModule->forceWorkflow($model);
 
 
 
@@ -84,10 +84,16 @@ $columns['logo_id'] = [
         return CommunityCardWidget::widget($options);
     }
 ];
-$columns['name'] = 'name';
+
+$columns['name'] = [
+    'attribute' => 'name',
+    'label' => AmosCommunity::t('amoscommunity', '#community_name')
+];
+
 if (!$fixedCommunityType) {
     $columns['communityType'] = [
         'attribute' => 'communityType',
+        'label' => AmosCommunity::t('amoscommunity', '#community_type'),
         'format' => 'html',
         'value' => function ($model) {
             /** @var Community $model */
@@ -103,14 +109,15 @@ if (!$fixedCommunityType) {
 if (!$bypassWorkflow) {
     $columns['status'] = [
         'attribute' => 'status',
+        'label' => AmosCommunity::t('amoscommunity', '#community_status'),
         'value' => function ($model) {
             return $model->hasWorkflowStatus() ? AmosCommunity::t('amoscommunity', $model->getWorkflowStatus()->getLabel()) : '-';
         }
     ];
 }
 
-$columns[] = [
-    'class' => 'lispa\amos\core\views\grid\ActionColumn',
+$actionColumns = [
+    'class' => 'open20\amos\core\views\grid\ActionColumn',
     'template' => '{publish}{reject}{joinCommunity}{view}{update}{delete}',
     'buttons' => [
         'publish' => function ($url, $model) {
@@ -147,6 +154,28 @@ $columns[] = [
     ]
 ];
 
+if (Yii::$app->controller->id == 'subcommunities') {
+    $actionColumns['viewOptions'] = [
+        'class' => 'btn btn-tools-secondary',
+        'url' => ['/community/community/view'],
+        'defaultUrlIdParam' => true
+    ];
+
+    $actionColumns['updateOptions'] = [
+        'class' => 'btn btn-tools-secondary',
+        'url' => ['/community/community/update'],
+        'defaultUrlIdParam' => true
+    ];
+
+    $actionColumns['deleteOptions'] = [
+        'class' => 'btn btn-danger-inverse',
+        'url' => ['/community/community/delete'],
+        'defaultUrlIdParam' => true
+    ];
+}
+
+$columns[] = $actionColumns;
+
 ?>
 
 <div class="community-index">
@@ -158,7 +187,7 @@ $columns[] = [
         'model' => $model,
         'originAction' => Yii::$app->controller->action->id
     ]); ?>
-    
+
     <?php echo DataProviderView::widget([
         'dataProvider' => $dataProvider,
         //'filterModel' => $model,

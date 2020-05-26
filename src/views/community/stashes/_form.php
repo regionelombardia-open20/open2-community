@@ -1,27 +1,36 @@
 <?php
 
-use lispa\amos\community\widgets\mini\CommunityMembersMiniWidget;
-use lispa\amos\community\widgets\mini\SubcommunitiesMiniWidget;
-use lispa\amos\core\forms\TextEditorWidget;
-use lispa\amos\cwh\widgets\DestinatariPlusTagWidget;
-use lispa\amos\report\widgets\ReportFlagWidget;
-use lispa\amos\workflow\widgets\WorkflowTransitionButtonsWidget;
-use lispa\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\CreatedUpdatedWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\forms\AccordionWidget;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+use open20\amos\community\widgets\mini\CommunityMembersMiniWidget;
+use open20\amos\community\widgets\mini\SubcommunitiesMiniWidget;
+use open20\amos\core\forms\TextEditorWidget;
+use open20\amos\cwh\widgets\DestinatariPlusTagWidget;
+use open20\amos\report\widgets\ReportFlagWidget;
+use open20\amos\workflow\widgets\WorkflowTransitionButtonsWidget;
+use open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\CreatedUpdatedWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\forms\AccordionWidget;
 use kartik\select2\Select2;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
-use lispa\amos\attachments\components\CropInput;
+use open20\amos\attachments\components\CropInput;
 
 /**
  * @var yii\web\View $this
- * @var lispa\amos\community\models\Community $model
+ * @var open20\amos\community\models\Community $model
  * @var yii\widgets\ActiveForm $form
  */
 
@@ -43,7 +52,7 @@ $showSubcommunityField = (!empty($communities) && ($model->isNewRecord || $model
 $moduleCommunity = Yii::$app->getModule('community');
 $fixedCommunityType = !is_null($moduleCommunity->communityType);
 $viewTabContents = $moduleCommunity->viewTabContents;
-$bypassWorkflow = $moduleCommunity->bypassWorkflow;
+$bypassWorkflow = $moduleCommunity->forceWorkflow($model);
 $showSubcommunities = $moduleCommunity->showSubcommunities;
 $hideContentsModels = $moduleCommunity->hideContentsModels;
 
@@ -271,7 +280,7 @@ $form = ActiveForm::begin([
                     'items' => [
                         [
                             'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
-                            'content' => \lispa\amos\seo\widgets\SeoWidget::widget([
+                            'content' => \open20\amos\seo\widgets\SeoWidget::widget([
                                 'contentModel' => $model,
                             ]),
                         ]
@@ -349,7 +358,7 @@ $form = ActiveForm::begin([
             'workflowId' => Community::COMMUNITY_WORKFLOW,
             'viewWidgetOnNewRecord' => true,
 
-            'closeButton' => \lispa\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
+            'closeButton' => \open20\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
 
             // fisso lo stato iniziale per generazione pulsanti e comportamenti
             // "fake" in fase di creazione (il record non e' ancora inserito nel db)

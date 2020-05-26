@@ -1,21 +1,21 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\models
+ * @package    open20\amos\community\models
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models;
+namespace open20\amos\community\models;
 
 use yii\base\Model;
 
 /**
  * Class CommunityReport
- * @package lispa\amos\community\models
+ * @package open20\amos\community\models
  */
 class CommunityReport extends Model
 {

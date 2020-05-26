@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\projectmanagement\rules\workflow
+ * @package    open20\amos\projectmanagement\rules\workflow
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\rules\workflow;
+namespace open20\amos\community\rules\workflow;
 
 
-use lispa\amos\community\models\Community;
-use lispa\amos\core\rules\BasicContentRule;
+use open20\amos\community\models\Community;
+use open20\amos\core\rules\BasicContentRule;
 use Yii;
 
 class CommunityWorkflowDraftRule extends BasicContentRule
@@ -27,7 +27,7 @@ class CommunityWorkflowDraftRule extends BasicContentRule
      * @param array $params
      * @param Community $model
      * @return bool
-     * @throws \lispa\amos\community\exceptions\CommunityException
+     * @throws \open20\amos\community\exceptions\CommunityException
      */
     public function ruleLogic($user, $item, $params, $model)
     {

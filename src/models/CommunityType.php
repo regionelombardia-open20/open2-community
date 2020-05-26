@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models;
+namespace open20\amos\community\models;
 
 /**
  * Class CommunityType
  * This is the model class for table "community_types".
- * @package lispa\amos\community\models
+ * @package open20\amos\community\models
  */
-class CommunityType extends \lispa\amos\community\models\base\CommunityType
+class CommunityType extends \open20\amos\community\models\base\CommunityType
 {
     /**
      * Constants for ID of the three community types

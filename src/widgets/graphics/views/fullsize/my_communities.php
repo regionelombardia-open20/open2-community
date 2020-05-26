@@ -1,36 +1,40 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\graphics\views
+ * @package    open20\amos\community\widgets\graphics\views
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\widgets\JoinCommunityWidget;
-use lispa\amos\core\forms\WidgetGraphicsActions;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\widgets\CommunityCardWidget;
+use open20\amos\community\widgets\JoinCommunityWidget;
+use open20\amos\core\forms\WidgetGraphicsActions;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\dashboard\assets\DashboardFullsizeAsset;
 use yii\data\ActiveDataProvider;
 use yii\web\View;
 use yii\widgets\Pjax;
-use lispa\amos\community\assets\AmosCommunityAsset;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\community\assets\AmosCommunityAsset;
 
-\lispa\amos\dashboard\assets\DashboardFullsizeAsset::register($this);
-
+\open20\amos\dashboard\assets\DashboardFullsizeAsset::register($this);
+AmosCommunityAsset::register($this);
 
 /**
  * @var View $this
  * @var ActiveDataProvider $communitiesList
- * @var \lispa\amos\community\widgets\graphics\WidgetGraphicsMyCommunities $widget
+ * @var \open20\amos\community\widgets\graphics\WidgetGraphicsMyCommunities $widget
  * @var string $toRefreshSectionId
+ * @var bool $linkToSubcommunities
  */
 
-$moduleDocumenti = \Yii::$app->getModule(AmosCommunity::getModuleName());
+$moduleCommunity = \Yii::$app->getModule(AmosCommunity::getModuleName());
+$communitiesModels = $communitiesList->getModels();
 
 ?>
 <div class="box-widget-header">
@@ -38,7 +42,7 @@ $moduleDocumenti = \Yii::$app->getModule(AmosCommunity::getModuleName());
         <?= WidgetGraphicsActions::widget([
             'widget' => $widget,
             'tClassName' => AmosCommunity::className(),
-            'actionRoute' => ['/community/community-wizard/introduction'],
+            'actionRoute' => '/community/community/create',
             'toRefreshSectionId' => $toRefreshSectionId,
             'permissionCreate' => 'COMMUNITY_CREATE'
         ]); ?>
@@ -52,10 +56,10 @@ $moduleDocumenti = \Yii::$app->getModule(AmosCommunity::getModuleName());
     </div>
 
     <?php
-    if (count($communitiesList->getModels()) == 0) {
+    if (count($communitiesModels) == 0) {
         $textReadAll = AmosCommunity::t('amoscommunity', '#addCommunity');
-        $linkReadAll = ['/community/community-wizard/introduction'];
-
+        $linkReadAll = '/community/community/create';
+        $checkPermNew = true;
     } else {
         if ($linkToSubcommunities) {
             $textReadAll = AmosCommunity::t('amoscommunity', '#showAll');
@@ -64,28 +68,30 @@ $moduleDocumenti = \Yii::$app->getModule(AmosCommunity::getModuleName());
             $textReadAll = AmosCommunity::t('amoscommunity', '#showAll') . AmosIcons::show('chevron-right');
             $linkReadAll = ['/community/community/my-communities'];
         }
-    }?>
-    <div class="read-all"><?= Html::a($textReadAll,$linkReadAll,['class' => '']); ?></div>
+        $checkPermNew = false;
+    } ?>
+    <div class="read-all"><?= Html::a($textReadAll, $linkReadAll, ['class' => ''], $checkPermNew); ?></div>
 </div>
 <div class="box-widget box-widget-column my-community">
     <section>
         <?php Pjax::begin(['id' => $toRefreshSectionId]); ?>
 
-        <?php if (count($communitiesList->getModels()) == 0): ?>
+        <?php if (count($communitiesModels) == 0): ?>
             <div class="list-items list-empty"><h3><?= AmosCommunity::t('amoscommunity', '#noCommunity') ?></h3></div>
         <?php endif; ?>
             <div class="list-items">
                 <?php
-                foreach ($communitiesList->getModels() as $community):
+                foreach ($communitiesModels as $community):
                     /** @var Community $community */
                     ?>
                     <div class="widget-listbox-option" role="option">
                         <article class="wrap-item-box">
                             <div>
                                 <div class="container-img">
-                                    <?= \lispa\amos\community\widgets\CommunityCardWidget::widget([
+                                    <?= \open20\amos\community\widgets\CommunityCardWidget::widget([
                                         'model' => $community,
                                         'imgStyleDisableHorizontalFix' => true,
+                                        'avatarCropSize' => 'dashboard_community'
                                     ]) ?>
                                 </div>
                             </div>

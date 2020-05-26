@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\forms\ContextMenuWidget;
-use lispa\amos\core\forms\PublishedContentsWidget;
-use lispa\amos\core\forms\Tabs;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\core\forms\ContextMenuWidget;
+use open20\amos\core\forms\PublishedContentsWidget;
+use open20\amos\core\forms\Tabs;
+use open20\amos\core\helpers\Html;
 
 /**
  * @var yii\web\View $this
- * @var \lispa\amos\community\models\Community $model
+ * @var \open20\amos\community\models\Community $model
  * @var string $tabActive
  */
 
@@ -63,7 +63,7 @@ $viewUrl = '/community/community/view?id=' . $model->id;
             <div class="img-profile">
                 <img class="img-responsive" src="<?= $url ?>" alt="<?= $model->name ?>">
                 <div class="under-img">
-                    <?= \lispa\amos\community\widgets\JoinCommunityWidget::widget(['model' => $model, 'isProfileView' => true]) ?>
+                    <?= \open20\amos\community\widgets\JoinCommunityWidget::widget(['model' => $model, 'isProfileView' => true]) ?>
                     <h2><?= $model->name ?></h2>
                 </div>
             </div>
@@ -126,7 +126,7 @@ $viewUrl = '/community/community/view?id=' . $model->id;
 
                 <?php
                 if (!$model->isNewRecord) {
-                    echo \lispa\amos\core\forms\editors\m2mWidget\M2MWidget::widget([
+                    echo \open20\amos\core\forms\editors\m2mWidget\M2MWidget::widget([
                         'model' => $model,
                         'modelId' => $model->id,
                         'modelData' => $model->getCommunityUserMms(),
@@ -148,9 +148,9 @@ $viewUrl = '/community/community/view?id=' . $model->id;
                                 'label' => AmosCommunity::t('amoscommunity', 'Photo'),
                                 'format' => 'raw',
                                 'value' => function ($model) {
-                                    /** @var \lispa\amos\admin\models\UserProfile $userProfile */
+                                    /** @var \open20\amos\admin\models\UserProfile $userProfile */
                                     $userProfile = $model->user->getProfile();
-                                    return \lispa\amos\admin\widgets\UserCardWidget::widget(['model' => $userProfile]);
+                                    return \open20\amos\admin\widgets\UserCardWidget::widget(['model' => $userProfile]);
                                 }
                             ],
                             'name' => [
@@ -246,7 +246,7 @@ $viewUrl = '/community/community/view?id=' . $model->id;
                     ]) ?>
 
                     <?php
-                    echo \lispa\amos\core\forms\ShowUserTagsWidget::widget([
+                    echo \open20\amos\core\forms\ShowUserTagsWidget::widget([
                         'userProfile' => $model->id,
                         'className' => $model->className()
                     ]);
@@ -275,7 +275,7 @@ $viewUrl = '/community/community/view?id=' . $model->id;
                     'mainDivClasses' => ''
                 ]) ?>
                 <?=
-                \lispa\amos\community\widgets\SubcommunitiesWidget::widget([
+                \open20\amos\community\widgets\SubcommunitiesWidget::widget([
                     'model' => $model,
                     'isUpdate' => false
                 ]);

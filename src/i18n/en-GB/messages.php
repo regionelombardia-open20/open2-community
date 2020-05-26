@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\i18n\en-GB
+ * @package    open20\amos\community\i18n\en-GB
  * @category   CategoryName
  */
 
@@ -95,6 +95,7 @@ return [
     '#community_and_subcommunities_users_report_column_1' => 'Name',
     '#community_and_subcommunities_users_report_column_2' => 'Surname',
     '#community_and_subcommunities_users_report_column_3' => 'Email',
+    '#community_dashboard_description' => '',
     '#community' => 'community',
     '#Community' => 'Community',
     '#community_published' => 'The community',
@@ -110,6 +111,7 @@ return [
     '#community_member_mini_widget_btn_label' => 'Invite',
     '#community_member_mini_widget_new_form' => 'Participants can only be entered after saving',
     'Community module' => 'Community module',
+    '#community_name' => 'Name',
     'Community not created. Please, check data entry.' => 'Community not created. Please, check data entry.',
     'Community not found.' => 'Community not found.',
     'Community not updated. Please, check data entry.' => 'Community not updated. Please, check data entry.',
@@ -119,6 +121,10 @@ return [
     'Community to which you participate' => 'Community to which you participate',
     'Community type' => 'Community type',
     'Community type id' => 'Community type id',
+    '#community_type' => 'Community type',
+    '#community_status' => 'Status',
+    '#communities_of_interest' => 'Communities of yours interest',
+    '#communities_of_interest_description' => 'The communities selected based on your tags of interest',
     'Community updated successfully.' => 'Community updated successfully.',
     'Completamento' => 'Completion',
     'Completion' => 'Completion',
@@ -139,6 +145,7 @@ return [
     'Crea la community' => "Create community",
     'Creata da ' => 'Created by',
     'Create da me' => 'Created by me',
+    '#create_community_dashboard_description' => '',
     'Created at' => 'Created at',
     'Created At' => 'Created At',
     'Created by ' => 'Created by',
@@ -200,6 +207,7 @@ return [
     'Emails' => 'Emails',
     'E\' ora possibile pubblicare la community o salvarla in bozza nel caso si vogliano aggiungere ulteriori informazioni e pubblicare in un secondo momento' => 'It\'s now possible to publish the community or save it to draft if you want to add more information and post it later',
     'Errore durante l\'iscrizione dell\'utente' => 'Error occured during the registration',
+    '#error_auto_add_community_manager' => "Error occurred while adding user with id '{userId}' to the community with id '{communityId}' as community manager",
     'Error occured while publishing community' => 'Error occured while publishing community',
     'Error occured while rejecting publication request of community' => 'Error occured while rejecting publication request of community',
     'Error occured while subscribing the user' => 'Error occured while subscribing the user',
@@ -239,7 +247,7 @@ return [
     'Introduction' => 'Introduction',
     'Introduzione' => 'Introduction',
     'Invita partecipanti' => 'Invite participants',
-    '#invitation_mail_text_1' => 'invites you to register to ',
+    '#invitation_mail_text_1' => 'invites you to register ',
     '#invitation_received_mail_title' => 'Invitation received',
     'Invitation to' => 'Invitation to',
     'INVITED' => 'Invited',
@@ -253,6 +261,7 @@ return [
     '#invite_users_disabled_msg' => 'It will be possible to invite users once the community profile will be validated.',
     'Invite users' => 'Invite users',
     'Invite Users' => 'Invite Users',
+    'INVITING' => 'Invite in progress',
     'Iscriviti' => 'Register',
     'is now ' => 'is now',
     'is now' => 'is now',
@@ -277,6 +286,7 @@ return [
     'Manager' => 'Manager',
     'Manage role and permission' => 'Manage role and permission',
     'Manager status not allowed' => 'Manager status not allowed',
+    'MANAGER_TO_CONFIRM' => 'Manager to confirm',
     'MEMBERS' => 'MEMBERS',
     '#members_title' => 'Partecipants',
     'Missing model' => 'Missing model',
@@ -340,6 +350,7 @@ return [
     'Registration request to' => 'Registration request to',
     'Registration to' => 'Registration to',
     'Registry' => 'Registry',
+    'REJECTED' => 'Rejected',
     '#rejected_invitation_mail_text_1' => 'refused the invitation to ',
     '#rejected_invitation_mail_title' => 'Invitation rejected',
     'rejected successfully' => 'rejected successfully',
@@ -351,6 +362,7 @@ return [
     'Reports' => 'Reports',
     'Requested page is not available.' => 'Requested page is not available.',
     'Request sent' => 'Request sent',
+    'REQUEST_SENT' => 'Request sent',
     '#required_field' => 'Fields * are mandatory',
     'Reserved' => 'Reserved community',
     'Reset' => 'Reset',
@@ -506,4 +518,6 @@ return [
     '#invited_at' => 'Invited at',
     '#invitation_accepted_at' => 'Invitation accepted at',
     '#invitation_partner_of' => 'Partner of',
+    '#view_title_plugins' => 'In this community you will find',
+    '#view_title_tags' => 'Tags',
 ];

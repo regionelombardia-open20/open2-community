@@ -1,12 +1,21 @@
 <?php
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\module\BaseAmosModule;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\module\BaseAmosModule;
 
 /**
  * @var yii\web\View $this
- * @var $model \lispa\amos\community\models\CommunityUserMm
+ * @var $model \open20\amos\community\models\CommunityUserMm
  */
 
 $controller = Yii::$app->controller;

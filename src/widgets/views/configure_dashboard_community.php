@@ -1,37 +1,50 @@
 <?php
 
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\views\AmosGridView;
-use lispa\amos\core\views\DataProviderView;
-use lispa\amos\dashboard\AmosDashboard;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\views\AmosGridView;
+use open20\amos\core\views\DataProviderView;
+use open20\amos\dashboard\AmosDashboard;
 use yii\helpers\Html;
 
-/* * @var \lispa\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
-/* * @var \lispa\amos\dashboard\models\AmosWidgets $widgetIconSelectable * */
-/* * @var \lispa\amos\dashboard\models\AmosWidgets $widgetGraphicSelectable * */
+/* * @var \open20\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
+/* * @var \open20\amos\dashboard\models\AmosWidgets $widgetIconSelectable * */
+/* * @var \open20\amos\dashboard\models\AmosWidgets $widgetGraphicSelectable * */
 /* * @var array $widgetSelected * */
 
 /* * @var \yii\web\View $this * */
 AmosIcons::map($this);
 $this->params['widgetSelected'] = $widgetSelected;
+$this->params['checkedByDefault'] = true;
+
 ?>
 <div class="dashboard-default-index">
 
     <div class="col-xs-12">
-        <h2><?= AmosDashboard::tHtml('amosdashboard', 'Plugins'); ?></h2>
+        <!--<h2>< ?= AmosDashboard::tHtml('amosdashboard', 'Plugins'); ?></h2>-->
+        <?= Html::tag('h2', AmosDashboard::t('amosdashboard', 'Plugins'), ['class' => 'subtitle-form']) ?>
     </div>
 
     <div class="plugin-list dashboard-content">
-        <?= \lispa\amos\core\views\ListView::widget( [
+        <?= \open20\amos\core\views\ListView::widget( [
                 'dataProvider' => $providerIcon,
-                'itemOptions' => ['class' => 'item'],
-                'itemView' => '@vendor/lispa/amos-community/src/views/configure-dashboard/_icon',
+                'itemOptions' => ['class' => 'col-xs-12 col-sm-6 col-md-2 col-lg-2 flex-column-item'],
+                'itemView' => '@vendor/open20/amos-community/src/views/configure-dashboard/_icon',
             ]
         )?>
 
         <div class="col-xs-12">
-            <h2><?= AmosDashboard::tHtml('amosdashboard', 'Widget'); ?></h2>
+            <!--<h2>< ?= AmosDashboard::tHtml('amosdashboard', 'Widget'); ?></h2>-->
+            <?= Html::tag('h2', AmosDashboard::t('amosdashboard', 'Widget'), ['class' => 'subtitle-form']) ?>
         </div>
 
         <?=
@@ -39,18 +52,18 @@ $this->params['widgetSelected'] = $widgetSelected;
             'dataProvider' => $providerGraphic,
             'summary' => false,
             'columns' => [
+//                [
+//                    'attribute' => 'module',
+//                    'label' => 'Plugin',
+//                ],
                 [
-                    'attribute' => 'module',
-                    'label' => 'Plugin',
-                ],
-                [
-                    'class' => 'lispa\amos\core\views\grid\CheckboxColumn',
+                    'class' => 'open20\amos\core\views\grid\CheckboxColumn',
                     'name' => 'amosWidgetsIds[]',
                     'checkboxOptions' => function ($model, $key, $index, $column) {
                         return [
                             'id' => \yii\helpers\StringHelper::basename($model['classname']),
                             'value' => $model['id'],
-                            'checked' => in_array($model['id'], $this->params['widgetSelected'])
+                            'checked' => empty($this->params['widgetSelected']) ? true : in_array($model['id'], $this->params['widgetSelected'])
                         ];
                     }
                 ],

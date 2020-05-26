@@ -1,26 +1,26 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\widgets\CommunityCardWidget;
-use lispa\amos\community\widgets\JoinCommunityWidget;
-use lispa\amos\core\forms\editors\m2mWidget\M2MWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\user\User;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\widgets\CommunityCardWidget;
+use open20\amos\community\widgets\JoinCommunityWidget;
+use open20\amos\core\forms\editors\m2mWidget\M2MWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\user\User;
 use yii\bootstrap\Modal;
 
 /**
- * @var \lispa\amos\community\models\Community $model
+ * @var \open20\amos\community\models\Community $model
  */
 
 $this->title = AmosCommunity::t('amoscommunity', 'Add communities');
@@ -113,7 +113,7 @@ if (isset($post['genericSearch'])) {
             }
         ],
         [
-            'class' => 'lispa\amos\core\views\grid\ActionColumn',
+            'class' => 'open20\amos\core\views\grid\ActionColumn',
             'template' => '{info}{view}{joinCommunity}',
             'buttons' => [
                 'joinCommunity' => function ($url, $model) {
@@ -125,7 +125,7 @@ if (isset($post['genericSearch'])) {
                         'id' => 'community-info-' . $model->id,
                         'header' => AmosCommunity::t('amoscommunity', 'Additional information')
                     ]);
-                    echo $this->render('@vendor/lispa/amos-community/src/views/community/boxes/registry',
+                    echo $this->render('@vendor/open20/amos-community/src/views/community/boxes/registry',
                         ['model' => $model]);
                     echo Html::tag('div',
                         Html::a(AmosCommunity::t('amoscommunity', 'Close'), null,

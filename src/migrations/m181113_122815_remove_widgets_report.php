@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\admin\migrations
+ * @package    open20\amos\admin\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\admin\models\UserProfileArea;
+use open20\amos\admin\models\UserProfileArea;
 use yii\db\Migration;
 
 /**
@@ -25,7 +25,7 @@ class m181113_122815_remove_widgets_report extends Migration
      */
     public function safeUp()
     {
-        $this->update('amos_widgets', ['dashboard_visible' => 0], ['classname' => 'lispa\amos\community\widgets\graphics\WidgetGraphicsCommunityReports']);
+        $this->update('amos_widgets', ['dashboard_visible' => 0], ['classname' => 'open20\amos\community\widgets\graphics\WidgetGraphicsCommunityReports']);
 
 
     }
@@ -35,7 +35,7 @@ class m181113_122815_remove_widgets_report extends Migration
      */
     public function safeDown()
     {
-        $this->update('amos_widgets', ['dashboard_visible' => 1], ['classname' => 'lispa\amos\community\widgets\graphics\WidgetGraphicsCommunityReports']);
+        $this->update('amos_widgets', ['dashboard_visible' => 1], ['classname' => 'open20\amos\community\widgets\graphics\WidgetGraphicsCommunityReports']);
 
     }
 }

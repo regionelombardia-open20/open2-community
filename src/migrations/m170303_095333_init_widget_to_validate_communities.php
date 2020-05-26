@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\dashboard\models\AmosWidgets;
-use lispa\amos\community\models\Community;
+use open20\amos\dashboard\models\AmosWidgets;
+use open20\amos\community\models\Community;
 use lajax\translatemanager\models\LanguageSource;
 use lajax\translatemanager\models\LanguageTranslate;
 /**
@@ -79,6 +79,7 @@ class m170303_095333_init_widget_to_validate_communities extends \yii\db\Migrati
     }
 
     /**
+     * @see \yii\db\Migration::init() for more info.
      */
     public function init()
     {
@@ -91,12 +92,12 @@ class m170303_095333_init_widget_to_validate_communities extends \yii\db\Migrati
     protected function initWidgetsConfs()
     {
         $this->widget = [
-            'classname' => 'lispa\amos\community\widgets\icons\WidgetIconToValidateCommunities',
+            'classname' => 'open20\amos\community\widgets\icons\WidgetIconToValidateCommunities',
             'type' => AmosWidgets::TYPE_ICON,
             'module' => Community::tableName(),
 
             'status' => AmosWidgets::STATUS_ENABLED,
-            'child_of' => 'lispa\amos\community\widgets\icons\WidgetIconCommunityDashboard',
+            'child_of' => 'open20\amos\community\widgets\icons\WidgetIconCommunityDashboard',
             'update' => true
         ];
     }

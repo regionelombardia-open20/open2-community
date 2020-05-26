@@ -1,27 +1,27 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets
+ * @package    open20\amos\community\widgets
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets;
+namespace open20\amos\community\widgets;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\core\forms\ContextMenuWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\module\BaseAmosModule;
-use lispa\amos\core\views\ListView;
-use lispa\amos\dashboard\models\AmosWidgets;
-use lispa\amos\dashboard\models\search\AmosWidgetsSearch;
-use lispa\amos\notificationmanager\forms\NewsWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\core\forms\ContextMenuWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\module\BaseAmosModule;
+use open20\amos\core\views\ListView;
+use open20\amos\dashboard\models\AmosWidgets;
+use open20\amos\dashboard\models\search\AmosWidgetsSearch;
+use open20\amos\notificationmanager\forms\NewsWidget;
 use Yii;
 use yii\base\Widget;
 use yii\data\ArrayDataProvider;
@@ -29,7 +29,7 @@ use yii\web\ForbiddenHttpException;
 
 /**
  * Class CommunityCardWidget
- * @package lispa\amos\community\widgets
+ * @package open20\amos\community\widgets
  */
 class ConfigureDashboardCommunityWidget extends Widget
 {
@@ -71,7 +71,7 @@ class ConfigureDashboardCommunityWidget extends Widget
     public static function getDashBoardWidgets($model){
         $canPersonalize = \Yii::$app->user->can('COMMUNITY_WIDGETS_ADMIN_PERSONALIZE');
         $util = new CommunityUtil();
-        if(!($util->isManagerLoggedUser($model) || \Yii::$app->user->can('ADMIN'))){
+        if(!($util->isManagerLoggedUser($model) || \Yii::$app->user->can('ADMIN') || $model->isNewRecord)){
             throw new ForbiddenHttpException('Accesso negato');
         }
 
@@ -94,7 +94,7 @@ class ConfigureDashboardCommunityWidget extends Widget
             $widgetIconSelectable = AmosWidgetsSearch::selectableIcon(1, 'community', true, true)->all();
         }
         //remove widget not visible
-        $widgetPartecipanti = AmosWidgets::findOne(['classname' => 'lispa\amos\admin\widgets\icons\WidgetIconUserProfile']);
+        $widgetPartecipanti = AmosWidgets::findOne(['classname' => 'open20\amos\admin\widgets\icons\WidgetIconUserProfile']);
         $widgetIconsSelectableCopy = [$widgetPartecipanti];
         foreach ($widgetIconSelectable as $key => $iconSelectable){
             $obj = Yii::createObject($iconSelectable->classname);

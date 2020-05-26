@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-echo \lispa\amos\community\widgets\UserNetworkWidget::widget([
+echo \open20\amos\community\widgets\UserNetworkWidget::widget([
     'userId' => $userId,
     'isUpdate' => $isUpdate
 ]);

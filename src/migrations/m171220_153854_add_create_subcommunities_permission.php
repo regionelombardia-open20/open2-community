@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 /**
@@ -26,7 +26,7 @@ class m171220_153854_add_create_subcommunities_permission extends AmosMigrationP
             [
                 'name' => 'CreateSubcommunities',
                 'type' => Permission::TYPE_PERMISSION,
-                'ruleName' => \lispa\amos\community\rules\CreateSubcommunitiesRule::className(),
+                'ruleName' => \open20\amos\community\rules\CreateSubcommunitiesRule::className(),
                 'description' => 'Permission to create subcommunities under a specific community parent',
             ],
         ];

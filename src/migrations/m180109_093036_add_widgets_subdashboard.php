@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\community\models\Community;
+use open20\amos\community\models\Community;
 use yii\db\Migration;
 
 /**
@@ -24,7 +24,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
     {
 
         $this->insert('amos_widgets', [
-            'classname' => 'lispa\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard',
+            'classname' => 'open20\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,
@@ -33,7 +33,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
         ]);
 
         $this->insert('amos_widgets', [
-            'classname' => 'lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard',
+            'classname' => 'open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,
@@ -42,7 +42,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
         ]);
 
         $this->insert('amos_widgets', [
-            'classname' => 'lispa\amos\news\widgets\icons\WidgetIconNewsDashboard',
+            'classname' => 'open20\amos\news\widgets\icons\WidgetIconNewsDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,
@@ -51,7 +51,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
         ]);
 
         $this->insert('amos_widgets', [
-            'classname' => 'lispa\amos\showcaseprojects\widgets\icons\WidgetIconShowcaseProjectsDashboard',
+            'classname' => 'open20\amos\showcaseprojects\widgets\icons\WidgetIconShowcaseProjectsDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,
@@ -67,7 +67,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
     {
 
         $this->delete('amos_widgets', [
-            'classname' => 'lispa\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard',
+            'classname' => 'open20\amos\discussioni\widgets\icons\WidgetIconDiscussioniDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,
@@ -76,7 +76,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
         ]);
 
         $this->delete('amos_widgets', [
-            'classname' => 'lispa\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard',
+            'classname' => 'open20\amos\documenti\widgets\icons\WidgetIconDocumentiDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,
@@ -85,7 +85,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
         ]);
 
         $this->delete('amos_widgets', [
-            'classname' => 'lispa\amos\news\widgets\icons\WidgetIconNewsDashboard',
+            'classname' => 'open20\amos\news\widgets\icons\WidgetIconNewsDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,
@@ -94,7 +94,7 @@ class m180109_093036_add_widgets_subdashboard extends Migration
         ]);
 
         $this->delete('amos_widgets', [
-            'classname' => 'lispa\amos\showcaseprojects\widgets\icons\WidgetIconShowcaseProjectsDashboard',
+            'classname' => 'open20\amos\showcaseprojects\widgets\icons\WidgetIconShowcaseProjectsDashboard',
             'type' => 'ICON',
             'module' => 'community',
             'status' => 1,

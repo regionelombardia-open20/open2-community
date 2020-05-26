@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\attachments\components\FileImport;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\migration\libs\common\MigrationCommon;
+use open20\amos\attachments\components\FileImport;
+use open20\amos\community\models\Community;
+use open20\amos\core\migration\libs\common\MigrationCommon;
 use yii\db\Migration;
 use yii\db\Query;
 
@@ -109,7 +109,7 @@ class m170502_151028_migrate_community_images extends Migration
 
     /**
      * This method migrate record images.
-     * @param \lispa\amos\core\record\Record $record
+     * @param \open20\amos\core\record\Record $record
      * @return array|bool
      */
     private function migrateSingleRecord($record)
@@ -145,7 +145,7 @@ class m170502_151028_migrate_community_images extends Migration
 
     /**
      * This method migrate one file from old folder to new folder and then update database
-     * @param \lispa\amos\core\record\Record $record
+     * @param \open20\amos\core\record\Record $record
      * @param string $attribute
      * @param string $filePath
      * @return array

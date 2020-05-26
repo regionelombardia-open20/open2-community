@@ -1,25 +1,28 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\icons
+ * @package    open20\amos\community\widgets\icons
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets\icons;
+namespace open20\amos\community\widgets\icons;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\widget\WidgetIcon;
-use lispa\amos\core\widget\WidgetAbstract;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\core\widget\WidgetIcon;
+use open20\amos\core\widget\WidgetAbstract;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\search\CommunitySearch;
+use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class WidgetIconAdminAllCommunity
- * @package lispa\amos\community\widgets\icons
+ * @package open20\amos\community\widgets\icons
  */
 class WidgetIconAdminAllCommunity extends WidgetIcon
 {
@@ -33,13 +36,12 @@ class WidgetIconAdminAllCommunity extends WidgetIcon
 
         $paramsClassSpan = [
             'bk-backgroundIcon',
-            'color-primary'
         ];
 
         $this->setLabel(AmosCommunity::tHtml('amoscommunity', 'Administrate communities'));
         $this->setDescription(AmosCommunity::t('amoscommunity', "Allow user to edit the community entity"));
 
-        if (!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+        if (!empty(Yii::$app->params['dashboardEngine']) && Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
             $this->setIconFramework(AmosIcons::IC);
             $this->setIcon('community');
             $paramsClassSpan = [];
@@ -64,6 +66,18 @@ class WidgetIconAdminAllCommunity extends WidgetIcon
                 $paramsClassSpan
             )
         );
+
+        
+        if ($this->disableBulletCounters == false) {
+            $search = new CommunitySearch();
+            $this->setBulletCount(
+                $this->makeBulletCounter(
+                    Yii::$app->getUser()->getId(),
+                    Community::className(),
+                    $search->buildQuery([], 'admin-all')
+                )
+            );
+        }
     }
 
     /**

@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\admin\models
+ * @package    open20\amos\admin\models
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models;
+namespace open20\amos\community\models;
 
 use yii\base\Model;
 
 
 /**
  * Class LoginForm
- * @package lispa\amos\admin\models
+ * @package open20\amos\admin\models
  */
 class RegisterForm extends Model
 {

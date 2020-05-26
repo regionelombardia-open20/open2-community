@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\graphics
+ * @package    open20\amos\community\widgets\graphics
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets\graphics;
+namespace open20\amos\community\widgets\graphics;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\core\widget\WidgetGraphic;
-use lispa\amos\notificationmanager\base\NotifyWidgetDoNothing;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\core\widget\WidgetGraphic;
+use open20\amos\notificationmanager\base\NotifyWidgetDoNothing;
 
 /**
  * Class WidgetGraphicsMyCommunities
- * @package lispa\amos\community\widgets\graphics
+ * @package open20\amos\community\widgets\graphics
  */
 class WidgetGraphicsMyCommunities extends WidgetGraphic
 {
@@ -42,7 +42,7 @@ class WidgetGraphicsMyCommunities extends WidgetGraphic
         $search = new CommunitySearch();
         $search->setNotifier(new NotifyWidgetDoNothing());
         
-        $viewPath = '@vendor/lispa/amos-community/src/widgets/graphics/views/';
+        $viewPath = '@vendor/open20/amos-community/src/widgets/graphics/views/';
         $viewToRender = $viewPath . 'my_communities';
         
         $numberToView = 3;
@@ -54,7 +54,7 @@ class WidgetGraphicsMyCommunities extends WidgetGraphic
         $moduleCommunity = \Yii::$app->getModule('community');
         $showSubscommunities = $moduleCommunity->showSubcommunities;
         $linkToSubcommunities = false;
-        /** @var \lispa\amos\cwh\AmosCwh $moduleCwh */
+        /** @var \open20\amos\cwh\AmosCwh $moduleCwh */
         if ($showSubscommunities) {
             $moduleCwh = \Yii::$app->getModule('cwh');
             if (!is_null($moduleCwh)) {

@@ -1,17 +1,17 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\helpers\Html;
 
-/** @var \lispa\amos\community\utilities\EmailUtil $util */
+/** @var \open20\amos\community\utilities\EmailUtil $util */
 if(!empty($profile)) {
     $this->params['profile'] = $profile;
 }
@@ -31,7 +31,7 @@ if(!empty($profile)) {
                 <?php if ($util->isCommunityContext): ?>
                     <div
                         style="width: 50px; height: 50px; -webkit-border-radius: 50%; -moz-border-radius: 50%; border-radius: 50%;float: left;">
-                        <?= \lispa\amos\community\widgets\CommunityCardWidget::widget([
+                        <?= \open20\amos\community\widgets\CommunityCardWidget::widget([
                             'model' => $util->community,
                             'onlyLogo' => true,
                             'absoluteUrl' => true,
@@ -48,7 +48,7 @@ if(!empty($profile)) {
             <div style="color:#000000;width:100%;margin-top:30px">
                 <p>
                     <?= AmosCommunity::t('amoscommunity', "You are now:") . " " ?>
-                    <span style="font-weight: 900"><?= $util->role . "." ?></span>
+                    <span style="font-weight: 900"><?= AmosCommunity::t('amoscommunity', $util->role) . "." ?></span>
                 </p>
             </div>
             <p style="color:#000000;"><?= Html::a(AmosCommunity::t('amoscommunity', 'Sign into the platflorm'), $util->url, ['style' => 'color: green;']) . ' ' .

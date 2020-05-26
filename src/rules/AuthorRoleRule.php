@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\rules
+ * @package    open20\amos\community\rules
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\rules;
+namespace open20\amos\community\rules;
 
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\core\rules\DefaultOwnContentRule;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\core\rules\DefaultOwnContentRule;
 use yii\helpers\Url;
 
 /**
  * Class CreateSubcommunitiesRule
- * @package lispa\amos\community\rules
+ * @package open20\amos\community\rules
  */
 class AuthorRoleRule extends DefaultOwnContentRule
 {

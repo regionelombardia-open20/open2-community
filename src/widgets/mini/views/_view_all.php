@@ -1,9 +1,18 @@
 <?php
+
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
 /** @var $dataProvider \yii\data\ActiveDataProvider*/
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\admin\widgets\UserCardWidget;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\admin\widgets\UserCardWidget;
+use open20\amos\core\helpers\Html;
 
 
 
@@ -19,7 +28,7 @@ use lispa\amos\core\helpers\Html;
         'enableReplaceState' => false,
         'clientOptions' => ['data-pjax-container' => 'grid-view-all-members', 'method' => 'POST' ]
     ]);
-    echo \lispa\amos\core\views\AmosGridView::widget([
+    echo \open20\amos\core\views\AmosGridView::widget([
         'dataProvider' => $dataProvider,
         'id' => 'grid-view-all-members',
         'columns' => [
@@ -33,7 +42,7 @@ use lispa\amos\core\helpers\Html;
                 'label' => AmosCommunity::t('amoscommunity', 'Photo'),
                 'format' => 'raw',
                 'value' => function ($model) {
-                    /** @var \lispa\amos\admin\models\UserProfile $userProfile */
+                    /** @var \open20\amos\admin\models\UserProfile $userProfile */
                     $userProfile = $model->user->getProfile();
                     return UserCardWidget::widget(['model' => $userProfile]);
                 }

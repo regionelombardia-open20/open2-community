@@ -1,22 +1,22 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers;
+namespace open20\amos\community\controllers;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\assets\AmosCommunityAsset;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\community\rbac\UpdateOwnNetworkCommunity;
-use lispa\amos\core\controllers\CrudController;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\community\rbac\UpdateOwnNetworkCommunity;
+use open20\amos\core\controllers\CrudController;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;

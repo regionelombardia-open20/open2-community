@@ -1,34 +1,34 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityType;
-use lispa\amos\community\widgets\CommunityPublishedContentsWidget;
-use lispa\amos\community\widgets\JoinCommunityWidget;
-use lispa\amos\community\widgets\mini\CommunityMembersMiniWidget;
-use lispa\amos\community\widgets\SubcommunitiesWidget;
-use lispa\amos\core\forms\AccordionWidget;
-use lispa\amos\core\forms\ContextMenuWidget;
-use lispa\amos\core\forms\CreatedUpdatedWidget;
-use lispa\amos\core\forms\ListTagsWidget;
-use lispa\amos\core\forms\PublishedContentsWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityType;
+use open20\amos\community\widgets\CommunityPublishedContentsWidget;
+use open20\amos\community\widgets\JoinCommunityWidget;
+use open20\amos\community\widgets\mini\CommunityMembersMiniWidget;
+use open20\amos\community\widgets\SubcommunitiesWidget;
+use open20\amos\core\forms\AccordionWidget;
+use open20\amos\core\forms\ContextMenuWidget;
+use open20\amos\core\forms\CreatedUpdatedWidget;
+use open20\amos\core\forms\ListTagsWidget;
+use open20\amos\core\forms\PublishedContentsWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
 use yii\log\Logger;
 
 /**
  * @var yii\web\View $this
- * @var \lispa\amos\community\models\Community $model
+ * @var \open20\amos\community\models\Community $model
  * @var string $tabActive
  */
 
@@ -90,7 +90,7 @@ $isLoggedUserParticipant = $model->isNetworkUser();
                 ]) ?>
                 <?= CreatedUpdatedWidget::widget(['model' => $model, 'isTooltip' => true]) ?>
                 <?=
-                \lispa\amos\report\widgets\ReportFlagWidget::widget([
+                \open20\amos\report\widgets\ReportFlagWidget::widget([
                     'model' => $model,
                 ])
                 ?>
@@ -110,7 +110,7 @@ $isLoggedUserParticipant = $model->isNetworkUser();
                 <?= $model->description; ?>
             </div>
             <div class="widget-body-content col-xs-12 nop">
-                <?php echo \lispa\amos\report\widgets\ReportDropdownWidget::widget([
+                <?php echo \open20\amos\report\widgets\ReportDropdownWidget::widget([
                     'model' => $model,
                 ])
                 ?>

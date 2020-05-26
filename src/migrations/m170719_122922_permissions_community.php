@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 /**
@@ -24,17 +24,17 @@ class m170719_122922_permissions_community extends AmosMigrationPermissions
     {
         return [
             [
-                'name' => \lispa\amos\community\rbac\UpdateOwnCommunityProfile::className(),
+                'name' => \open20\amos\community\rbac\UpdateOwnCommunityProfile::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Permesso di aggiornare il proprio profilo della community',
-                'ruleName' => \lispa\amos\community\rbac\UpdateOwnCommunityProfile::className(),
+                'ruleName' => \open20\amos\community\rbac\UpdateOwnCommunityProfile::className(),
                 'parent' => ['ADMIN', 'BASIC_USER']
             ],
             [
-                'name' => \lispa\amos\community\rbac\UpdateOwnNetworkCommunity::className(),
+                'name' => \open20\amos\community\rbac\UpdateOwnNetworkCommunity::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Permesso di aggiornare le community nella tua rete',
-                'ruleName' => \lispa\amos\community\rbac\UpdateOwnNetworkCommunity::className(),
+                'ruleName' => \open20\amos\community\rbac\UpdateOwnNetworkCommunity::className(),
                 'parent' => ['ADMIN', 'BASIC_USER']
             ]
         ];

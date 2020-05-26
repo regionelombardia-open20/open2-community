@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 /**
@@ -40,7 +40,7 @@ class m170317_082718_add_role_community_member_and_permissions extends AmosMigra
                 'dontRemove' => true
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCommunityDashboard::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCommunityDashboard::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconCommunityDashboard',
                 'ruleName' => null,
@@ -48,7 +48,7 @@ class m170317_082718_add_role_community_member_and_permissions extends AmosMigra
                 'dontRemove' => true
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCommunity::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCommunity::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconCommunity',
                 'ruleName' => null,
@@ -56,7 +56,7 @@ class m170317_082718_add_role_community_member_and_permissions extends AmosMigra
                 'dontRemove' => true
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconMyCommunities::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconMyCommunities::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconMyCommunities',
                 'ruleName' => null,

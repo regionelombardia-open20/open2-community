@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\components
+ * @package    open20\amos\community\components
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\components;
+namespace open20\amos\community\components;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\components\PartQuestionarioAbstract;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\core\components\PartQuestionarioAbstract;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -21,7 +21,7 @@ use yii\helpers\ArrayHelper;
  * Class PartsFormCommunity
  *
  * defines the steps for creation/update of community instances
- * @package lispa\amos\community\components
+ * @package open20\amos\community\components
  */
 class PartsFormCommunity extends PartQuestionarioAbstract
 {

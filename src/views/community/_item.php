@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\icons\AmosIcons;
 
 /*
  * Personalize the view at will
@@ -24,7 +24,7 @@ use lispa\amos\core\icons\AmosIcons;
 
     <div class="list-element-left">
         <div class="grow-pict">
-            <img class="img-responsive img-round" src="<?= $model->getAvatarUrl('square_medium') ?>" alt="<?= $model ?>"/>
+            <img class="img-responsive img-round" src="<?= $model->getAvatarUrl('item_community') ?>" alt="<?= $model ?>"/>
         </div>
     </div>
 

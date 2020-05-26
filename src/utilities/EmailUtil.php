@@ -1,25 +1,25 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\utilities
+ * @package    open20\amos\community\utilities
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\utilities;
+namespace open20\amos\community\utilities;
 
-use lispa\amos\admin\models\UserProfile;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\controllers\CommunityController;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\controllers\CrudController;
+use open20\amos\admin\models\UserProfile;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\controllers\CommunityController;
+use open20\amos\community\models\Community;
+use open20\amos\core\controllers\CrudController;
 
 /**
  * Class EmailUtil
- * @package lispa\amos\community\utilities
+ * @package open20\amos\community\utilities
  */
 class EmailUtil
 {
@@ -132,7 +132,7 @@ class EmailUtil
     {
         /** @var CrudController $controller */
         $controller = \Yii::$app->controller;
-        $pathEmail = '@vendor/lispa/amos-community/src/views/community/';
+        $pathEmail = '@vendor/open20/amos-community/src/views/community/';
         $subject = '';
         $moduleCommmunity = \Yii::$app->getModule(AmosCommunity::getModuleName());
         $pathMailList = [];
@@ -184,7 +184,7 @@ class EmailUtil
     {
         /** @var $controller CommunityController */
         $controller = \Yii::$app->controller;
-        $pathEmail = '@vendor/lispa/amos-community/src/views/community/';
+        $pathEmail = '@vendor/open20/amos-community/src/views/community/';
         $moduleCommmunity = \Yii::$app->getModule(AmosCommunity::getModuleName());
         $pathMailList = [];
         if ($moduleCommmunity && !empty($moduleCommmunity->htmlMailContent)) {

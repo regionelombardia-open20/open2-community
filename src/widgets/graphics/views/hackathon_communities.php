@@ -1,27 +1,27 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\graphics\views
+ * @package    open20\amos\community\widgets\graphics\views
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\forms\WidgetGraphicsActions;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\core\forms\WidgetGraphicsActions;
+use open20\amos\core\helpers\Html;
 use yii\data\ActiveDataProvider;
 use yii\web\View;
 use yii\widgets\Pjax;
-use lispa\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\assets\AmosCommunityAsset;
 $assetCommunity = AmosCommunityAsset::register($this);
 /**
  * @var View $this
  * @var ActiveDataProvider $communitiesList
- * @var \lispa\amos\community\widgets\graphics\WidgetGraphicsMyCommunities $widget
+ * @var \open20\amos\community\widgets\graphics\WidgetGraphicsMyCommunities $widget
  * @var string $toRefreshSectionId
  */
 

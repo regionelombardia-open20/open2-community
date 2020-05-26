@@ -1,13 +1,22 @@
 <?php
-/** @var \lispa\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
+
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+/** @var \open20\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
 /** @var \yii\web\View $this * */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\views\assets\AmosCoreAsset;
-use lispa\amos\dashboard\AmosDashboard;
-use lispa\amos\dashboard\assets\ModuleDashboardAsset;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\views\assets\AmosCoreAsset;
+use open20\amos\dashboard\AmosDashboard;
+use open20\amos\dashboard\assets\ModuleDashboardAsset;
 
 AmosCoreAsset::register($this);
 

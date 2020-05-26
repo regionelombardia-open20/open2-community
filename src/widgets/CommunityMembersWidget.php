@@ -1,25 +1,25 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets;
+namespace open20\amos\community\widgets;
 
-use lispa\amos\admin\widgets\UserCardWidget;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\core\forms\editors\m2mWidget\M2MWidget;
-use lispa\amos\core\forms\editors\Select;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\utilities\JsUtility;
+use open20\amos\admin\widgets\UserCardWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\core\forms\editors\m2mWidget\M2MWidget;
+use open20\amos\core\forms\editors\Select;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\utilities\JsUtility;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
@@ -30,7 +30,7 @@ use yii\widgets\PjaxAsset;
 
 /**
  * Class CommunityMembersWidget
- * @package lispa\amos\community\widgets
+ * @package open20\amos\community\widgets
  */
 class CommunityMembersWidget extends Widget
 {
@@ -63,7 +63,7 @@ class CommunityMembersWidget extends Widget
     /**
      * @var bool $viewInvitation
      */
-    public $viewInvitation = true;
+    public $viewInvitation = false;
     
     /**
      * @var bool $checkManagerRole
@@ -101,6 +101,16 @@ class CommunityMembersWidget extends Widget
     public $targetUrlParams = null;
     
     /**
+     * @var array $targetUrlInvitation
+     */
+    public $targetUrlInvitation = null;
+    
+    /**
+     * @var array $invitationModule
+     */
+    public $invitationModule = null;
+    
+    /**
      * @var string $gridId
      */
     public $gridId = 'community-members-grid';
@@ -116,6 +126,23 @@ class CommunityMembersWidget extends Widget
      * @var string
      */
     public $communityManagerRoleName = '';
+    
+    /**
+     *
+     * @var bool $externalInvitationUsers
+     */
+    public $externalInvitationUsers = true;
+    
+    /**
+     *
+     * @var array $exportMittenteConfig 
+     */
+    public $exportMittenteConfig = [];
+    
+    /**
+     *  @var string $additionalButtons
+     */
+    public $additionalButtons = '';
     
     /**
      * @inheritdoc
@@ -169,6 +196,10 @@ class CommunityMembersWidget extends Widget
         $params['gridId'] = $this->gridId;
         $params['communityManagerRoleName'] = $this->communityManagerRoleName;
         
+        $params['targetUrlInvitation'] = $this->targetUrlInvitation;
+        $params['invitationModule'] = $this->invitationModule;
+        
+        
         $url = \Yii::$app->urlManager->createUrl([
             '/community/community/community-members',
             'id' => $model->id,
@@ -192,8 +223,8 @@ class CommunityMembersWidget extends Widget
                 'label' => AmosCommunity::t('amoscommunity', 'Photo'),
                 'format' => 'raw',
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
-                    /** @var \lispa\amos\admin\models\UserProfile $userProfile */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\admin\models\UserProfile $userProfile */
                     $userProfile = $model->user->getProfile();
                     return UserCardWidget::widget(['model' => $userProfile]);
                 }
@@ -208,7 +239,7 @@ class CommunityMembersWidget extends Widget
                     'headers' => AmosCommunity::t('amoscommunity', 'name'),
                 ],
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return Html::a($model->user->userProfile->surnameName, ['/admin/user-profile/view', 'id' => $model->user->userProfile->id], [
                         'title' => AmosCommunity::t('amoscommunity', 'Apri il profilo di {nome_profilo}', ['nome_profilo' => $model->user->userProfile->surnameName])
                     ]);
@@ -225,7 +256,7 @@ class CommunityMembersWidget extends Widget
                     'headers' => AmosCommunity::t('amoscommunity', 'Status'),
                 ],
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return AmosCommunity::t('amoscommunity', $model->status);
                 }
             ],
@@ -239,7 +270,7 @@ class CommunityMembersWidget extends Widget
                     'headers' => AmosCommunity::t('amoscommunity', 'Role'),
                 ],
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     if ($model->role == 'COMMUNITY_MANAGER' && !empty($this->communityManagerRoleName)) {
                         return AmosCommunity::t('amoscommunity', $this->communityManagerRoleName);
                     }
@@ -264,7 +295,7 @@ class CommunityMembersWidget extends Widget
                 'attribute' => 'status',
                 'label' => AmosCommunity::t('amoscommunity', 'Confirm status'),
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return AmosCommunity::t('amoscommunity', $model->status);
                 }
             ],
@@ -272,7 +303,7 @@ class CommunityMembersWidget extends Widget
                 'attribute' => 'invitation_accepted_at',
                 'label' => AmosCommunity::t('amoscommunity', 'Confirm date'),
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return \Yii::$app->formatter->asDatetime($model->invitation_accepted_at, 'humanalwaysdatetime');
                 }
             ]
@@ -283,7 +314,7 @@ class CommunityMembersWidget extends Widget
             $view_email_partecipants = Yii::$app->getModule('community')->view_email_partecipants;
         }
         
-        if ($view_email_partecipants || ($this->viewEmail)) {
+        if (($view_email_partecipants && $this->checkManager()) || ($this->viewEmail)) {
             $itemsMittente['email'] = [
                 'label' => AmosCommunity::t('amoscommunity', 'Email'),
                 'headerOptions' => [
@@ -293,7 +324,7 @@ class CommunityMembersWidget extends Widget
                     'headers' => AmosCommunity::t('amoscommunity', 'email'),
                 ],
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return $model->user->email;
                 }
             ];
@@ -310,7 +341,7 @@ class CommunityMembersWidget extends Widget
                     'headers' => AmosCommunity::t('amoscommunity', '#invited_at'),
                 ],
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return \Yii::$app->formatter->asDatetime($model->invited_at);
                 }
             ];
@@ -324,7 +355,7 @@ class CommunityMembersWidget extends Widget
                     'headers' => AmosCommunity::t('amoscommunity', '#invitation_accepted_at'),
                 ],
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return \Yii::$app->formatter->asDatetime($model->invitation_accepted_at);
                 }
             ];
@@ -338,7 +369,7 @@ class CommunityMembersWidget extends Widget
                     'headers' => AmosCommunity::t('amoscommunity', '#invitation_partner_of'),
                 ],
                 'value' => function ($model) {
-                    /** @var \lispa\amos\community\models\CommunityUserMm $model */
+                    /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return (!is_null($model->partnerOf) ? $model->partnerOf->userProfile->surnameName : '-');
                 }
             ];
@@ -361,12 +392,12 @@ class CommunityMembersWidget extends Widget
             $associateBtnDisabled = true;
         }
         
-        
         $query = !empty($this->showRoles)
             ? $model->getCommunityModel()->getCommunityUserMms()->andWhere(['role' => $this->showRoles])
             : $model->getCommunityModel()->getCommunityUserMms();
         
-        $query->innerJoin('user_profile up', 'community_user_mm.user_id = up.user_id')
+        $query
+            ->innerJoin('user_profile up', 'community_user_mm.user_id = up.user_id')
             ->andWhere(['up.attivo' => 1]);
         
         if (isset($_POST[$searchPostName])) {
@@ -390,22 +421,33 @@ class CommunityMembersWidget extends Widget
             $rolesArray[$role] = $role;
         }
         
-        $insass = ($inviteUserOfcommunityParent && !$isSubCommunity && $customInvitationForm) || (!$inviteUserOfcommunityParent && $customInvitationForm);
-        $widget = M2MWidget::widget([
+        $insass = ($inviteUserOfcommunityParent && !$isSubCommunity && $customInvitationForm) || (!$inviteUserOfcommunityParent && $customInvitationForm);             
+        
+        
+        
+        
+        
+        
+        $configM2MW = [
+            'btnInvitationLabel' => AmosCommunity::t('amoscommunity', 'Invita Utenti Esterni'),
+            'btnInvitationClass' => 'btn btn-primary' . ($associateBtnDisabled ? ' disabled' : ''),
+            'targetUrlInvitation' => $this->targetUrlInvitation,
+            'invitationModule' => $this->invitationModule,
+            'externalInvitationEnabled' => (\Yii::$app->getModule('community')->externalInvitationUsers == true) 
+                ? (Yii::$app->user->can('ADMIN') || CommunityUtil::isLoggedCommunityManager())
+                : false,
+            
             'model' => $model->getCommunityModel(),
             'modelId' => $model->getCommunityModel()->id,
             'modelData' => $query,
             'overrideModelDataArr' => true,
-            'exportMittenteConfig' => [
-                'exportEnabled' => true,
-                'exportColumns' => $exportColumns
-            ],
             'forceListRender' => true,
             'targetUrlParams' => $this->targetUrlParams,
             'gridId' => $gridId,
             'firstGridSearch' => true,
             'isModal' => $this->enableModal,
             'createAdditionalAssociateButtonsEnabled' => $this->showAdditionalAssociateButton,
+            'additionalButtons' => $this->additionalButtons,
             'disableCreateButton' => true,
             'btnAssociaLabel' => AmosCommunity::t('amoscommunity', 'Invite users'),
             'btnAssociaClass' => 'btn btn-primary' . ($associateBtnDisabled ? ' disabled' : ''),
@@ -518,7 +560,6 @@ class CommunityMembersWidget extends Widget
                                         },
                                         success: function(response) {
                                            $('#$modalId').modal('hide');
-                                           $('#reset-search-btn-$this->gridId').click();
                                        }
                                     });
                                 return false;
@@ -526,7 +567,7 @@ class CommunityMembersWidget extends Widget
                                         ]),
                                     ['class' => 'pull-right m-15-0']
                                 );
-//                        echo $this->render('@vendor/lispa/amos-community/src/views/community/change-user-role', ['model' => $model]);
+//                        echo $this->render('@vendor/open20/amos-community/src/views/community/change-user-role', ['model' => $model]);
                                 Modal::end();
                                 
                                 $btn = Html::a(
@@ -550,7 +591,7 @@ class CommunityMembersWidget extends Widget
                 },
                 'deleteRelation' => function ($url, $model) {
                     $url = '/community/community/elimina-m2m';
-                    $community = \lispa\amos\community\models\Community::findOne($model->community_id);
+                    $community = \open20\amos\community\models\Community::findOne($model->community_id);
                     $targetId = $model->user_id;
                     $urlDelete = Yii::$app->urlManager->createUrl([
                         $url,
@@ -577,8 +618,28 @@ class CommunityMembersWidget extends Widget
                 },
             ],
             'itemsMittente' => $itemsMittente,
-        ]);
+        ];
+
+        //TODO : rimuovere una volta taggato amos-core.
+        $tmp = new M2MWidget(['model' => $model->getCommunityModel(),
+            'modelId' => $model->getCommunityModel()->id,
+            'modelData' => $query,
+            'overrideModelDataArr' => true,
+            'forceListRender' => true,
+            'targetUrl' => $insass ? '/community/community/insass-m2m' : '/community/community/associa-m2m']);
+
+        if ($tmp->hasProperty('exportMittenteConfig')) {
+            if (empty($this->exportMittenteConfig)) {
+                $this->exportMittenteConfig =  [
+                    'exportEnabled' => true,
+                    'exportColumns' => $exportColumns
+                ];
+            }
+            $configM2MW['exportMittenteConfig'] = $this->exportMittenteConfig;
+        }
         
+        $widget = M2MWidget::widget($configM2MW);
+
         $message = $associateBtnDisabled ? AmosCommunity::t('amoscommunity', '#invite_users_disabled_msg') : '';
         return $message . "<div id='" . $gridId . "' data-pjax-container='" . $gridId . "-pjax' data-pjax-timeout=\"1000\"  class=\"table-responsive\">" . $widget . "</div>";
     }

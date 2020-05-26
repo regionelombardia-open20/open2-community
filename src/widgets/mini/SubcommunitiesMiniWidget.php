@@ -1,27 +1,27 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets\mini;
+namespace open20\amos\community\widgets\mini;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
 
 /**
  * Class SubcommunitiesWidget
- * @package lispa\amos\community\widgets
+ * @package open20\amos\community\widgets
  */
 class SubcommunitiesMiniWidget extends Widget
 {
@@ -112,7 +112,7 @@ class SubcommunitiesMiniWidget extends Widget
         if (!$model->isCommunityManager()) {
             $subcommunitiesQuery->joinWith('communityUsers')->andWhere([CommunityUserMm::tableName() . '.user_id' => Yii::$app->user->id]);
         }
-        $widget = \lispa\amos\core\forms\editors\m2mWidget\M2MWidget::widget([
+        $widget = \open20\amos\core\forms\editors\m2mWidget\M2MWidget::widget([
             'model' => $model,
             'modelId' => $model->getCommunityModel()->id,
             'titleWidget' => $this->title,

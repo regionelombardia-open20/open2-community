@@ -1,28 +1,28 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
 /** @var CommunityUserMm $model */
 
-use lispa\amos\admin\models\UserProfile;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\CloseSaveButtonWidget;
+use open20\amos\admin\models\UserProfile;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\CloseSaveButtonWidget;
 use kartik\select2\Select2;
 
 /** @var Community $community */
 $community = Community::findOne($model->community_id);
-/** @var \lispa\amos\core\user\User $user */
-$user = \lispa\amos\core\user\User::findOne($model->user_id);
+/** @var \open20\amos\core\user\User $user */
+$user = \open20\amos\core\user\User::findOne($model->user_id);
 /** @var  UserProfile $userProfile */
 $userProfile = $user->getProfile();
 $this->title = $userProfile->getNomeCognome() . " - ".AmosCommunity::t('amoscommunity', 'Manage role and permission') ;

@@ -1,47 +1,50 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\models
+ * @package    open20\amos\community\models
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models;
+namespace open20\amos\community\models;
 
-use lispa\amos\attachments\behaviors\FileBehavior;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\i18n\grammar\CommunityGrammar;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\community\widgets\icons\WidgetIconCommunityDashboard;
-use lispa\amos\community\widgets\UserNetworkWidget;
-use lispa\amos\core\user\User;
-use lispa\amos\cwh\AmosCwh;
-use lispa\amos\cwh\behaviors\TaggableInterestingBehavior;
-use lispa\amos\cwh\models\CwhAuthAssignment;
-use lispa\amos\cwh\models\CwhConfig;
-use lispa\amos\notificationmanager\behaviors\NotifyBehavior;
-use lispa\amos\seo\behaviors\SeoContentBehavior;
-use lispa\amos\workflow\behaviors\WorkflowLogFunctionsBehavior;
+use open20\amos\attachments\behaviors\FileBehavior;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\i18n\grammar\CommunityGrammar;
+use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\community\widgets\icons\WidgetIconCommunityDashboard;
+use open20\amos\community\widgets\UserNetworkWidget;
+use open20\amos\core\user\User;
+use open20\amos\cwh\AmosCwh;
+use open20\amos\cwh\behaviors\TaggableInterestingBehavior;
+use open20\amos\cwh\models\CwhAuthAssignment;
+use open20\amos\cwh\models\CwhConfig;
+use open20\amos\notificationmanager\behaviors\NotifyBehavior;
+use open20\amos\seo\behaviors\SeoContentBehavior;
+use open20\amos\workflow\behaviors\WorkflowLogFunctionsBehavior;
 use raoul2000\workflow\base\SimpleWorkflowBehavior;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use yii\log\Logger;
 
 
 /**
  * Class Community
  * This is the model class for table "community".
  *
- * @property \lispa\amos\community\models\CommunityUserMm[] $communityManagerMms
- * @property \lispa\amos\core\user\User[] $communityManagers
+ * @property \open20\amos\community\models\CommunityUserMm[] $communityManagerMms
+ * @property \open20\amos\core\user\User[] $communityManagers
  *
- * @package lispa\amos\community\models
+ * @package open20\amos\community\models
  */
-class Community extends \lispa\amos\community\models\base\Community implements CommunityContextInterface
+class Community extends \open20\amos\community\models\base\Community implements CommunityContextInterface
 {
 
     /**
@@ -93,6 +96,11 @@ class Community extends \lispa\amos\community\models\base\Community implements C
      */
     public $backToEdit;
     public $level = 0;
+    
+    /**
+     * @var AmosCommunity $communityModule
+     */
+    protected $communityModule;
 
     /**
      * @inheritdoc
@@ -106,9 +114,12 @@ class Community extends \lispa\amos\community\models\base\Community implements C
             if ($this->status == self::COMMUNITY_WORKFLOW_STATUS_VALIDATED) {
                 $this->validated_once = 1;
             }
-            $communityModule = Yii::$app->getModule('community');
-            if (!is_null($communityModule->communityType)) {
-                $this->community_type_id = $communityModule->communityType;
+            $this->communityModule = Yii::$app->getModule('community');
+            if (!is_null($this->communityModule->communityType)) {
+                $this->community_type_id = $this->communityModule->communityType;
+            }
+            if($this->hasAttribute('force_workflow')){
+                $this->force_workflow = ($this->communityModule->forceWorkflow($this) === true) ? 1 : 0;
             }
         }
     }
@@ -123,7 +134,16 @@ class Community extends \lispa\amos\community\models\base\Community implements C
         //$this->communityLogo = $this->getCommunityLogo()->one();
         $this->communityCoverImage = $this->getCommunityCoverImage()->one();
     }
-
+    
+    /**
+     * @inheritdoc
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        CommunityUtil::autoAddCommunityManagersToCommunity($this, CommunityUserMm::STATUS_ACTIVE);
+    }
+    
     /**
      * Getter for $this->communityLogo;
      * @return \yii\db\ActiveQuery
@@ -189,13 +209,14 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     }
 
     /**
+     * @see \yii\base\Model::rules() for more info.
      */
     public function rules()
     {
         return ArrayHelper::merge(parent::rules(), [
             [['communityLogo'], 'file', 'extensions' => 'jpeg, jpg, png, gif', 'minSize' => 1],
             [['communityCoverImage'], 'file', 'extensions' => 'jpeg, jpg, png, gif', 'minSize' => 1],
-            [['backToEdit'], 'integer']
+            [['backToEdit'], 'integer'],
         ]);
     }
 
@@ -800,8 +821,8 @@ class Community extends \lispa\amos\community\models\base\Community implements C
     public function getCommunityManagerMms()
     {
         return $this->getCommunityUserMms()
-            ->andWhere([\lispa\amos\community\models\CommunityUserMm::tableName() . '.status' => \lispa\amos\community\models\CommunityUserMm::STATUS_ACTIVE])
-            ->andWhere([\lispa\amos\community\models\CommunityUserMm::tableName() . '.role' => \lispa\amos\community\models\CommunityUserMm::ROLE_COMMUNITY_MANAGER]);
+            ->andWhere([\open20\amos\community\models\CommunityUserMm::tableName() . '.status' => \open20\amos\community\models\CommunityUserMm::STATUS_ACTIVE])
+            ->andWhere([\open20\amos\community\models\CommunityUserMm::tableName() . '.role' => \open20\amos\community\models\CommunityUserMm::ROLE_COMMUNITY_MANAGER]);
     }
 
     /**
@@ -809,7 +830,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
      */
     public function getCommunityManagers()
     {
-        return $this->hasMany(\lispa\amos\core\user\User::className(), ['id' => 'user_id'])->via('communityManagerMms');
+        return $this->hasMany(\open20\amos\core\user\User::className(), ['id' => 'user_id'])->via('communityManagerMms');
     }
 
     /**
@@ -848,9 +869,11 @@ class Community extends \lispa\amos\community\models\base\Community implements C
      */
     public function showParticipantWidget(){
         if($this->getAmosWidgetsIcons()->count() > 0) {
-            $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'lispa\amos\admin\widgets\icons\WidgetIconUserProfile'])->count();
+            $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'open20\amos\admin\widgets\icons\WidgetIconUserProfile'])->count();
+            
             return $count > 0;
         }
+        
         return true;
     }
 
@@ -859,7 +882,7 @@ class Community extends \lispa\amos\community\models\base\Community implements C
      */
     public function showSubCommunityWidget(){
         if($this->getAmosWidgetsIcons()->count() > 0) {
-            $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'lispa\amos\community\widgets\icons\WidgetIconCommunityDashboard'])->count();
+            $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'open20\amos\community\widgets\icons\WidgetIconCommunityDashboard'])->count();
             return $count > 0;
         }
         return true;

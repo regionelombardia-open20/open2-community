@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community-wizard
+ * @package    open20\amos\community\views\community-wizard
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\assets\AmosCommunityAsset;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\TextEditorWidget;
-use lispa\amos\core\forms\WizardPrevAndContinueButtonWidget;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\TextEditorWidget;
+use open20\amos\core\forms\WizardPrevAndContinueButtonWidget;
+use open20\amos\core\helpers\Html;
 
 /**
- * @var \lispa\amos\community\models\Community $model
+ * @var \open20\amos\community\models\Community $model
  */
 
 $isSubCommunity =  !is_null($model->parent_id);
@@ -65,7 +65,7 @@ $customView = Yii::$app->getViewPath() . '/imageField.php';
         <div class="col-sm-5 col-md-4">
             <div class="upload_logo col-xs-12">
                 <?= $form->field($model,
-                    'communityLogo')->widget(\lispa\amos\attachments\components\AttachmentsInput::classname(), [
+                    'communityLogo')->widget(\open20\amos\attachments\components\AttachmentsInput::classname(), [
                     'options' => [ // Options of the Kartik's FileInput widget
                         'multiple' => false, // If you want to allow multiple upload, default to false
                     ],
@@ -95,7 +95,7 @@ $customView = Yii::$app->getViewPath() . '/imageField.php';
                                     <?= Html::img($assetBundle->baseUrl . '/images/root-community.jpg',
                                         ['height' => '100px']) ?>
                                 </div>
-                                <?= \lispa\amos\core\helpers\Html::radio('community_reference',
+                                <?= \open20\amos\core\helpers\Html::radio('community_reference',
                                     (!$isSubCommunity == null), [
                                         'label' => AmosCommunity::t('amoscommunity',
                                             "This is a root Community, there is no community/organization of reference"),
@@ -115,7 +115,7 @@ $customView = Yii::$app->getViewPath() . '/imageField.php';
                                     ['height' => '100px']) ?>
                             </div>
                             <div class="col-sm-6 col-xs-12">
-                            <?= \lispa\amos\core\helpers\Html::radio('community_reference',
+                            <?= \open20\amos\core\helpers\Html::radio('community_reference',
                                 ($model->parent_id != null), [
                                     'label' => AmosCommunity::t('amoscommunity',
                                         "Create this community under the following community/organization of reference:"),

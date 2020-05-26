@@ -1,34 +1,34 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers\base;
+namespace open20\amos\community\controllers\base;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\assets\AmosCommunityAsset;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\core\controllers\CrudController;
-use lispa\amos\core\helpers\BreadcrumbHelper;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\dashboard\controllers\TabDashboardControllerTrait;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\core\controllers\CrudController;
+use open20\amos\core\helpers\BreadcrumbHelper;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\dashboard\controllers\TabDashboardControllerTrait;
 use Yii;
 use yii\helpers\Url;
-use lispa\amos\core\widget\WidgetAbstract;
+use open20\amos\core\widget\WidgetAbstract;
 
 /**
  * Class CommunityController
  * CommunityController implements the CRUD actions for Community model.
- * @package lispa\amos\community\controllers\base
+ * @package open20\amos\community\controllers\base
  */
 class CommunityController extends CrudController
 {
@@ -55,7 +55,7 @@ class CommunityController extends CrudController
         $this->initDashboardTrait();
 
         $this->setModelObj(AmosCommunity::instance()->createModel('Community'));
-        $this->setModelSearch(new CommunitySearch());
+        $this->setModelSearch(AmosCommunity::instance()->createModel('CommunitySearch'));
 
         AmosCommunityAsset::register(Yii::$app->view);
     
@@ -124,6 +124,7 @@ class CommunityController extends CrudController
         Url::remember();
 
         if(!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+            Yii::$app->view->params['CommunityParams']['outsideCommunity'] = true;
             $this->setUpLayout('main_community');
 
             $moduleCwh = \Yii::$app->getModule('cwh');
@@ -161,6 +162,7 @@ class CommunityController extends CrudController
     public function actionCreate()
     {
         $this->setUpLayout('form');
+        Yii::$app->view->params['textHelp']['filename'] = 'create_community_dashboard_description';
         $model = new Community;
         $model->context = Community::className();
 
@@ -170,7 +172,7 @@ class CommunityController extends CrudController
         }
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 
-            if (Yii::$app->getModule('community')->bypassWorkflow) {
+            if (Yii::$app->getModule('community')->forceWorkflow($model)) {
                 $model->validated_once = 1;
             }
             $validateOnSave = true;
@@ -269,12 +271,13 @@ class CommunityController extends CrudController
         Url::remember();
         $this->setUpLayout('form');
 
+        Yii::$app->view->params['textHelp']['filename'] = 'create_community_dashboard_description';
         /** @var Community $model */
         $model = $this->findModel($id);
         $communityModule = Yii::$app->getModule('community');
         $previousStatus = $model->status;
         if ($model->load(Yii::$app->request->post())) {
-            if(!$communityModule->bypassWorkflow && $model->backToEdit && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_DRAFT && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE){
+            if(!$communityModule->forceWorkflow($model) && $model->backToEdit && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_DRAFT && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE){
                 if($model->validated_once) {
                     $model->status = Community::COMMUNITY_WORKFLOW_STATUS_DRAFT;
                 }
@@ -293,13 +296,16 @@ class CommunityController extends CrudController
                 }
             }
         }
-        return $this->render('update', [
-            'model' => $model,
-            'fid' => NULL,
-            'dataField' => NULL,
-            'dataEntity' => NULL,
-            'visibleOnEdit' => $visibleOnEdit,
-            'tabActive' => $tabActive,
+        $linkreferrer = \Yii::$app->request->referrer;
+        return (!empty($linkreferrer) && strpos($linkreferrer, 'myactivities') !== false) ?
+                $this->redirect(\Yii::$app->request->referrer) :
+                $this->render('update', [
+                    'model' => $model,
+                    'fid' => NULL,
+                    'dataField' => NULL,
+                    'dataEntity' => NULL,
+                    'visibleOnEdit' => $visibleOnEdit,
+                    'tabActive' => $tabActive,
         ]);
     }
 
@@ -307,6 +313,7 @@ class CommunityController extends CrudController
      * Deletes an existing Community model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * in Community model beforeDelete is overwritten to allow deletion of related models
+     * @see Community::beforeDelete()
      *
      * @param integer $id
      * @return mixed

@@ -1,27 +1,27 @@
 {
-    "name": "lispa/amos-community",
+    "name": "open20/amos-community",
     "description": "Sistema AMOS per le community",
     "keywords": ["amos", "yii2", "community"],
-    "homepage": "http://git.lispa.it/lispa/amos-community",
+    "homepage": "http://git.open20.it/open20/amos-community",
     "type": "component",
-    "proscription": "BSD-3-Clause",
+    "license": "BSD-3-Clause",
     "support": {
-        "issues": "http://git.lispa.it/lispa/amos-community/issues",
+        "issues": "http://git.open20.it/open20/amos-community/issues",
         "forum": "http://www.example.com/forum/",
-        "wiki": "http://git.lispa.it/lispa/amos-community/wikis/home",
-        "source": "http://git.lispa.it/lispa/amos-community/tree/master"
+        "wiki": "http://git.open20.it/open20/amos-community/wikis/home",
+        "source": "http://git.open20.it/open20/amos-community/tree/master"
     },
     "require": {
         "php": ">=5.4.0",
-        "lispa/amos-admin" : "*",
-        "lispa/amos-attachments" : "*",
-        "lispa/amos-core" : "*",
-        "lispa/amos-cwh" : "*",
-        "lispa/amos-dashboard" : "*",
-        "lispa/amos-notify" : "*",
-        "lispa/amos-seo" : "*",
+        "open20/amos-admin": "^2.0.24",
+        "open20/amos-attachments": "^1.1.11",
+        "open20/amos-core": "^1.9.60",
+        "open20/amos-cwh": "^2.1.5",
+        "open20/amos-dashboard": "^1.8.16",
+        "open20/amos-layout": "^1.0.33",
+        "open20/amos-notify": "^1.4.13",
+        "open20/amos-seo": "^1.0",
         "yiidoc/yii2-redactor": "*",
-        "lispa/amos-attachments" : "*",
         "moonlandsoft/yii2-phpexcel": "*"
     },
     "config": {
@@ -36,7 +36,7 @@
     },
     "autoload": {
         "psr-4": {
-            "lispa\\amos\\community\\": "src"
+            "open20\\amos\\community\\": "src"
         }
     },
     "require-dev": {

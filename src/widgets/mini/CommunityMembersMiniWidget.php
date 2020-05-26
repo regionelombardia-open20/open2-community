@@ -1,24 +1,24 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets\mini;
+namespace open20\amos\community\widgets\mini;
 
-use lispa\amos\admin\widgets\UserCardWidget;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\core\forms\editors\Select;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\utilities\JsUtility;
+use open20\amos\admin\widgets\UserCardWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\core\forms\editors\Select;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\utilities\JsUtility;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
@@ -30,7 +30,7 @@ use yii\widgets\PjaxAsset;
 
 /**
  * Class CommunityMembersWidget
- * @package lispa\amos\community\widgets
+ * @package open20\amos\community\widgets
  */
 class CommunityMembersMiniWidget extends Widget
 {
@@ -223,28 +223,40 @@ JS
                 'label' => false,
                 'format' => 'raw',
                 'value' => function ($model) {
-                    /** @var \lispa\amos\admin\models\UserProfile $userProfile */
+                    /** @var \open20\amos\admin\models\UserProfile $userProfile */
                     $userProfile = $model->user->getProfile();
                     return UserCardWidget::widget(['model' => $userProfile]);
                 }
             ],
-            'Item' => [
-                'value' => function ($model) {
-                    return $this->render('_item', [
-                        'model' => $model
-                    ]);
-                },
-                'label' => false,
-                'format' => 'raw'
-            ],
         ];
-                
-        $view_email_partecipants = false;
-        if (isset(Yii::$app->getModule('community')->view_email_partecipants)) {
-            $view_email_partecipants = Yii::$app->getModule('community')->view_email_partecipants;
-        }
-        
-        if ($view_email_partecipants || ($this->viewEmail)) {
+            
+        if (CommunityUtil::loggedUserIsCommunityManager($this->model->id)) {
+            $itemsMittente = ['Item' => [
+                    'value' => function ($model) {
+                        return $this->render('_item', [
+                                    'model' => $model,
+                                    'checkCM' => true
+                        ]);
+                    },
+                    'label' => false,
+                    'format' => 'raw'
+                ],
+            ];
+        } else {
+            $itemsMittente = ['Item' => [
+                    'value' => function ($model) {
+                        return $this->render('_item', [
+                                    'model' => $model,
+                                    'checkCM' => false
+                        ]);
+                    },
+                    'label' => false,
+                    'format' => 'raw'
+                ],
+            ];
+        }        
+
+        if ($this->viewEmail) {
             $itemsMittente['email'] = [
                 'label' => AmosCommunity::t('amoscommunity', 'Email'),
                 'headerOptions' => [
@@ -307,7 +319,7 @@ JS
         }
         
         $insass = ($inviteUserOfcommunityParent && !$isSubCommunity && $customInvitationForm) || (!$inviteUserOfcommunityParent && $customInvitationForm);
-        $widget = \lispa\amos\core\forms\editors\m2mWidget\M2MWidget::widget([
+        $widget = \open20\amos\core\forms\editors\m2mWidget\M2MWidget::widget([
             'model' => $model->getCommunityModel(),
             'modelId' => $model->getCommunityModel()->id,
             'modelData' => $query,
@@ -448,7 +460,7 @@ JS
                                         ]),
                                     ['class' => 'pull-right m-15-0']
                                 );
-//                        echo $this->render('@vendor/lispa/amos-community/src/views/community/change-user-role', ['model' => $model]);
+//                        echo $this->render('@vendor/open20/amos-community/src/views/community/change-user-role', ['model' => $model]);
                                 Modal::end();
                                 
                                 $btn = Html::a(
@@ -471,7 +483,7 @@ JS
                 },
                 'deleteRelation' => function ($url, $model) {
                     $url = '/community/community/elimina-m2m';
-                    $community = \lispa\amos\community\models\Community::findOne($model->community_id);
+                    $community = \open20\amos\community\models\Community::findOne($model->community_id);
                     $targetId = $model->user_id;
                     $urlDelete = Yii::$app->urlManager->createUrl([
                         $url,

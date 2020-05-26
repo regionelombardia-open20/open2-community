@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers\api;
+namespace open20\amos\community\controllers\api;
 
 /**
  * Class CommunityController
  * This is the class for REST controller "CommunityController".
- * @package lispa\amos\community\controllers\api
+ * @package open20\amos\community\controllers\api
  */
 class CommunityController extends \yii\rest\ActiveController
 {
-    public $modelClass = 'lispa\amos\community\models\Community';
+    public $modelClass = 'open20\amos\community\models\Community';
 }

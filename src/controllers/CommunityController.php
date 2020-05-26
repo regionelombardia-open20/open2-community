@@ -1,38 +1,38 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers;
+namespace open20\amos\community\controllers;
 
-use lispa\amos\admin\models\UserProfile;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityType;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\community\models\RegisterForm;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\community\rbac\UpdateOwnCommunityProfile;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\community\utilities\EmailUtil;
-use lispa\amos\community\widgets\icons\WidgetIconAdminAllCommunity;
-use lispa\amos\community\widgets\icons\WidgetIconCommunity;
-use lispa\amos\community\widgets\icons\WidgetIconCreatedByCommunities;
-use lispa\amos\community\widgets\icons\WidgetIconMyCommunities;
-use lispa\amos\community\widgets\icons\WidgetIconToValidateCommunities;
-use lispa\amos\core\forms\editors\m2mWidget\controllers\M2MWidgetControllerTrait;
-use lispa\amos\core\forms\editors\m2mWidget\M2MEventsEnum;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\module\BaseAmosModule;
-use lispa\amos\core\user\User;
-use lispa\amos\core\utilities\Email;
-use lispa\amos\core\utilities\SpreadSheetFactory;
+use open20\amos\admin\models\UserProfile;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityType;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\community\models\RegisterForm;
+use open20\amos\community\rbac\UpdateOwnCommunityProfile;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\community\utilities\EmailUtil;
+use open20\amos\community\widgets\icons\WidgetIconAdminAllCommunity;
+use open20\amos\community\widgets\icons\WidgetIconCommunity;
+use open20\amos\community\widgets\icons\WidgetIconCreatedByCommunities;
+use open20\amos\community\widgets\icons\WidgetIconMyCommunities;
+use open20\amos\community\widgets\icons\WidgetIconMyCommunitiesWithTags;
+use open20\amos\community\widgets\icons\WidgetIconToValidateCommunities;
+use open20\amos\core\forms\editors\m2mWidget\controllers\M2MWidgetControllerTrait;
+use open20\amos\core\forms\editors\m2mWidget\M2MEventsEnum;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\module\BaseAmosModule;
+use open20\amos\core\user\User;
+use open20\amos\core\utilities\Email;
+use open20\amos\core\utilities\SpreadSheetFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Yii;
 use yii\filters\AccessControl;
@@ -44,11 +44,11 @@ use yii\web\NotFoundHttpException;
 /**
  * Class CommunityController
  * This is the class for controller "CommunityController".
- * @package lispa\amos\community\controllers
+ * @package open20\amos\community\controllers
  *
- * @property \lispa\amos\community\models\Community $model
+ * @property \open20\amos\community\models\Community $model
  */
-class CommunityController extends \lispa\amos\community\controllers\base\CommunityController
+class CommunityController extends \open20\amos\community\controllers\base\CommunityController
 {
 
     /**
@@ -80,6 +80,11 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
             $this->setTargetUrl('associa-m2m');
         }
         $this->setAdditionalTargetUrl('additional-associate-m2m');
+        
+        $targetUrl = '/invitations/invitation/index' . (\Yii::$app->user->can('INVITATIONS_ADMINISTRATOR') ? '-all' : '') . '/';
+        $this->setTargetUrlInvitation($targetUrl);
+        $this->setInvitationModule(AmosCommunity::getModuleName());
+        
         $this->setM2mAttributesManageViewPath('manage-m2m-attributes');
         $this->setCustomQuery(true);
         $this->setMmTableAttributesDefault([
@@ -117,6 +122,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
                             'allow' => true,
                             'actions' => [
                                 'my-communities',
+                                'own-interest-communities',
                                 'join-community',
                                 'index',
                                 'user-network',
@@ -263,20 +269,21 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
         $redirectUrl  = $this->getRedirectUrl($callingModel, $communityId);
 
         if (!is_null($userCommunity)) {
-            $nomeCognome   = " ";
+            $nomeCognome   = "";
             $communityName = '';
 
             /** @var UserProfile $userProfile */
             $user        = User::findOne($userCommunity->user_id);
             $userProfile = $user->getProfile();
             if (!is_null($userProfile)) {
-                $nomeCognome = " '".$userProfile->nomeCognome."' ";
+                $nomeCognome = "'".$userProfile->nomeCognome."'";
             }
             if (!is_null($community)) {
                 $communityName = " '".$community->name."'";
             }
-            $message   = $nomeCognome." ".AmosCommunity::tHtml('amoscommunity', "is now")." ".$userCommunity->role." ".AmosCommunity::tHtml('amoscommunity',
-                    "of")." '".$communityName."'";
+            $message = $nomeCognome . " " . AmosCommunity::t('amoscommunity', "is now") .
+                " '" . AmosCommunity::t('amoscommunity', $userCommunity->role) . "' " .
+                AmosCommunity::t('amoscommunity', "of") . $communityName;
             $community->setCwhAuthAssignments($userCommunity);
             $emailUtil = new EmailUtil(EmailUtil::CHANGE_ROLE, $userCommunity->role, $community,
                 $userProfile->nomeCognome, '', null, $userProfile->user_id);
@@ -398,6 +405,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
         $enabledHierarchy = false;
         Url::remember();
 
+        Yii::$app->view->params['textHelp']['filename'] = 'community_dashboard_description';
         $dataProvider = $this->getDataProvider();
 
         $urlCreation = ['/community/community/create'];
@@ -413,13 +421,17 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
 
         // if the visualization is a table show the community tree, else show all community fathers without subcommunities
         if (!empty($this->getCurrentView()['name']) && $this->getCurrentView()['name'] == 'grid') {
-            $modelsearch      = new \lispa\amos\community\models\search\CommunitySearch();
-            $communitiesTree  = $modelsearch->searchCommunityTreeOrder($dataProvider->query);
-            $enabledHierarchy = true;
-            $dataProvider     = new \yii\data\ArrayDataProvider([
-                'allModels' => $communitiesTree,
-                'key' => 'id'
-            ]);
+
+            $modelsearch      = new \open20\amos\community\models\search\CommunitySearch();
+            if(empty(\Yii::$app->request->get()['CommunitySearch']['name'])) {
+
+                $communitiesTree = $modelsearch->searchCommunityTreeOrder($dataProvider->query);
+                $enabledHierarchy = true;
+                $dataProvider = new \yii\data\ArrayDataProvider([
+                    'allModels' => $communitiesTree,
+                    'key' => 'id'
+                ]);
+            }
         } else {
             $moduleCommunity     = \Yii::$app->getModule('community');
             $showSubscommunities = $moduleCommunity->showSubcommunities;
@@ -474,6 +486,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
     public function actionMyCommunities($id = null)
     {
         Url::remember();
+        Yii::$app->view->params['textHelp']['filename'] = 'community_dashboard_description';
         Yii::$app->session->set('previousUrl', Url::previous());
         if (!is_null($id)) {
             $url = $this->setCommunityById($id);
@@ -484,6 +497,27 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
 
         $this->setDataProvider($this->getModelSearch()->searchMyCommunities(Yii::$app->request->getQueryParams()));
         return $this->baseListsAction(WidgetIconMyCommunities::widgetLabel());
+    }
+
+    /**
+     * Gets the list of all communities
+     *
+     * @return string
+     */
+    public function actionOwnInterestCommunities($id = null)
+    {
+        Url::remember();
+        Yii::$app->view->params['textHelp']['filename'] = 'community_dashboard_description';
+        Yii::$app->session->set('previousUrl', Url::previous());
+        if (!is_null($id)) {
+            $url = $this->setCommunityById($id);
+            if (!is_null($url)) {
+                return ($url);
+            }
+        }
+
+        $this->setDataProvider($this->getModelSearch()->searchMyCommunitiesWithTags(Yii::$app->request->getQueryParams()));
+        return $this->baseListsAction(WidgetIconMyCommunitiesWithTags::widgetLabel());
     }
 
     /**
@@ -670,7 +704,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
                     $this->sendMail(null, $user->email, $subjectToUser, $textToUser, [], []);
                 } else {
 
-                    $message   = AmosCommunity::tHtml('amoscommunity', "Invitation to").$communityName.AmosCommunity::tHtml('amoscommunity',
+                    $message   = AmosCommunity::tHtml('amoscommunity', "Invitation to").$communityName.' '.AmosCommunity::tHtml('amoscommunity',
                             "rejected successfully");
                     $emailType = EmailUtil:: REJECT_INVITATION;
                     $emailUtil = new EmailUtil($emailType, $userCommunity->role, $community, $userProfile->nomeCognome,
@@ -714,7 +748,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
                 $community->setCwhAuthAssignments($userCommunity);
                 $message                    = AmosCommunity::tHtml('amoscommunity', "You are now")." ".
                     AmosCommunity::tHtml('amoscommunity', $userCommunity->role)." ".
-                    AmosCommunity::tHtml('amoscommunity', "of")." ".$communityName;
+                    AmosCommunity::tHtml('amoscommunity', "of").$communityName;
                 $emailTypeToManager         = EmailUtil::REGISTRATION_NOTIFICATION;
                 $emailTypeToUser            = EmailUtil::WELCOME;
                 $emailUtilToManager         = new EmailUtil($emailTypeToManager, $userCommunity->role, $community,
@@ -738,7 +772,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
                 $communityManagerEmailArray = $userCommunity->getCommunityManagerMailList($communityId);
                 $message                    = AmosCommunity::tHtml('amoscommunity',
                         "Your request has been forwarded to managers of").
-                    " ".$communityName." ".AmosCommunity::tHtml('amoscommunity', "for approval");
+                    $communityName." ".AmosCommunity::tHtml('amoscommunity', "for approval");
                 $emailType                  = EmailUtil::REGISTRATION_REQUEST;
                 $emailUtil                  = new EmailUtil($emailType, $userCommunity->role, $community,
                     $userProfile->nomeCognome, '', null, $userProfile->user_id);
@@ -799,7 +833,6 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
      */
     private function acceptOrRejectUser($communityId, $userId, $acccept)
     {
-
         $userCommunity = CommunityUserMm::findOne(['community_id' => $communityId, 'user_id' => $userId]);
 
         $status      = $acccept ? CommunityUserMm::STATUS_ACTIVE : CommunityUserMm::STATUS_REJECTED;
@@ -822,22 +855,22 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
                 $communityName = " '".$community->name."'";
             }
             $callingModel = Yii::createObject($community->context);
-            $redirectUrl  = $this->getRedirectUrl($callingModel, $communityId);
+            $redirectUrl  = Url::previous();
 
             if ($acccept) {
                 $userCommunity->save(false);
                 $community->setCwhAuthAssignments($userCommunity);
-                $message = $nomeCognome." ".AmosCommunity::tHtml('amoscommunity', "is now").
+                $message = $nomeCognome.AmosCommunity::tHtml('amoscommunity', "is now").
                     " ".AmosCommunity::tHtml('amoscommunity', $userCommunity->role)." ".
-                    AmosCommunity::tHtml('amoscommunity', "of")." ".$communityName;
+                    AmosCommunity::tHtml('amoscommunity', "of").$communityName;
             } else {
                 $loggedUser        = User::findOne(Yii::$app->getUser()->id);
                 /** @var UserProfile $loggedUserProfile */
                 $loggedUserProfile = $loggedUser->getProfile();
                 $managerName       = $loggedUserProfile->getNomeCognome();
-                $message           = AmosCommunity::tHtml('amoscommunity', "Registration request to")." ".
-                    $communityName." ".AmosCommunity::tHtml('amoscommunity', "sent by")." ".
-                    $nomeCognome." ".AmosCommunity::tHtml('amoscommunity', "has been rejected successfully");
+                $message           = AmosCommunity::tHtml('amoscommunity', "Registration request to").
+                    $communityName." ".AmosCommunity::tHtml('amoscommunity', "sent by").
+                    $nomeCognome.AmosCommunity::tHtml('amoscommunity', "has been rejected successfully");
             }
             $emailUtil = new EmailUtil($emailType, $userCommunity->role, $community, $userProfile->nomeCognome,
                 $managerName, null, $userProfile->user_id);
@@ -898,7 +931,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
                 if (Yii::$app->request->isPost) {
                     $post = Yii::$app->request->post();
                     if (!is_null($userCommunity) && isset($post['role'])) {
-                        $nomeCognome         = " ";
+                        $nomeCognome         = "";
                         $communityName       = '';
                         $userCommunity->role = $post['role'];
                         $ok                  = $userCommunity->save(false);
@@ -908,13 +941,14 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
                             $user        = User::findOne($userId);
                             $userProfile = $user->getProfile();
                             if (!is_null($userProfile)) {
-                                $nomeCognome = " '".$userProfile->nomeCognome."' ";
+                                $nomeCognome = "'" . $userProfile->nomeCognome . "'";
                             }
                             if (!is_null($this->model)) {
-                                $communityName = " '".$this->model->name."'";
+                                $communityName = " '" . $this->model->name . "'";
                             }
-                            $message   = $nomeCognome." ".AmosCommunity::tHtml('amoscommunity', "is now")." ".$userCommunity->role." ".AmosCommunity::tHtml('amoscommunity',
-                                    "of")." '".$communityName."'";
+                            $message = $nomeCognome . " " . AmosCommunity::t('amoscommunity', "is now") .
+                                " '" . AmosCommunity::t('amoscommunity', $userCommunity->role) . "' " .
+                                AmosCommunity::t('amoscommunity', "of") . $communityName;
                             $emailUtil = new EmailUtil(EmailUtil::CHANGE_ROLE, $userCommunity->role, $this->model,
                                 $userProfile->nomeCognome, '', null, $userProfile->user_id);
                             $subject   = $emailUtil->getSubject();
@@ -1039,7 +1073,7 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
     public function sendMail($from, $to, $subject, $text, $files, $bcc)
     {
 
-        /** @var \lispa\amos\emailmanager\AmosEmail $mailModule */
+        /** @var \open20\amos\emailmanager\AmosEmail $mailModule */
         $mailModule = Yii::$app->getModule("email");
         if (isset($mailModule)) {
             if (is_null($from)) {
@@ -1258,7 +1292,15 @@ class CommunityController extends \lispa\amos\community\controllers\base\Communi
         /** @var Community $model */
         Url::remember();
         $model = $this->findModel($communityId);
-        return $this->render('participants', ['model' => $model]);
+        
+        return $this->render(
+            'participants', 
+            [
+                'model' => $model,
+                'targetUrlInvitation' => $this->targetUrlInvitation,
+                'invitationModule' => $this->invitationModule
+            ]
+        );
     }
 
     /**

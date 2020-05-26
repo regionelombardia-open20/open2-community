@@ -1,29 +1,29 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets
+ * @package    open20\amos\community\widgets
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets;
+namespace open20\amos\community\widgets;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\forms\ContextMenuWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\module\BaseAmosModule;
-use lispa\amos\notificationmanager\forms\NewsWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\core\forms\ContextMenuWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\module\BaseAmosModule;
+use open20\amos\notificationmanager\forms\NewsWidget;
 use Yii;
 use yii\base\Widget;
 
 /**
  * Class CommunityCardWidget
- * @package lispa\amos\community\widgets
+ * @package open20\amos\community\widgets
  */
 class CommunityCardWidget extends Widget {
 
@@ -45,6 +45,7 @@ class CommunityCardWidget extends Widget {
   public $absoluteUrl = false;
   public $inEmail = false;
   public $enableHierarchy = true;
+  public $avatarCropSize = 'square_small';
 
   /**
    * widget initialization
@@ -65,7 +66,7 @@ class CommunityCardWidget extends Widget {
     $html = '';
     $confirm = $this->getConfirm();
 
-    $url = $model->getAvatarUrl('square_small', $this->absoluteUrl, true);
+    $url = $model->getAvatarUrl($this->avatarCropSize, $this->absoluteUrl, true);
 
     $htmlOptions = [
       'class' => !empty($class) ? 'img-responsive ' . $class : 'img-responsive',

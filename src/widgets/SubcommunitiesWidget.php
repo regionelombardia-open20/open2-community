@@ -1,27 +1,27 @@
 <?php
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets;
+namespace open20\amos\community\widgets;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\core\forms\editors\m2mWidget\M2MWidget;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\core\forms\editors\m2mWidget\M2MWidget;
+use open20\amos\core\helpers\Html;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
 
 /**
  * Class SubcommunitiesWidget
- * @package lispa\amos\community\widgets
+ * @package open20\amos\community\widgets
  */
 class SubcommunitiesWidget extends Widget
 {

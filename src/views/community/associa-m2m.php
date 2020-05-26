@@ -1,22 +1,29 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\admin\models\UserProfile;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\forms\editors\m2mWidget\M2MWidget;
-use lispa\amos\core\user\User;
+use open20\amos\admin\AmosAdmin;
+use open20\amos\admin\models\UserProfile;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\forms\editors\m2mWidget\M2MWidget;
+use open20\amos\core\interfaces\OrganizationsModuleInterface;
+use open20\amos\core\user\User;
 
 /**
- * @var \lispa\amos\community\models\Community $model
+ * @var \open20\amos\community\models\Community $model
  */
+ $this->registerJs("
+    $(function () {
+        $('[data-toggle=\"tooltip\"]').tooltip();
+    });
+", $this::POS_END, 'tooltips');
 
 $this->title = $model;
 $this->params['breadcrumbs'][] = ['label' => AmosCommunity::t('amoscommunity', 'Community'), 'url' => ['index']];
@@ -59,9 +66,8 @@ if($inviteUserOfcommunityParent && $isSubCommunity){
         ->andWhere(['community_user_mm.community_id' => $parent_id])
         ->andWhere(['IS', 'community_user_mm.deleted_at', null]);
 }
-?>
 
-<?= M2MWidget::widget([
+echo M2MWidget::widget([
     'model' => $model,
     'modelId' => $model->id,
     'modelData' => $model->getCommunityUsers(),
@@ -75,10 +81,10 @@ if($inviteUserOfcommunityParent && $isSubCommunity){
     ],
     'gridId' => 'community-members-grid',
     'viewSearch' => (isset($viewM2MWidgetGenericSearch) ? $viewM2MWidgetGenericSearch : false),
-    'isModal' => $model->context == \lispa\amos\community\models\Community::className() ,
+    'isModal' => true,
     'relationAttributesArray' => ['status', 'role'],
     'targetUrlController' => 'community',
-    'moduleClassName' => \lispa\amos\community\AmosCommunity::className(),
+    'moduleClassName' => \open20\amos\community\AmosCommunity::className(),
     'postName' => 'Community',
     'postKey' => 'user',
     'targetColumnsToView' => [
@@ -92,10 +98,10 @@ if($inviteUserOfcommunityParent && $isSubCommunity){
             'label' => AmosCommunity::t('amoscommunity', 'User image'),
             'format' => 'raw',
             'value' => function ($model) {
-                /** @var \lispa\amos\core\user\User $model */
-                /** @var \lispa\amos\admin\models\UserProfile $userProfile */
+                /** @var \open20\amos\core\user\User $model */
+                /** @var \open20\amos\admin\models\UserProfile $userProfile */
                 $userProfile = $model->getProfile();
-                return empty($userProfile) ? '' : \lispa\amos\admin\widgets\UserCardWidget::widget(['model' => $userProfile, 'containerAdditionalClass' => 'nom']);
+                return empty($userProfile) ? '' : \open20\amos\admin\widgets\UserCardWidget::widget(['model' => $userProfile, 'containerAdditionalClass' => 'nom']);
             }
         ],
         'name' => [
@@ -104,9 +110,15 @@ if($inviteUserOfcommunityParent && $isSubCommunity){
             'headerOptions' => [
                 'id' => AmosCommunity::t('amoscommunity', 'Name'),
             ],
-            'contentOptions' => [
-                'headers' => AmosCommunity::t('amoscommunity', 'Name'),
-            ]
+//            'contentOptions' => [
+//                'headers' => AmosCommunity::t('amoscommunity', 'Name'),
+//            ],
+
+            'value'=> function($model){
+                return \open20\amos\admin\widgets\UserProfileTooltipWidget::widget(['model' => $model->userProfile]);
+            },
+            'format' => 'raw',
+
         ],
     ],
 ]);

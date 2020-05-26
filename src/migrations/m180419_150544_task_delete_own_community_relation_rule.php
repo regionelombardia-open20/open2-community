@@ -1,8 +1,17 @@
 <?php
 
-use \lispa\amos\core\migration\AmosMigrationPermissions;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+use \open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
-use lispa\amos\projectmanagement\rules\TaskOrganizationsMmRule;
+use open20\amos\projectmanagement\rules\TaskOrganizationsMmRule;
 
 class m180419_150544_task_delete_own_community_relation_rule extends AmosMigrationPermissions
 {
@@ -15,10 +24,10 @@ class m180419_150544_task_delete_own_community_relation_rule extends AmosMigrati
         return [
 
             [
-                'name' => \lispa\amos\community\rules\DeleteOwnCommunityRelationRule::className(),
+                'name' => \open20\amos\community\rules\DeleteOwnCommunityRelationRule::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Rule on exit form your own community',
-                'ruleName' => \lispa\amos\community\rules\DeleteOwnCommunityRelationRule::className(),
+                'ruleName' => \open20\amos\community\rules\DeleteOwnCommunityRelationRule::className(),
                 'parent' => ['COMMUNITY_READER'],
             ],
 

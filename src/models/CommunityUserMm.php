@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models;
+namespace open20\amos\community\models;
 use yii\db\ActiveQuery;
 
 /**
@@ -17,7 +17,7 @@ use yii\db\ActiveQuery;
  * This is the model class for table "community_user_mm".
  * @package backend\modules\corsi\models
  */
-class CommunityUserMm extends \lispa\amos\community\models\base\CommunityUserMm
+class CommunityUserMm extends \open20\amos\community\models\base\CommunityUserMm
 {
 
     /**

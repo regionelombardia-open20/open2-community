@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 /**
@@ -144,35 +144,35 @@ class m161207_110640_add_init_community_permissions extends AmosMigrationPermiss
         $prefixStr = 'Permesso per la dashboard per il widget ';
         return [
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCommunityDashboard::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCommunityDashboard::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconCommunityDashboard',
                 'ruleName' => null,
                 'parent' => ['AMMINISTRATORE_COMMUNITY']
             ],
             [
-                'name' => 'lispa\amos\community\widgets\icons\WidgetIconTipologiaCommunity',
+                'name' => 'open20\amos\community\widgets\icons\WidgetIconTipologiaCommunity',
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconTipologiaCommunity',
                 'ruleName' => null,
                 'parent' => ['AMMINISTRATORE_COMMUNITY']
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCommunity::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCommunity::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconCommunity',
                 'ruleName' => null,
                 'parent' => ['AMMINISTRATORE_COMMUNITY']
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconMyCommunities::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconMyCommunities::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconMyCommunities',
                 'ruleName' => null,
                 'parent' => ['AMMINISTRATORE_COMMUNITY']
             ],
             [
-                'name' => \lispa\amos\community\widgets\icons\WidgetIconCreatedByCommunities::className(),
+                'name' => \open20\amos\community\widgets\icons\WidgetIconCreatedByCommunities::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => $prefixStr . 'WidgetIconCreatedByCommunities',
                 'ruleName' => null,

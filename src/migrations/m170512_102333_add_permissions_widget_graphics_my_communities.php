@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 /**
@@ -29,7 +29,7 @@ class m170512_102333_add_permissions_widget_graphics_my_communities extends Amos
     {
         return [
             [
-                'name' => \lispa\amos\community\widgets\graphics\WidgetGraphicsMyCommunities::className(),
+                'name' => \open20\amos\community\widgets\graphics\WidgetGraphicsMyCommunities::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Dashboard permission for widget ' . 'WidgetGraphicsMyCommunities',
                 'ruleName' => null,

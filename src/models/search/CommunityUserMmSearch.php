@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\models\search
+ * @package    open20\amos\community\models\search
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models\search;
+namespace open20\amos\community\models\search;
 
-use lispa\amos\community\models\CommunityUserMm;
+use open20\amos\community\models\CommunityUserMm;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;

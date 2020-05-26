@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community-wizard
+ * @package    open20\amos\community\views\community-wizard
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\WizardPrevAndContinueButtonWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\WizardPrevAndContinueButtonWidget;
 
-/* @var \lispa\amos\community\models\Community $model */
+/* @var \open20\amos\community\models\Community $model */
 
 $this->title = AmosCommunity::t('amoscommunity', 'New Community');
 if(!is_null($model->parent_id)){
@@ -41,7 +41,7 @@ $form = ActiveForm::begin([
             <?php
             $moduleTag = \Yii::$app->getModule('tag');
             if (isset(\Yii::$app->controller->model) && isset($moduleTag) && in_array(get_class(\Yii::$app->controller->model), $moduleTag->modelsEnabled) && $moduleTag->behaviors) {
-                echo \lispa\amos\tag\widgets\TagWidget::widget([
+                echo \open20\amos\tag\widgets\TagWidget::widget([
                     'model' => $model,
                     'attribute' => 'tagValues',
                     'form' => \yii\base\Widget::$stack[0],

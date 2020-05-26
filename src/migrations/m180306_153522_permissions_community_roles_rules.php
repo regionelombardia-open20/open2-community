@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 /**
@@ -24,24 +24,24 @@ class m180306_153522_permissions_community_roles_rules extends AmosMigrationPerm
     {
         return [
             [
-                'name' => \lispa\amos\community\rules\AuthorRoleRule::className(),
+                'name' => \open20\amos\community\rules\AuthorRoleRule::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Check if you are an author',
-                'ruleName' => \lispa\amos\community\rules\AuthorRoleRule::className(),
+                'ruleName' => \open20\amos\community\rules\AuthorRoleRule::className(),
                 'parent' => ['COMMUNITY_READER','COMMUNITY_MEMBER']
             ],
             [
-                'name' => \lispa\amos\community\rules\EditorRoleRule::className(),
+                'name' => \open20\amos\community\rules\EditorRoleRule::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Check if you are an author',
-                'ruleName' => \lispa\amos\community\rules\EditorRoleRule::className(),
+                'ruleName' => \open20\amos\community\rules\EditorRoleRule::className(),
                 'parent' => ['COMMUNITY_READER','COMMUNITY_MEMBER']
             ],
             [
-                'name' => \lispa\amos\community\rules\CommunityManagerRoleRule::className(),
+                'name' => \open20\amos\community\rules\CommunityManagerRoleRule::className(),
                 'type' => Permission::TYPE_PERMISSION,
                 'description' => 'Check if you are an author',
-                'ruleName' => \lispa\amos\community\rules\CommunityManagerRoleRule::className(),
+                'ruleName' => \open20\amos\community\rules\CommunityManagerRoleRule::className(),
                 'parent' => ['COMMUNITY_READER','COMMUNITY_MEMBER']
             ],
         ];

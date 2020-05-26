@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\controllers
+ * @package    open20\amos\community\controllers
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers;
+namespace open20\amos\community\controllers;
 
-use lispa\amos\community\exceptions\CommunityException;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\utilities\ReportsUtility;
+use open20\amos\community\exceptions\CommunityException;
+use open20\amos\community\models\Community;
+use open20\amos\community\utilities\ReportsUtility;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
@@ -22,7 +22,7 @@ use yii\web\NotFoundHttpException;
 
 /**
  * Class ReportsController
- * @package lispa\amos\community\controllers
+ * @package open20\amos\community\controllers
  */
 class ReportsController extends Controller
 {

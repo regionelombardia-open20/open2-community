@@ -1,19 +1,19 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\forms\WizardPrevAndContinueButtonWidget;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\forms\WizardPrevAndContinueButtonWidget;
+use open20\amos\core\icons\AmosIcons;
 
-/** @var $model \lispa\amos\community\models\Community */
+/** @var $model \open20\amos\community\models\Community */
 /** @var $published bool - If the community is in published status */
 /** @var $message string */
 

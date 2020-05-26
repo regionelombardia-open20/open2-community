@@ -1,33 +1,33 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\community\widgets\CommunityMembersWidget;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\CloseSaveButtonWidget;
-use lispa\amos\core\forms\CreatedUpdatedWidget;
-use lispa\amos\core\forms\PublishedContentsWidget;
-use lispa\amos\core\forms\Tabs;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\community\widgets\CommunityMembersWidget;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\CloseSaveButtonWidget;
+use open20\amos\core\forms\CreatedUpdatedWidget;
+use open20\amos\core\forms\PublishedContentsWidget;
+use open20\amos\core\forms\Tabs;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
 use kartik\select2\Select2;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 
 /**
  * @var yii\web\View $this
- * @var lispa\amos\community\models\Community $model
+ * @var open20\amos\community\models\Community $model
  * @var yii\widgets\ActiveForm $form
  */
 
@@ -121,7 +121,7 @@ $form = ActiveForm::begin([
     <div class="profile row nom">
         <div class="col-sm-4 col-md-3 col-xs-12 left-column">
             <div class="img-profile">
-                <?= $form->field($model, 'communityLogo')->widget(\lispa\amos\attachments\components\AttachmentsInput::classname(), [
+                <?= $form->field($model, 'communityLogo')->widget(\open20\amos\attachments\components\AttachmentsInput::classname(), [
                     'options' => [ // Options of the Kartik's FileInput widget
                         'multiple' => false, // If you want to allow multiple upload, default to false
                     ],
@@ -213,7 +213,7 @@ $form = ActiveForm::begin([
                     <?php if(!$fixedCommunityType): ?>
                         <div class="col-sm-6">
                             <?= $form->field($model, 'community_type_id')->widget(Select2::className(), [
-                                'data' => CommunityUtil::translateArrayValues(ArrayHelper::map(\lispa\amos\community\models\CommunityType::find()->asArray()->all(), 'id', 'name')),
+                                'data' => CommunityUtil::translateArrayValues(ArrayHelper::map(\open20\amos\community\models\CommunityType::find()->asArray()->all(), 'id', 'name')),
                                 'language' => substr(Yii::$app->language, 0, 2),
                                 'options' => ['multiple' => false,
                                     'id' => 'communityType' . $model->id,
@@ -301,7 +301,7 @@ $form = ActiveForm::begin([
                 </div>
                 <?php
                 if (!$model->isNewRecord) {
-                    echo \lispa\amos\community\widgets\SubcommunitiesWidget::widget([
+                    echo \open20\amos\community\widgets\SubcommunitiesWidget::widget([
                         'model' => $model,
                         'isUpdate' => true
                     ]);
@@ -383,14 +383,14 @@ $form = ActiveForm::begin([
             Modal::end();
 
             ?>
-            <?= \lispa\amos\workflow\widgets\WorkflowTransitionButtonsWidget::widget([
+            <?= \open20\amos\workflow\widgets\WorkflowTransitionButtonsWidget::widget([
                 // parametri ereditati da verioni precedenti del widget WorkflowTransition
                 'form' => $form,
                 'model' => $model,
                 'workflowId' => Community::COMMUNITY_WORKFLOW,
                 'viewWidgetOnNewRecord' => true,
 
-                'closeButton' => \lispa\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
+                'closeButton' => \open20\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
 
                 // fisso lo stato iniziale per generazione pulsanti e comportamenti
                 // "fake" in fase di creazione (il record non e' ancora inserito nel db)
@@ -406,12 +406,12 @@ $form = ActiveForm::begin([
                 'draftButtons' => [
                     Community::COMMUNITY_WORKFLOW_STATUS_DRAFT => [
                         'button' => $model->isNewRecord ?
-                            \lispa\amos\core\helpers\Html::submitButton(Yii::t('amoscommunity', 'Crea'), ['class' => 'btn btn-workflow']) :
-                            \lispa\amos\core\helpers\Html::submitButton(Yii::t('amoscommunity', 'Salva'), ['class' => 'btn btn-workflow']),
+                            \open20\amos\core\helpers\Html::submitButton(Yii::t('amoscommunity', 'Crea'), ['class' => 'btn btn-workflow']) :
+                            \open20\amos\core\helpers\Html::submitButton(Yii::t('amoscommunity', 'Salva'), ['class' => 'btn btn-workflow']),
                         'description' => $model->isNewRecord ?  AmosCommunity::t('amoscommunity', 'Crea la community') : AmosCommunity::t('amoscommunity','Salva community'),
                     ],
                     'default' => [
-                        'button' => \lispa\amos\core\helpers\Html::submitButton(Yii::t('amoscommunity', 'Salva'), [
+                        'button' => \open20\amos\core\helpers\Html::submitButton(Yii::t('amoscommunity', 'Salva'), [
                             'class' => 'btn btn-workflow',
                             'id' => 'saveBtn',
                             'data-target' => (!$bypassWorkflow && ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) && !$model->isNewRecord ? '#visibleOnEditPopup-'.$model->id : ''),

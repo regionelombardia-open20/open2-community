@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\forms\ContextMenuWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\forms\ContextMenuWidget;
 
 /**
  * @var $this \yii\web\View
- * @var $model \lispa\amos\community\models\Community
+ * @var $model \open20\amos\community\models\Community
  */
 $this->title = AmosCommunity::t('amoscommunity', 'Welcome to the community!');
 if (!is_null($model->parent_id)) {
@@ -119,7 +119,7 @@ $fixedCommunityType = (!is_null($moduleCommunity->communityType));
 
     <ul id="widgets-icon" class="bk-sortableIcon plugin-list p-t-25" role="menu">
 
-        <li class="item-widget col-custom" data-code="lispa\amos\admin\widgets\icons\WidgetIconUserProfile">
+        <li class="item-widget col-custom" data-code="open20\amos\admin\widgets\icons\WidgetIconUserProfile">
             <a href="/community/community/participants?id=<?= $model->id ?>"
                title=<?= AmosCommunity::t('amoscommunity', "#platform_user_list") ?> role="menuitem"
                class="sortableOpt1">
@@ -138,14 +138,14 @@ $fixedCommunityType = (!is_null($moduleCommunity->communityType));
             $widgetSubcommunities = Yii::createObject($model->getPluginWidgetClassname());
             echo $widgetSubcommunities::widget();
         }
-        if ($model->context == 'lispa\amos\projectmanagement\models\Projects') {
-            /** @var \lispa\amos\core\record\Record $contentObject */
-            $contentObject = Yii::createObject(lispa\amos\projectmanagement\models\Projects::className());
+        if ($model->context == 'open20\amos\projectmanagement\models\Projects') {
+            /** @var \open20\amos\core\record\Record $contentObject */
+            $contentObject = Yii::createObject(open20\amos\projectmanagement\models\Projects::className());
             $widgetClassname = $contentObject->getPluginWidgetClassname();
             $widget = Yii::createObject($widgetClassname);
             echo $widget::widget();
         }
-        echo \lispa\amos\dashboard\widgets\SubDashboardWidget::widget([
+        echo \open20\amos\dashboard\widgets\SubDashboardWidget::widget([
             'model' => $model,
             'widgets_type' => 'ICON',
         ]);
@@ -155,7 +155,7 @@ $fixedCommunityType = (!is_null($moduleCommunity->communityType));
 
     <div class="m-t-30"></div>
     <?=
-    \lispa\amos\dashboard\widgets\SubDashboardWidget::widget([
+    \open20\amos\dashboard\widgets\SubDashboardWidget::widget([
         'model' => $model,
         'widgets_type' => 'GRAPHIC',
     ])

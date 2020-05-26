@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models\base;
+namespace open20\amos\community\models\base;
 
-use lispa\amos\community\AmosCommunity;
+use open20\amos\community\AmosCommunity;
 
 /**
  * This is the base-model class for table "community_types".
@@ -27,7 +27,7 @@ use lispa\amos\community\AmosCommunity;
  * @property integer $deleted_by
  *
  */
-class CommunityType extends \lispa\amos\core\record\Record
+class CommunityType extends \open20\amos\core\record\Record
 {
     /**
      * @inheritdoc

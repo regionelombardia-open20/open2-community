@@ -1,20 +1,20 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views
+ * @package    open20\amos\community\views
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\core\icons\AmosIcons;
 
 $moduleCommunity = Yii::$app->getModule('community');
-$bypassWorkflow = $moduleCommunity->bypassWorkflow;
+$bypassWorkflow = $moduleCommunity->forceWorkflow($model);
 $fixedCommunityType = !is_null($moduleCommunity->communityType);
 
 ?>
@@ -66,7 +66,7 @@ $fixedCommunityType = !is_null($moduleCommunity->communityType);
         <?php
         $creatorName = '';
         if(!is_null($model->createdByUser)) {
-            /** @var \lispa\amos\admin\models\UserProfile $createUserProfile */
+            /** @var \open20\amos\admin\models\UserProfile $createUserProfile */
             $createUserProfile = $model->createdByUser->getProfile();
             if (!is_null($createUserProfile)) {
                 $creatorName = $createUserProfile->getNomeCognome();
@@ -82,7 +82,7 @@ $fixedCommunityType = !is_null($moduleCommunity->communityType);
     <p>
         <?php
         $updatedByName = '';
-        /** @var \lispa\amos\admin\models\UserProfile $updateUserProfile */
+        /** @var \open20\amos\admin\models\UserProfile $updateUserProfile */
         $updateUserProfile = $model->updatedByUser->getProfile();
         if (!is_null($updateUserProfile)) {
             $updatedByName = $updateUserProfile->getNomeCognome();

@@ -1,29 +1,32 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\utilities
+ * @package    open20\amos\community\utilities
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\utilities;
+namespace open20\amos\community\utilities;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\exceptions\CommunityException;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityType;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\cwh\models\CwhAuthAssignment;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\exceptions\CommunityException;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityContextInterface;
+use open20\amos\community\models\CommunityType;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\cwh\models\CwhAuthAssignment;
+use open20\amos\news\models\News;
 use yii\db\ActiveQuery;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use yii\log\Logger;
 
 /**
  * Class CommunityUtil
- * @package lispa\amos\community\utilities
+ * @package open20\amos\community\utilities
  */
 class CommunityUtil
 {
@@ -48,7 +51,7 @@ class CommunityUtil
     public function isManagerLoggedUser($model)
     {
         $foundRow = CommunityUserMm::findOne([
-            'community_id' => $model->id,
+            'community_id' =>$model->getCommunityModel()->id,
             'user_id' => \Yii::$app->getUser()->getId(),
             'role' => $model->getManagerRole()
         ]);
@@ -239,7 +242,7 @@ class CommunityUtil
         $communityManagerRoles = [];
         foreach ($contexts as $context) {
             $context = '\\' . $context;
-            /** @var \lispa\amos\community\models\CommunityContextInterface $model */
+            /** @var \open20\amos\community\models\CommunityContextInterface $model */
             $model = new $context();
             $communityManagerRoles[] = $model->getManagerRole();
         }
@@ -367,8 +370,8 @@ class CommunityUtil
         if (!$communityModule->deleteCommunityWithContents) {
             $cwhModule = \Yii::$app->getModule('cwh');
             if (!is_null($cwhModule)) {
-                /** @var \lispa\amos\cwh\AmosCwh $cwhModule */
-                $communityContents = \lispa\amos\cwh\utility\CwhUtil::getNetworkContents(Community::getCwhConfigId(), $community->id);
+                /** @var \open20\amos\cwh\AmosCwh $cwhModule */
+                $communityContents = \open20\amos\cwh\utility\CwhUtil::getNetworkContents(Community::getCwhConfigId(), $community->id);
                 if (count($communityContents) > 0) {
                     return false;
                 }
@@ -447,5 +450,161 @@ class CommunityUtil
     public static function getCommunityTypeReadyForSelect()
     {
         return self::translateArrayValues(ArrayHelper::map(CommunityType::find()->asArray()->all(), 'id', 'name'));
+    }
+
+
+    /**
+     * This method checks if the user is member for the community in param.
+     * @param int $communityId
+     * @return bool
+     * @throws CommunityException
+     */
+    public static function userIsCommunityMember($communityId, $userId)
+    {
+        $count = CommunityUserMm::find()
+            ->andWhere(['user_id' => $userId])
+            ->andWhere(['community_id' => $communityId])
+            ->andWhere(['!=', 'status' , CommunityUserMm::STATUS_REJECTED])->count();
+        return ($count > 0);
+    }
+
+
+    /**
+     *
+     * @param type $tablenameContent
+     * @return type
+     */
+    public static function addCwhForCommunity($tablenameContent, $idcommunity) {
+
+        $querycwhpubb = "SELECT content_id
+			FROM `cwh_pubblicazioni` cp
+                        JOIN `cwh_config_contents` ccc 
+                        ON cp.`cwh_config_contents_id` = ccc.`id`
+			AND ccc.`tablename` like '" . $tablenameContent . "' WHERE cp.`id` in (
+                            SELECT a.`cwh_pubblicazioni_id` 
+                            FROM `cwh_pubblicazioni_cwh_nodi_editori_mm` a 
+                            JOIN `cwh_config` b 
+                            on a.`cwh_config_id` = b.`id` and b.`tablename` like '" . Community::tableName() . "' 
+                            where a.`cwh_network_id` = ".$idcommunity .")";
+
+        $paramsId = \Yii::$app->getDb()->createCommand($querycwhpubb)->queryAll();
+        $ids = [];
+        foreach ($paramsId as $param) {
+            $ids[] = $param['content_id'];
+        }
+        return $ids;
+    }
+    
+    /**
+     * @param int $idcommunity
+     * @return mixed
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function communityNews($idcommunity) {
+
+        $paramsId = self::addCwhForCommunity(News::tableName(), $idcommunity);
+
+        $news = News::find()
+            ->andWhere([
+                'status' => News::NEWS_WORKFLOW_STATUS_VALIDATO,
+            ])->andWhere(['in', 'id', $paramsId])->limit(3)->all();
+
+        return $news;
+    }
+    
+    /**
+     * This method auto add all the users with module configured roles as community manager for the specified community.
+     * You can specify the manager status (default to already active).
+     * @param Community|CommunityContextInterface $community
+     * @param string $managerStatus
+     * @param AmosCommunity|null $communityModule
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     * @throws CommunityException
+     */
+    public static function autoAddCommunityManagersToCommunity($community, $managerStatus = CommunityUserMm::STATUS_ACTIVE, $communityModule = null)
+    {
+        if (is_null($communityModule)) {
+            $communityModule = AmosCommunity::instance();
+        }
+    
+        $allOk = true;
+        
+        if (!is_null($communityModule) && is_array($communityModule->autoCommunityManagerRoles) && !empty($communityModule->autoCommunityManagerRoles)) {
+            $userIdsToAddAsManager = self::getUserIdsToAddAsManager($communityModule->autoCommunityManagerRoles);
+            $managerRole = self::getManagerRoleToAutoAddAsManager($community);
+            if (strlen($managerRole) > 0) {
+                $alreadyManagerUserIds = self::getAlreadyManagerForACommunityUserIds($community->id, $managerRole);
+                $userIdsToAddAsManager = array_diff($userIdsToAddAsManager, $alreadyManagerUserIds);
+                foreach ($userIdsToAddAsManager as $userId) {
+                    $ok = $communityModule->createCommunityUser($community->id, $managerStatus, $managerRole, $userId);
+                    if (!$ok) {
+                        $allOk = false;
+                        \Yii::getLogger()->log(AmosCommunity::t('amoscommunity', '#error_auto_add_community_manager', [
+                            'userId' => $userId,
+                            'communityId' => $community->id
+                        ]), Logger::LEVEL_ERROR);
+                    }
+                }
+            }
+        }
+        
+        return $allOk;
+    }
+    
+    /**
+     * @param string[] $autoCommunityManagerRoles
+     * @return array
+     */
+    protected static function getUserIdsToAddAsManager($autoCommunityManagerRoles)
+    {
+        $userIdsToAddAsManager = [];
+        foreach ($autoCommunityManagerRoles as $platformRole) {
+            if (is_string($platformRole)) {
+                $roleUserIds = \Yii::$app->authManager->getUserIdsByRole($platformRole);
+                $userIdsToAddAsManager = array_merge($userIdsToAddAsManager, $roleUserIds);
+            }
+        }
+        $userIdsToAddAsManager = array_unique($userIdsToAddAsManager);
+        return $userIdsToAddAsManager;
+    }
+    
+    /**
+     * @param Community|CommunityContextInterface $community
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected static function getManagerRoleToAutoAddAsManager($community)
+    {
+        $managerRole = '';
+        if ($community->context == Community::className()) {
+            $managerRole = $community->getManagerRole();
+        } else {
+            $contextObject = \Yii::createObject($community->context);
+            if ($contextObject instanceof CommunityContextInterface) {
+                $managerRole = $contextObject->getManagerRole();
+            }
+        }
+        return $managerRole;
+    }
+    
+    /**
+     * @param int $communityId
+     * @param string $managerRole
+     * @return array
+     */
+    protected static function getAlreadyManagerForACommunityUserIds($communityId, $managerRole)
+    {
+        $query = new Query();
+        $query->select(['user_id'])
+            ->from(CommunityUserMm::tableName())
+            ->andWhere([
+                'deleted_at' => null,
+                'role' => $managerRole,
+                'community_id' => $communityId,
+            ])
+            ->andWhere(['<>', 'status', CommunityUserMm::STATUS_REJECTED]);
+        $alreadyManagerUserIds = $query->column();
+        return $alreadyManagerUserIds;
     }
 }

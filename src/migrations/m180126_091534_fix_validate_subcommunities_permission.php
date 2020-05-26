@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\migrations
+ * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
 
-use lispa\amos\community\models\Community;
-use lispa\amos\community\rules\ValidateSubcommunitiesRule;
-use lispa\amos\core\migration\AmosMigrationPermissions;
+use open20\amos\community\models\Community;
+use open20\amos\community\rules\ValidateSubcommunitiesRule;
+use open20\amos\core\migration\AmosMigrationPermissions;
 use yii\rbac\Permission;
 
 /**
@@ -84,7 +84,7 @@ class m180126_091534_fix_validate_subcommunities_permission extends AmosMigratio
                 ]
             ],
             [
-                'name' => 'lispa\amos\community\widgets\icons\WidgetIconToValidateCommunities',
+                'name' => 'open20\amos\community\widgets\icons\WidgetIconToValidateCommunities',
                 'type' => Permission::TYPE_PERMISSION,
                 'update' => true,
                 'newValues' => [

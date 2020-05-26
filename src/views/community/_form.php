@@ -1,36 +1,37 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\community\widgets\mini\CommunityMembersMiniWidget;
-use lispa\amos\community\widgets\mini\SubcommunitiesMiniWidget;
-use lispa\amos\core\forms\TextEditorWidget;
-use lispa\amos\cwh\widgets\DestinatariPlusTagWidget;
-use lispa\amos\report\widgets\ReportFlagWidget;
-use lispa\amos\workflow\widgets\WorkflowTransitionButtonsWidget;
-use lispa\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\utilities\CommunityUtil;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\CreatedUpdatedWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\forms\AccordionWidget;
+use open20\amos\community\widgets\mini\CommunityMembersMiniWidget;
+use open20\amos\community\widgets\mini\SubcommunitiesMiniWidget;
+use open20\amos\core\forms\TextEditorWidget;
+use open20\amos\cwh\widgets\DestinatariPlusTagWidget;
+use open20\amos\report\widgets\ReportFlagWidget;
+use open20\amos\workflow\widgets\WorkflowTransitionButtonsWidget;
+use open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\CreatedUpdatedWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\forms\AccordionWidget;
 use kartik\select2\Select2;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
-use lispa\amos\attachments\components\CropInput;
+use open20\amos\attachments\components\CropInput;
+
 
 /**
  * @var yii\web\View $this
- * @var lispa\amos\community\models\Community $model
+ * @var open20\amos\community\models\Community $model
  * @var yii\widgets\ActiveForm $form
  */
 
@@ -52,7 +53,7 @@ $showSubcommunityField = (!empty($communities) && ($model->isNewRecord || $model
 $moduleCommunity = Yii::$app->getModule('community');
 $fixedCommunityType = !is_null($moduleCommunity->communityType);
 $viewTabContents = $moduleCommunity->viewTabContents;
-$bypassWorkflow = $moduleCommunity->bypassWorkflow;
+$bypassWorkflow = $moduleCommunity->forceWorkflow($model);
 $showSubcommunities = $moduleCommunity->showSubcommunities;
 $hideContentsModels = $moduleCommunity->hideContentsModels;
 $enableConfigureCommunityDashboard = $moduleCommunity->enableConfigureCommunityDashboard;
@@ -131,7 +132,6 @@ $form = ActiveForm::begin([
 ?>
 
 <?= $form->errorSummary($model, ['class' => 'alert-danger alert fade in']); ?>
-
 
 <?= WorkflowTransitionStateDescriptorWidget::widget([
     'form' => $form,
@@ -232,14 +232,39 @@ $form = ActiveForm::begin([
                 <div class="col-xs-12">
                     <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_receiver_title'), ['class' => 'subtitle-form']) ?>
                     <div class="col-xs-12 receiver-section">
-                        <?= DestinatariPlusTagWidget::widget([
-                            'model' => $model,
-                            'moduleCwh' => $moduleCwh
-                        ]); ?>
+                        <?php
+                        $config = [
+                            'model' => $model
+                        ];
+                        $tmp = new DestinatariPlusTagWidget();
+
+                        if ($tmp->hasProperty('moduleCwh')) {
+                            $config['moduleCwh'] = $moduleCwh;
+                        }
+                        ?>
+                        <?= DestinatariPlusTagWidget::widget($config); ?>
                     </div>
                 </div>
             <?php endif; ?>
 
+            <?php if (isset($moduleCommunity->forceWorkflowSingleCommunity) && $moduleCommunity->forceWorkflowSingleCommunity) : ?>
+                <div class="col-xs-12">
+                    <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_optional'), ['class' => 'subtitle-form']) ?>
+                    <?php
+
+                    echo Html::tag('div',
+                            $form->field($model, 'force_workflow')->inline()->radioList(
+                                    [
+                                        '1' => AmosCommunity::t('amoscommunity', '#force_ok'),
+                                        '0' => AmosCommunity::t('amoscommunity', '#force_ko')
+                                    ], ['class' => 'comment-choice'])->label(AmosCommunity::t('amoscommunity', '#force_workflow')
+                                    , ['class' => 'col-md-8 col-xs-12']));
+                    ?>
+
+                </div>
+                <div class="clearfix"></div>
+            <?php endif; ?>
+            
             <div class="col-xs-12 note_asterisk">
                 <span><?= AmosCommunity::t('amoscommunity', '#required_field') ?></span>
             </div>
@@ -273,6 +298,33 @@ $form = ActiveForm::begin([
         </div>
     </div>
 
+    <?php if($enableConfigureCommunityDashboard) {?>
+    <div class="row">
+        <div class="col-xs-12 community-accordion-plus">
+            <?=
+            AccordionWidget::widget([
+                'items' => [
+                    [
+                        'header' => AmosCommunity::t('amoscommunity', '#settings_optional'),
+                        'content' => \open20\amos\community\widgets\ConfigureDashboardCommunityWidget::widget(['model' => $model]),
+                    ]
+                ],
+                'headerOptions' => ['tag' => 'h2'],
+                'clientOptions' => [
+                    'collapsible' => true,
+                    'active' => 'false',
+                    'icons' => [
+                        'header' => 'ui-icon-amos am am-plus-square',
+                        'activeHeader' => 'ui-icon-amos am am-minus-square',
+                    ]
+                ],
+            ]);
+            ?>
+        </div>
+    </div>
+    <?php }?>
+
+
     <div class="row">
         <div class="col-xs-12">
             <?php
@@ -282,7 +334,7 @@ $form = ActiveForm::begin([
                     'items' => [
                         [
                             'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
-                            'content' => \lispa\amos\seo\widgets\SeoWidget::widget([
+                            'content' => \open20\amos\seo\widgets\SeoWidget::widget([
                                 'contentModel' => $model,
                             ]),
                         ]
@@ -302,11 +354,6 @@ $form = ActiveForm::begin([
         </div>
     </div>
 
-    <?php if($enableConfigureCommunityDashboard) {?>
-        <div class="row">
-            <?= \lispa\amos\community\widgets\ConfigureDashboardCommunityWidget::widget(['model' => $model]) ?>
-        </div>
-    <?php }?>
 
     <div class="row hidden">
         <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>
@@ -366,7 +413,7 @@ $form = ActiveForm::begin([
             'workflowId' => Community::COMMUNITY_WORKFLOW,
             'viewWidgetOnNewRecord' => true,
 
-            'closeButton' => \lispa\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
+            'closeButton' => \open20\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
 
             // fisso lo stato iniziale per generazione pulsanti e comportamenti
             // "fake" in fase di creazione (il record non e' ancora inserito nel db)

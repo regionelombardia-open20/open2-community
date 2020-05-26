@@ -1,28 +1,28 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\icons
+ * @package    open20\amos\community\widgets\icons
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\widgets\icons;
+namespace open20\amos\community\widgets\icons;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\core\widget\WidgetIcon;
-use lispa\amos\core\widget\WidgetAbstract;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\core\widget\WidgetIcon;
+use open20\amos\core\widget\WidgetAbstract;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\search\CommunitySearch;
 use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
  * Class WidgetIconMyCommunities
- * @package lispa\amos\community\widgets\icons
+ * @package open20\amos\community\widgets\icons
  */
 class WidgetIconMyCommunities extends WidgetIcon
 {
@@ -36,13 +36,12 @@ class WidgetIconMyCommunities extends WidgetIcon
 
         $paramsClassSpan = [
             'bk-backgroundIcon',
-            'color-primary'
         ];
 
         $this->setLabel(AmosCommunity::tHtml('amoscommunity', 'My communities'));
         $this->setDescription(AmosCommunity::t('amoscommunity', 'View the list of my communities'));
 
-        if (!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
+        if (!empty(Yii::$app->params['dashboardEngine']) && Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
             $this->setIconFramework(AmosIcons::IC);
             $this->setIcon('community');
             $paramsClassSpan = [];
@@ -51,7 +50,7 @@ class WidgetIconMyCommunities extends WidgetIcon
         }
 
         $url = ['/community/community/my-communities'];
-        $moduleCwh = \Yii::$app->getModule('cwh');
+        $moduleCwh = Yii::$app->getModule('cwh');
         if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
             $scope = $moduleCwh->getCwhScope();
             if (isset($scope['community'])) {
@@ -71,31 +70,16 @@ class WidgetIconMyCommunities extends WidgetIcon
             )
         );
 
-        $this->setBulletCount(
-            $this->makeBulletCounter(Yii::$app->getUser()->id)
-        );
-    }
-
-    /**
-     * 
-     * @param type $user_id
-     * @return type
-     */
-    public function makeBulletCounter($user_id = null)
-    {
-        $communitySearch = new CommunitySearch();
-        $notifier = \Yii::$app->getModule('notify');
-        
-        $count = 0;
-        if ($notifier) {
-            $count = $notifier->countNotRead(
-                $user_id,
-                Community::className(),
-                $communitySearch->buildQuery([], 'own-interest')
+        if ($this->disableBulletCounters == false) {
+            $search = new CommunitySearch();
+            $this->setBulletCount(
+                $this->makeBulletCounter(
+                    Yii::$app->getUser()->id,
+                    Community::className(),
+                    $search->buildQuery([], 'own-interest')
+                )
             );
         }
-
-        return $count;
     }
 
     /**

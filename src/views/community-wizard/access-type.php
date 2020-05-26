@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community-wizard
+ * @package    open20\amos\community\views\community-wizard
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\forms\WizardPrevAndContinueButtonWidget;
-use lispa\amos\core\helpers\Html;
-use lispa\amos\core\icons\AmosIcons;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\WizardPrevAndContinueButtonWidget;
+use open20\amos\core\helpers\Html;
+use open20\amos\core\icons\AmosIcons;
 
 /**
- * @var \lispa\amos\community\models\Community $model
+ * @var \open20\amos\community\models\Community $model
  */
 
 $this->title = AmosCommunity::t('amoscommunity', 'New Community');
@@ -50,7 +50,7 @@ $form = ActiveForm::begin([
         <div class="col-xs-12">
             <?= $form->beginField($model, 'community_type_id') ?>
             <?php
-            $communityTypesArray = \lispa\amos\community\models\CommunityType::find()->asArray()->all();
+            $communityTypesArray = \open20\amos\community\models\CommunityType::find()->asArray()->all();
             foreach ($communityTypesArray as $communityType) {
                 $communityTypeId = $communityType['id'];
                 $amosIconToshow = 'unlock';
@@ -71,7 +71,7 @@ $form = ActiveForm::begin([
                             </div>
                         </div>
                         <div class="col-sm-10 col-xs-12">
-                            <?= \lispa\amos\core\helpers\Html::radio('Community[community_type_id]', ($model->community_type_id == $communityTypeId), [
+                            <?= \open20\amos\core\helpers\Html::radio('Community[community_type_id]', ($model->community_type_id == $communityTypeId), [
                                 'label' => AmosCommunity::t('amoscommunity', $communityType['name']),
                                 'labelOptions' => ['class' => 'control-label'],
                                 'id' => 'community[community_type_id]-' . $communityTypeId,

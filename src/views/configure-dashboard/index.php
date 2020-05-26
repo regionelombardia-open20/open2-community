@@ -1,15 +1,24 @@
 <?php
 
-use lispa\amos\core\forms\ActiveForm;
-use lispa\amos\core\icons\AmosIcons;
-use lispa\amos\core\views\AmosGridView;
-use lispa\amos\core\views\DataProviderView;
-use lispa\amos\dashboard\AmosDashboard;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\views\AmosGridView;
+use open20\amos\core\views\DataProviderView;
+use open20\amos\dashboard\AmosDashboard;
 use yii\helpers\Html;
 
-/* * @var \lispa\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
-/* * @var \lispa\amos\dashboard\models\AmosWidgets $widgetIconSelectable * */
-/* * @var \lispa\amos\dashboard\models\AmosWidgets $widgetGraphicSelectable * */
+/* * @var \open20\amos\dashboard\models\AmosUserDashboards $currentDashboard * */
+/* * @var \open20\amos\dashboard\models\AmosWidgets $widgetIconSelectable * */
+/* * @var \open20\amos\dashboard\models\AmosWidgets $widgetGraphicSelectable * */
 /* * @var array $widgetSelected * */
 
 /* * @var \yii\web\View $this * */
@@ -41,7 +50,7 @@ $this->params['widgetSelected'] = $widgetSelected;
                 'summary' => false,
                 'columns' => [
                     [
-                        'class' => 'lispa\amos\core\views\grid\CheckboxColumn',
+                        'class' => 'open20\amos\core\views\grid\CheckboxColumn',
                         'name' => 'amosWidgetsIds[]',
                         'checkboxOptions' => function ($model, $key, $index, $column) {
                             return [
@@ -128,7 +137,7 @@ $this->params['widgetSelected'] = $widgetSelected;
                     'label' => 'Plugin',
                 ],
                 [
-                    'class' => 'lispa\amos\core\views\grid\CheckboxColumn',
+                    'class' => 'open20\amos\core\views\grid\CheckboxColumn',
                     'name' => 'amosWidgetsIds[]',
                     'checkboxOptions' => function ($model, $key, $index, $column) {
                         return [

@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\models\base;
+namespace open20\amos\community\models\base;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\record\Record;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\record\Record;
 
 /**
  * Class CommunityUserMm
@@ -34,9 +34,9 @@ use lispa\amos\core\record\Record;
  * @property integer $updated_by
  * @property integer $deleted_by
  *
- * @property \lispa\amos\community\models\Community $community
- * @property \lispa\amos\core\user\User $user
- * @property \lispa\amos\core\user\User $partnerOf
+ * @property \open20\amos\community\models\Community $community
+ * @property \open20\amos\core\user\User $user
+ * @property \open20\amos\core\user\User $partnerOf
  *
  * @package backend\modules\corsi\models\base
  */
@@ -75,9 +75,9 @@ class CommunityUserMm extends Record
             [['community_id', 'user_id', 'invitation_partner_of', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [['status', 'role'], 'string'],
             [['created_at', 'updated_at', 'deleted_at', 'invited_at', 'invitation_accepted_at'], 'safe'],
-            [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => \lispa\amos\community\models\Community::className(), 'targetAttribute' => ['community_id' => 'id']],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \lispa\amos\core\user\User::className(), 'targetAttribute' => ['user_id' => 'id']],
-            [['invitation_partner_of'], 'exist', 'skipOnError' => true, 'targetClass' => \lispa\amos\core\user\User::className(), 'targetAttribute' => ['invitation_partner_of' => 'id']],
+            [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\community\models\Community::className(), 'targetAttribute' => ['community_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\core\user\User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [['invitation_partner_of'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\core\user\User::className(), 'targetAttribute' => ['invitation_partner_of' => 'id']],
         ];
     }
     
@@ -125,7 +125,7 @@ class CommunityUserMm extends Record
      */
     public function getCommunity()
     {
-        return $this->hasOne(\lispa\amos\community\models\Community::className(), ['id' => 'community_id']);
+        return $this->hasOne(\open20\amos\community\models\Community::className(), ['id' => 'community_id']);
     }
     
     /**
@@ -133,7 +133,7 @@ class CommunityUserMm extends Record
      */
     public function getUser()
     {
-        return $this->hasOne(\lispa\amos\core\user\User::className(), ['id' => 'user_id']);
+        return $this->hasOne(\open20\amos\core\user\User::className(), ['id' => 'user_id']);
     }
     
     /**
@@ -141,6 +141,6 @@ class CommunityUserMm extends Record
      */
     public function getPartnerOf()
     {
-        return $this->hasOne(\lispa\amos\core\user\User::className(), ['id' => 'invitation_partner_of']);
+        return $this->hasOne(\open20\amos\core\user\User::className(), ['id' => 'invitation_partner_of']);
     }
 }

@@ -1,25 +1,25 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community
+ * @package    open20\amos\community
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers;
+namespace open20\amos\community\controllers;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\components\PartsFormCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityUserMm;
-use lispa\amos\community\models\search\CommunitySearch;
-use lispa\amos\core\controllers\CrudController;
-use lispa\amos\core\module\BaseAmosModule;
-use lispa\amos\cwh\models\CwhAuthAssignment;
-use lispa\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\components\PartsFormCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityUserMm;
+use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\core\controllers\CrudController;
+use open20\amos\core\module\BaseAmosModule;
+use open20\amos\cwh\models\CwhAuthAssignment;
+use open20\amos\community\assets\AmosCommunityAsset;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -374,7 +374,7 @@ class CommunityWizardController extends CrudController
         $module = \Yii::$app->getModule('layout');
         if (empty($module)) {
             if (strpos($this->layout, '@') === false) {
-                $this->layout = '@vendor/lispa/amos-core/views/layouts/'.(!empty($layout) ? $layout : $this->layout);
+                $this->layout = '@vendor/open20/amos-core/views/layouts/'.(!empty($layout) ? $layout : $this->layout);
             }
             return true;
         }

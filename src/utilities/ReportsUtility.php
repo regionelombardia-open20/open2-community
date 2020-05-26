@@ -1,22 +1,22 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\utilities
+ * @package    open20\amos\community\utilities
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\utilities;
+namespace open20\amos\community\utilities;
 
-use lispa\amos\admin\models\UserProfile;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\exceptions\CommunityException;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\CommunityReport;
-use lispa\amos\core\user\User;
+use open20\amos\admin\models\UserProfile;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\exceptions\CommunityException;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityReport;
+use open20\amos\core\user\User;
 use moonland\phpexcel\Excel;
 use yii\base\Model;
 use yii\base\BaseObject;
@@ -25,7 +25,7 @@ use yii\helpers\ArrayHelper;
 
 /**
  * Class ReportsUtility
- * @package lispa\amos\community\utilities
+ * @package open20\amos\community\utilities
  */
 class ReportsUtility extends BaseObject
 {
@@ -35,12 +35,12 @@ class ReportsUtility extends BaseObject
     private $statisticsModule;
     
     /**
-     * @var null|\lispa\amos\cwh\AmosCwh $cwhModule
+     * @var null|\open20\amos\cwh\AmosCwh $cwhModule
      */
     private $cwhModule;
     
     /**
-     * @var null|\lispa\amos\documenti\AmosDocumenti $documentsModule
+     * @var null|\open20\amos\documenti\AmosDocumenti $documentsModule
      */
     private $documentsModule;
     
@@ -77,12 +77,12 @@ class ReportsUtility extends BaseObject
     {
         $this->fileSizeAndTypesModulesChecks();
         
-        $documentsClassName = \lispa\amos\documenti\models\Documenti::className();
+        $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
         
-        $cwhConfigContentDocuments = \lispa\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
+        $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
@@ -111,12 +111,12 @@ class ReportsUtility extends BaseObject
     {
         $this->fileSizeAndTypesModulesChecks();
         
-        $documentsClassName = \lispa\amos\documenti\models\Documenti::className();
+        $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
         
-        $cwhConfigContentDocuments = \lispa\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
+        $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
@@ -154,12 +154,12 @@ class ReportsUtility extends BaseObject
     {
         $this->fileSizeAndTypesModulesChecks();
         
-        $documentsClassName = \lispa\amos\documenti\models\Documenti::className();
+        $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
         
-        $cwhConfigContentDocuments = \lispa\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
+        $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
@@ -189,12 +189,12 @@ class ReportsUtility extends BaseObject
     {
         $this->fileSizeAndTypesModulesChecks();
         
-        $documentsClassName = \lispa\amos\documenti\models\Documenti::className();
+        $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
         
-        $cwhConfigContentDocuments = \lispa\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
+        $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
@@ -285,9 +285,9 @@ class ReportsUtility extends BaseObject
 //        $moduleCwh = \Yii::$app->getModule('cwh');
 //        $cwhActiveQuery = null;
 //        if (!is_null($moduleCwh)) {
-//            /** @var \lispa\amos\cwh\AmosCwh $moduleCwh */
+//            /** @var \open20\amos\cwh\AmosCwh $moduleCwh */
 //            $moduleCwh->setCwhScopeFromSession();
-//            $cwhActiveQuery = new \lispa\amos\cwh\query\CwhActiveQuery(
+//            $cwhActiveQuery = new \open20\amos\cwh\query\CwhActiveQuery(
 //                $classname, [
 //                'queryBase' => $query,
 //                'networkIds' => $communityAndSubcommunitiesIds
@@ -401,7 +401,7 @@ class ReportsUtility extends BaseObject
      */
     public function getAllCommunityAndSubcommunitiesUsersData()
     {
-        $query_cm = \lispa\amos\community\models\CommunityUserMm::find()->select('user_id');
+        $query_cm = \open20\amos\community\models\CommunityUserMm::find()->select('user_id');
         /** @var ActiveQuery $query */
         $query = UserProfile::find();
         $query->andWhere(['id' => $query_cm]);

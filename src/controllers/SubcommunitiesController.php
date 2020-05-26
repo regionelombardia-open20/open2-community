@@ -1,25 +1,25 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\controllers
+ * @package    open20\amos\community\controllers
  * @category   CategoryName
  */
 
-namespace lispa\amos\community\controllers;
+namespace open20\amos\community\controllers;
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\community\models\Community;
-use lispa\amos\community\models\search\CommunitySearch;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\models\search\CommunitySearch;
 use Yii;
 use yii\helpers\Url;
 
 /**
  * Class SubcommunitiesController
- * @package lispa\amos\community\controllers
+ * @package open20\amos\community\controllers
  */
 class SubcommunitiesController extends CommunityController
 {
@@ -69,7 +69,7 @@ class SubcommunitiesController extends CommunityController
         $this->setUpLayout('list');
         $this->view->params['currentDashboard'] = $this->getCurrentDashboard();
         $this->setListsBreadcrumbs($pageTitle);
-        return $this->render('@vendor/lispa/amos-community/src/views/community/index', [
+        return $this->render('@vendor/open20/amos-community/src/views/community/index', [
             'enabledHierarchy' => false,
             'dataProvider' => $this->getDataProvider(),
             'model' => $this->getModelSearch(),

@@ -1,21 +1,21 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\views\community
+ * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
 
-use lispa\amos\core\forms\editors\m2mWidget\M2MWidget;
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\user\User;
-use lispa\amos\projectmanagement\models\Projects;
+use open20\amos\core\forms\editors\m2mWidget\M2MWidget;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\user\User;
+use open20\amos\projectmanagement\models\Projects;
 
 /**
- * @var \lispa\amos\community\models\Community $model
+ * @var \open20\amos\community\models\Community $model
  */
 
 $this->title = $model;
@@ -36,30 +36,32 @@ $columns =  [
         'label' => AmosCommunity::t('amoscommunity', 'User image'),
         'format' => 'html',
         'value' => function ($model) {
-            /** @var \lispa\amos\admin\models\UserProfile $userProfile */
+            /** @var \open20\amos\admin\models\UserProfile $userProfile */
             $userProfile = $model->getProfile();
 
             $url = $userProfile->getAvatarUrl('original');
 
-            return \lispa\amos\core\helpers\Html::img($url, [
+            return \open20\amos\core\helpers\Html::img($url, [
                 'class' => 'gridview-image',
                 'alt' => AmosCommunity::t('amoscommunity', 'User image')
             ]);
         }
     ],
     'name' => [
-        'attribute' => 'profile.surnameName',
         'label' =>  AmosCommunity::t('amoscommunity', 'Name'),
         'headerOptions' => [
             'id' => AmosCommunity::t('amoscommunity', 'Name'),
         ],
         'contentOptions' => [
             'headers' => AmosCommunity::t('amoscommunity', 'Name'),
-        ]
+        ],
+        'value'=> function($url, $model){
+            return "<span data-toggle=\"tooltip\" data-placement=\"top\" title=\"testo lungo\" >$model->profile->nomeCognome</span>";
+        }
     ]
 ];
 
-if ($model->context == 'lispa\amos\projectmanagement\models\Projects') {
+if ($model->context == 'open20\amos\projectmanagement\models\Projects') {
     $columns['organization'] = [
         'label' => AmosCommunity::t('amosproject_management', 'Organizations'),
         //'format' => 'html',
@@ -72,7 +74,7 @@ if ($model->context == 'lispa\amos\projectmanagement\models\Projects') {
             $userOrganizations = [];
 
             if(!empty($joinedOrganizations)) {
-                /** @var \lispa\amos\organizzazioni\models\Aziende $joinedOrganization */
+                /** @var \open20\amos\organizzazioni\models\Aziende $joinedOrganization */
                 foreach ($joinedOrganizations as $joinedOrganization) {
                     foreach ($joinedOrganization->employees as $joinedOrganizationEmployee) {
                         $userIds[] = $joinedOrganizationEmployee->id;
@@ -103,7 +105,7 @@ if ($model->context == 'lispa\amos\projectmanagement\models\Projects') {
     ],
     'relationAttributesArray' => ['status', 'role'],
     'targetUrlController' => 'community',
-    'moduleClassName' => \lispa\amos\community\AmosCommunity::className(),
+    'moduleClassName' => \open20\amos\community\AmosCommunity::className(),
     'postName' => 'Community',
     'postKey' => 'user',
     'targetColumnsToView' => $columns,

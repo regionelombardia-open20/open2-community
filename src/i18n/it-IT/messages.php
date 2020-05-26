@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\i18n\it-IT
+ * @package    open20\amos\community\i18n\it-IT
  * @category   CategoryName
  */
 
@@ -95,6 +95,7 @@ return [
     '#community_and_subcommunities_users_report_column_1' => 'Nome',
     '#community_and_subcommunities_users_report_column_2' => 'Cognome',
     '#community_and_subcommunities_users_report_column_3' => 'Email',
+    '#community_dashboard_description' => '',
     '#community' => 'community',
     '#Community' => 'Community',
     '#community_published' => 'La community',
@@ -110,6 +111,7 @@ return [
     '#community_member_mini_widget_btn_label' => 'Invita',
     '#community_member_mini_widget_new_form' => 'Sarà possibile inserire i partecipanti solo dopo aver salvato',
     'Community module' => 'Modulo community',
+    '#community_name' => 'Nome',
     'Community not created. Please, check data entry.' => 'Community non creata. Controllare l\'inserimento dei dati.',
     'Community not found.' => 'Community non trovata.',
     'Community not updated. Please, check data entry.' => 'Community non aggiornata. Controllare l\'inserimento dei dati.',
@@ -119,6 +121,10 @@ return [
     'Community to which you participate' => 'Community a cui partecipi',
     'Community type id' => 'Id tipologia community',
     'Community type' => 'Tipologia community',
+    '#community_type' => 'Tipologia community',
+    '#community_status' => 'Stato',
+    '#communities_of_interest' => 'Le community di tuo interesse',
+    '#communities_of_interest_description' => 'Le community selezionate in base ai tuoi tag di interesse',
     'Community updated successfully.' => 'Community aggiornata correttamente.',
     'Completamento' => 'Completamento',
     'Completion' => 'Completamento',
@@ -139,6 +145,7 @@ return [
     'Crea la community' => "Crea la community",
     'Creata da ' => 'Creata da',
     'Create da me' => 'Create da me',
+    '#create_community_dashboard_description' => '',
     'Created at' => 'Creato il',
     'Created At' => 'Creato il',
     'Created by ' => 'Creato da',
@@ -200,6 +207,7 @@ return [
     'Emails' => 'Emails',
     'E\' ora possibile pubblicare la community o salvarla in bozza nel caso si vogliano aggiungere ulteriori informazioni e pubblicare in un secondo momento' => 'E\' ora possibile pubblicare la community o salvarla in bozza nel caso si vogliano aggiungere ulteriori informazioni e pubblicare in un secondo momento',
     'Errore durante l\'iscrizione dell\'utente' => 'Errore durante l\'iscrizione dell\'utente',
+    '#error_auto_add_community_manager' => "Si è verificato un errore durante l'aggiunta dell'utente con id '{userId}' alla community con id '{communityId}' come community manager",
     'Error occured while publishing community' => 'Si è verificato un errore durante della pubblicazione della community',
     'Error occured while rejecting publication request of community' => 'Si è verificato un errore durante il rifiuto della richiesta di pubblicazione della community',
     'Error occured while subscribing the user' => 'Si è verificato un errore nell\'iscrizione dell\'utente',
@@ -239,7 +247,7 @@ return [
     'Introduction' => 'Introduzione',
     'Introduzione' => 'Introduzione',
     'Invita partecipanti' => 'Invita partecipanti',
-    '#invitation_mail_text_1' => 'ti ha invitato ad iscriverti al',
+    '#invitation_mail_text_1' => 'ti ha invitato ad iscriverti ',
     '#invitation_received_mail_title' => 'Invito ricevuto',
     'Invitation to' => 'Invito a',
     'INVITED' => 'Invitato',
@@ -253,6 +261,7 @@ return [
     '#invite_users_disabled_msg' => 'Sarà possibile invitare gli utenti non appena il profilo della community sarà validato.',
     'Invite users' => 'Invita Partecipanti',
     'Invite Users' => 'Invita Partecipanti',
+    'INVITING' => 'Invito in corso',
     'Iscriviti' => 'Iscriviti',
     'is now ' => 'è ora',
     'is now' => 'è ora',
@@ -274,9 +283,10 @@ return [
     '#mail_network_community_5' => 'nel tuo profilo utente.',
     '#mail_to_manager_footer' => 'Ricevi questa notifica in quanto hai il ruolo di community manager',
     '#manage_invite_participants' => 'Gestisci e invita partecipanti',
+    'Manager' => 'Gestore',
     'Manage role and permission' => 'Gestisci ruoli e permessi',
     'Manager status not allowed' => 'Gestisti stato non permesso',
-    'Manager' => 'Gestore',
+    'MANAGER_TO_CONFIRM' => 'Manager da confermare',
     'MEMBERS' => 'PARTECIPANTI',
     '#members_title' => 'Partecipanti',
     'Missing model' => 'Manca il model',
@@ -340,6 +350,7 @@ return [
     'Registration request to' => 'Richiesta di iscrizione a',
     'Registration to' => 'Iscrizione a',
     'Registry' => 'Scheda',
+    'REJECTED' => 'Rifiutato',
     '#rejected_invitation_mail_text_1' => 'non ha accettato l\'invito al',
     '#rejected_invitation_mail_title' => 'Invito non accettato',
     'rejected successfully' => 'rifiutato correttamente',
@@ -351,6 +362,7 @@ return [
     'Reports' => 'Reportistica',
     'Requested page is not available.' => 'La pagina richiesta non è disponibile.',
     'Request sent' => 'Richiesta inviata',
+    'REQUEST_SENT' => 'Richiesta inviata',
     '#required_field' => 'I campi * sono obbligatori',
     'Reserved' => 'Community riservata',
     'Reset' => 'Annulla',
@@ -506,4 +518,14 @@ return [
     '#invited_at' => 'Data di spedizione invito',
     '#invitation_accepted_at' => 'Data di accettazione invito',
     '#invitation_partner_of' => 'Accompagnatore di',
+    'Communities Recommended'=>'Community consigliate',
+    'View the list of communities recommended' => 'Visualizza la lista delle community consigliate',
+    'NoNewsCommuniy' => 'Nessuna notizia presente nella community ',
+    'NewsCommuniy' => 'Notizie da questa community ',
+    '#view_title_plugins' => 'In questa community troverai',
+    '#view_title_tags' => 'Aree di interesse',
+    '#settings_optional' => 'Avanzate',
+    '#force_ok' => 'Si',
+    '#force_ko' => 'No',
+    '#force_workflow' => 'Tutti i contenuti devono essere confermati dal community manager prima di essere pubblicati',
 ];

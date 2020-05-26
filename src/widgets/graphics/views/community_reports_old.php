@@ -1,21 +1,21 @@
 <?php
 
 /**
- * Lombardia Informatica S.p.A.
+ * Aria S.p.A.
  * OPEN 2.0
  *
  *
- * @package    lispa\amos\community\widgets\graphics\views
+ * @package    open20\amos\community\widgets\graphics\views
  * @category   CategoryName
  */
 
-use lispa\amos\community\AmosCommunity;
-use lispa\amos\core\helpers\Html;
+use open20\amos\community\AmosCommunity;
+use open20\amos\core\helpers\Html;
 use yii\web\View;
 
 /**
  * @var View $this
- * @var \lispa\amos\community\widgets\graphics\WidgetGraphicsCommunityReports $widget
+ * @var \open20\amos\community\widgets\graphics\WidgetGraphicsCommunityReports $widget
  * @var array $downloadConfs
  */
 

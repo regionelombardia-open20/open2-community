@@ -1,6 +1,15 @@
 <?php
 
-namespace lispa\amos\community\models\base;
+/**
+ * Aria S.p.A.
+ * OPEN 2.0
+ *
+ *
+ * @package    Open20Package
+ * @category   CategoryName
+ */
+
+namespace open20\amos\community\models\base;
 
 use Yii;
 
@@ -18,10 +27,10 @@ use Yii;
  * @property integer $updated_by
  * @property integer $deleted_by
  *
- * @property \lispa\amos\community\models\Community $community
- * @property \lispa\amos\dashboard\models\AmosWidgets $amosWidgets
+ * @property \open20\amos\community\models\Community $community
+ * @property \open20\amos\dashboard\models\AmosWidgets $amosWidgets
  */
-class  CommunityAmosWidgetsMm extends \lispa\amos\core\record\Record
+class  CommunityAmosWidgetsMm extends \open20\amos\core\record\Record
 {
 
 
@@ -43,7 +52,7 @@ class  CommunityAmosWidgetsMm extends \lispa\amos\core\record\Record
             [['community_id', 'amos_widgets_id', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [['created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['widget_label'], 'string', 'max' => 255],
-            [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => Community::className(), 'targetAttribute' => ['community_id' => 'id']],
+            [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\community\models\Community::className(), 'targetAttribute' => ['community_id' => 'id']],
         ];
     }
 
@@ -71,7 +80,7 @@ class  CommunityAmosWidgetsMm extends \lispa\amos\core\record\Record
      */
     public function getCommunity()
     {
-        return $this->hasOne(\lispa\amos\community\models\Community::className(), ['id' => 'community_id']);
+        return $this->hasOne(\open20\amos\community\models\Community::className(), ['id' => 'community_id']);
     }
 
     /**
@@ -79,6 +88,6 @@ class  CommunityAmosWidgetsMm extends \lispa\amos\core\record\Record
      */
     public function getAmosWidgets()
     {
-        return $this->hasOne(\lispa\amos\dashboard\models\AmosWidgets::className(), ['id' => 'amos_widgets_id']);
+        return $this->hasOne(\open20\amos\dashboard\models\AmosWidgets::className(), ['id' => 'amos_widgets_id']);
     }
 }
