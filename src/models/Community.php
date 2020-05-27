@@ -145,6 +145,15 @@ class Community extends \open20\amos\community\models\base\Community implements 
     }
     
     /**
+     * This method checks if a community is deleted.
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return (!is_null($this->deleted_at));
+    }
+    
+    /**
      * Getter for $this->communityLogo;
      * @return \yii\db\ActiveQuery
      */
@@ -383,6 +392,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
     {
         $roleName = CommunityUserMm::ROLE_COMMUNITY_MANAGER;
         if (!empty($this->context) && strcmp($this->context, Community::className())) {
+            /** @var CommunityContextInterface $obj */
             $obj = new $this->context;
             $roleName = $obj->getManagerRole();
         }

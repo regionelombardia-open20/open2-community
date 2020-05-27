@@ -251,8 +251,10 @@ $form = ActiveForm::begin([
                 <div class="col-xs-12">
                     <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_optional'), ['class' => 'subtitle-form']) ?>
                     <?php
-
-                    echo Html::tag('div',
+                        if ($model->isNewRecord) {
+                            $model->force_workflow = 1;
+                        }
+                        echo Html::tag('div',
                             $form->field($model, 'force_workflow')->inline()->radioList(
                                     [
                                         '1' => AmosCommunity::t('amoscommunity', '#force_ok'),

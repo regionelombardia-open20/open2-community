@@ -27,9 +27,10 @@ COMMUNITY DASHBOARD
  */
 .community-page {
   background-color: darken(@widget-background-color-default, 10%);
+
   .breadcrumb {
     background-color: @widget-background-color-default;
-    padding: 30px 10% 15px;
+    padding: 15px 10%;
     border-radius: 0;
   }
 }
@@ -42,70 +43,94 @@ COMMUNITY DASHBOARD
 .network-breadcrumb,
 .community-dashboard-container {
   background-color: #474145;
-  //background-color: rgba(0, 0, 0, 0.5);
+
+  @media screen and (min-width: 768px) {
+    > nav {
+      padding-top: 25px !important;
+      padding-bottom: 25px !important;
+      + .sub-dashboard-graphics{
+        margin-top: 0;
+      }
+    }
+  }
 }
 
 .community-network-container {
   .network-box {
     min-height: unset;
-    > img {
+
+    >img {
       position: absolute;
     }
+
     .network-infos {
       position: relative;
       .flexbox;
       top: 0;
       padding: 0 !important;
+
       .container-custom {
         .flexbox;
         width: 100%;
+
+        @media (max-width: @smartphone-only) {
+          .flexbox-column;
+        }
+
         .header-community {
           .flexbox;
           flex-direction: column;
           //justify-content: space-between;
           width: 33.333%;
           background-color: rgba(0, 0, 0, 0.4);
-          padding: 30px 0 15px 0;
+          padding: 30px 30px 15px;
 
-          @media (min-width: @tablet) {
-            width: 70%;
-          }
+          // @media (min-width: @tablet) {
+          //   width: 70%;
+          // }
 
-          @media (min-width: @desktop) {
-            width: 50%;
-          }
+          // @media (min-width: @desktop) {
+          //   width: 50%;
+          // }
 
-          @media (min-width: @desktop-large) {
-            width: 33.333%;
-          }
+          // @media (min-width: @desktop-large) {
+          //   width: 33.333%;
+          // }
 
           @media (max-width: @smartphone-only) {
             width: 100%;
+            padding: 15px 0;
           }
 
           .poster-community {
             background: @white-color;
-            margin: 0 30px;
+            margin: 0;
 
             @media (max-width: @smartphone-only) {
               height: 40%;
             }
           }
+
           .control-community {
-            padding: 0 30px 20px;
+            padding: 0;
           }
 
           .network-footer {
-            padding: 15px 30px 0 20px;
-            border-top: 1px solid #404040;
+            padding: 30px 0 0;
+            border: none;
             .flexbox;
-            margin-top: auto;
+            margin: 0;
             justify-content: space-between;
-            .back-to-dashboard + .btn.btn-icon,
+            align-items: center;
+            @media (max-width: @smartphone-only) {
+              padding: 15px;
+              flex-wrap: wrap;
+            }
+            .btn.btn-icon,
             .wrap-icons .amos-tooltip,
             .wrap-icons .report-dropdown .btn,
             .wrap-icons .manage-network-scope .manage-menu {
-              color: #ffffff;
+              color: @white-color;
               background: transparent;
               border: none;
               position: relative;
@@ -115,7 +140,8 @@ COMMUNITY DASHBOARD
               padding: 0;
               display: block;
               margin-top: 0;
-              > .ic {
+
+              >.ic {
                 width: 28px;
                 height: 28px;
                 display: block;
@@ -134,23 +160,65 @@ COMMUNITY DASHBOARD
                 padding: 0px 5px;
                 left: 18px;
                 top: -8px;
-                + .caret {
+
+                +.caret {
                   display: none;
                 }
               }
             }
+
             .manage-network-scope {
               width: 26px;
-              .ic-settings {
 
-              }
+              .ic-settings {}
             }
           }
         }
-        .network-name > a {
+
+        .header-right-community {
+          background-color: rgba(0, 0, 0, 0.4);
+          padding: 30px 30px 15px;
+          width: 70%;
+          p > a{
+            color: @white-color;
+          }
+          @media (max-width: @smartphone-only) {
+            width: 100%;
+            padding: 15px;
+          }
+        }
+
+        .action-community {
+          width: 100%;
+          position: relative;
+          display: block;
+          margin: 0;
+          padding: 30px 0 0;
+          @media (max-width: @smartphone-only) {
+            width: 100%;
+            padding: 15px 0 0;
+          }
+
+          .back-to-dashboard {
+            width: 100%;
+            display: block;
+            text-align: center;
+          }
+          .enter-community{
+            background: #FFBB00;
+            color: contrast(#FFBB00);
+            padding: @padding-min @padding-default;
+          }
+        }
+
+        .network-name{
+          margin-top: 0;
+        }
+        .network-name>a {
           font-size: 0.8em;
           text-decoration: none;
         }
+
         .community-status {
           text-transform: uppercase;
 
@@ -181,12 +249,6 @@ COMMUNITY DASHBOARD
             }
           }
         }
-        /*.btn {
-          font-size: 2em;
-          padding: 0;
-          line-height: 0;
-          color: @white-color;
-        }*/
       }
     }
   }
@@ -200,6 +262,7 @@ COMMUNITY INDEX
     .hierarchy {
       float: left;
       margin-right: @margin-min;
+
       .am-long-arrow-return {
         transform: scaleX(-1);
         -moz-transform: scaleX(-1);
@@ -224,58 +287,72 @@ COMMUNITY CARD VIEW
   border: solid @border-color-default 1px;
   background: @white-color;
   height: auto;
+
   .icon-header {
     height: 150px;
     background-color: @community-card-background-header;
     position: relative;
+
     .manage {
       margin: 0;
       position: absolute;
       right: 0;
       z-index: 3;
       background: @white-color;
+
       .manage-menu {
         color: @secondary-color;
         padding-top: @padding-min;
         padding-bottom: @padding-min;
+
         &:hover {
-          border-radius: 0; /* override */
+          border-radius: 0;
+          /* override */
         }
       }
     }
+
     .community-image {
       height: 200px;
       overflow: hidden;
+
       .img-responsive {
         margin: 0 auto;
       }
     }
   }
+
   .icon-body {
     padding: @padding-min @padding-medium;
     text-align: left;
     height: 125px;
     background-color: @white-color;
+
     .title {
       color: @black-color;
       font-weight: bold;
       text-decoration: none;
+
       a {
         color: initial;
       }
     }
   }
+
   .icon-footer {
     height: 30px;
     background-color: @community-card-background-footer;
     position: absolute;
     bottom: 0;
+
     .amos-tooltip {
       margin-left: @margin-default;
       margin-top: 4px;
       color: contrast(@community-card-background-body);
     }
-    .btn.btn-join-community { /* override */
+
+    .btn.btn-join-community {
+      /* override */
       border: none;
       box-shadow: none;
       text-transform: capitalize;
@@ -284,6 +361,7 @@ COMMUNITY CARD VIEW
       padding: 2px @padding-medium 0;
       margin: 0;
       height: 30px;
+
       .am {
         font-size: 1em;
         margin-left: @margin-min;
@@ -303,6 +381,7 @@ COMMUNITY VIEW
     font-weight: bold;
     margin: 30px 0;
   }
+
   .amos-tooltip {
     background-color: lighten(@brand-primary-color, 55%);
     border: 1px solid @brand-primary-color;
@@ -313,7 +392,8 @@ COMMUNITY VIEW
     margin: 3px;
     width: fit-content;
     float: left;
-    > a {
+
+    >a {
       text-decoration: none;
     }
   }
@@ -336,50 +416,63 @@ show contents count in community view
   .content-widget-item {
     .flexbox;
     flex-direction: column;
+
     .dash,
     .am,
     .ic {
       font-size: 3em;
     }
+
     .counter {
       font-weight: bold;
       margin: @margin-default 0;
       font-size: 2em;
     }
+
     .model-label {
       text-transform: uppercase;
     }
   }
+
   @media (max-width: 991px) {
     padding: 0;
+
     .content-widget-item {
       flex-basis: 20%;
       padding: @padding-medium;
+
       .counter {
         margin: @margin-min;
       }
     }
   }
+
   @media (max-width: 767px) {
     padding: 0;
+
     .content-widget-item {
       flex-basis: 33%;
       padding: @padding-medium;
+
       .counter {
         margin: 6px;
       }
     }
   }
+
   @media (max-width: 420px) {
     padding: 0;
+
     .content-widget-item {
       .flexbox-row;
       align-items: baseline;
       flex-basis: 100%;
       padding: @padding-medium;
+
       .counter {
         margin: @margin-min;
       }
+
       .model-label {
         text-align: left;
       }
@@ -410,11 +503,13 @@ show contents count in community view
 .graphics-dashboard-container {
   .box-widget.hackathon-widget {
     height: 170px;
+
     .box-widget-toolbar {
       background-color: #009788;
       color: #ffffff;
       border-bottom: 1px solid #fff;
     }
+
     section {
       //background-color: #009788;
       background: -webkit-linear-gradient(left, #F6D222 50%, #F3C228 50%);
@@ -423,9 +518,11 @@ show contents count in community view
       width: 100%;
       height: 135px;
       text-align: center;
+
       img {
         height: 100%;
       }
+
       .btn {
         position: absolute;
         bottom: 10px;
@@ -441,7 +538,7 @@ show contents count in community view
   font-size: 1.2em;
   line-height: 1.5em;
 
-  + .sub-dashboard-graphics {
+  +.sub-dashboard-graphics {
     margin-top: 0;
   }
 }
@@ -497,10 +594,12 @@ show contents count in community view
 
           .container-img {
             height: auto;
+
             .icon_widget_graph {
               font-size: 3.5em;
             }
           }
+
           .box-widget-subtitle {
             font-size: 1em;
             text-transform: uppercase;
@@ -590,6 +689,8 @@ show contents count in community view
 
         .container-img:not(.avatar) {
           width: 100%;
+          height: auto;
+          max-height: 200px;
         }
       }
 
@@ -676,6 +777,7 @@ show contents count in community view
             display: block;
           }
         }
+
         //.widget-listbox-option.widget-iconbox {
         //  flex-basis: calc(100% / 6);
         //}
@@ -720,6 +822,7 @@ show contents count in community view
     div[data-code] {
       .box-widget-header {
         background-color: @white-color;
+
         .manage {
           display: none;
         }
@@ -743,18 +846,23 @@ show contents count in community view
         &:nth-child(1) {
           background-color: @widget-background-color-default;
         }
+
         &:nth-child(2) {
           background-color: darken(@widget-background-color-default, 10%);
         }
+
         &:nth-child(3) {
           background-color: darken(@widget-background-color-default, 20%);
         }
+
         &:nth-child(4) {
           background-color: darken(@widget-background-color-default, 30%);
         }
+
         &:nth-child(5) {
           background-color: darken(@widget-background-color-default, 40%);
         }
+
         &:nth-child(6) {
           background-color: darken(@widget-background-color-default, 50%);
         }
@@ -808,6 +916,7 @@ show contents count in community view
         &:nth-child(even) {
           .box-widget-header {
             background-color: @white-color;
+
             @media (min-width: @tablet) {
               background-color: @box-widget-header-even;
             }
@@ -864,12 +973,15 @@ WIDGET GRAPHIC DASHBOARD FOR MOBILE
       div[data-code] {
         padding: 15px;
         margin: 10px 0;
+
         &:nth-child(even) {
           background-color: #f1f1f1;
         }
+
         &:last-child {
           margin-bottom: 0;
         }
+
         &:first-child {
           margin-top: 0;
         }
@@ -881,6 +993,7 @@ WIDGET GRAPHIC DASHBOARD FOR MOBILE
 
         .box-widget section {
           min-height: unset;
+
           .list-empty h3 {
             margin: 0 auto;
             color: #000;
@@ -896,25 +1009,29 @@ WIDGET GRAPHIC DASHBOARD FOR MOBILE
 COMMUNITY RECCOMENDED WIDGET
 show contents count in community view
  */
-.container-text-list{
+.container-text-list {
   margin: 30px 0 20px;
-  .community-title-list{
+
+  .community-title-list {
     font-size: 1.2em;
     text-transform: uppercase;
     font-weight: bold;
   }
-  .community-list-news{
+
+  .community-list-news {
     display: flex;
     flex-direction: row;
     margin: 5px 0;
     padding-bottom: 5px;
     border-bottom: 1px solid #eee;
+
     .container-img {
       width: 60px !important;
       margin-right: 5px !important;
       height: 55px !important;
     }
-    .community-title-news{
+
+    .community-title-news {
       width: 80%;
       font-size: 1.20em;
       font-weight: bold;
@@ -925,35 +1042,6 @@ show contents count in community view
   }
 }
 
-.box-widget .box-widget-info-bottom{
+.box-widget .box-widget-info-bottom {
   margin-top: 5px;
-}
-
-//FIX ACCORDION PLUG-IN
-.community-accordion-plus{
-  .ui-accordion-content{
-    overflow-x: hidden;
-    .square-box{
-      width: 100% !important;
-    }
-  }
-  .ui-accordion.ui-widget{
-    .ui-accordion-content{
-      //height: auto !important;
-    }
-    .ui-accordion-content .grid-view.hide-resize {
-      padding: 0 15px;
-    }
-  }
-  .card-widget{
-    @media screen and (max-width: @tablet) {
-      height: 300px;
-      width: 300px;
-      margin: 30px auto;
-    }
-    @media screen and (max-width: 480px) {
-      height: 200px;
-      width: 200px;
-    }
-  }
 }

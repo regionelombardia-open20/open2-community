@@ -49,7 +49,14 @@ class DeleteOwnCommunitiesRule extends DefaultOwnContentRule
                     return false;
                 }
             }
-            return ($model->created_by == $user);
+            
+            /**
+             * Riga di return sostituita da return true per dare il permesso di cancellare una community a qualsiasi community manager della community
+             * e non solo al suo creatore. Il check se l'utente loggato è community manager per questa community è nel canDeleteCommunity.
+             */
+//            return ($model->created_by == $user);
+            
+            return true;
         } else {
             return false;
         }

@@ -107,12 +107,6 @@ $this->params['checkedByDefault'] = false;
         </div>
     </nav>
 
-    <div class="community-description">
-        <div class="container-custom">
-            <?= $model->description ?>
-        </div>
-    </div>
-
     <?php
     echo \open20\amos\dashboard\widgets\SubDashboardFullsizeWidget::widget([
         'model' => $model,

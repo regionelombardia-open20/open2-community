@@ -45,14 +45,14 @@ class CommunityPublishedContentsWidget extends Widget
     public $frameworkIcons = AmosIcons::DASH;
 
     public $iconsContents = [
-        'open20\amos\news\models\News' => 'feed',
-        'open20\amos\events\models\Event' => 'feed',
-        'open20\amos\discussioni\models\DiscussioniTopic' => 'comment',
-        'open20\amos\documenti\models\Documenti' => 'file-text-o',
-        'open20\amos\partnershipprofiles\models\PartnershipProfiles' => 'lightbulb-o',
-        'open20\amos\risultati\models\Risultati' => 'gears',
-        'open20\amos\showcaseprojects\models\ShowcaseProjectProposal' => 'gears',
-        'open20\amos\sondaggi\models\Sondaggi' => 'sondaggi'
+        'News' => 'feed',
+        'Event' => 'feed',
+        'DiscussioniTopic' => 'comment',
+        'Documenti' => 'file-text-o',
+        'PartnershipProfiles' => 'lightbulb-o',
+        'Risultati' => 'gears',
+        'ShowcaseProjectProposal' => 'gears',
+        'Sondaggi' => 'sondaggi'
     ];
 
     /**
@@ -65,14 +65,14 @@ class CommunityPublishedContentsWidget extends Widget
             $this->frameworkIcons = AmosIcons::IC;
 
             $this->iconsContents = [
-                'open20\amos\news\models\News' => 'news',
-                'open20\amos\events\models\Event' => 'eventi',
-                'open20\amos\discussioni\models\DiscussioniTopic' => 'disc',
-                'open20\amos\documenti\models\Documenti' => 'fatture',
-                'open20\amos\partnershipprofiles\models\PartnershipProfiles' => 'propostecollaborazione',
-                'amos\results\models\Result' => 'risultati',
-                'open20\amos\showcaseprojects\models\Initiative' => 'iniziative',
-                'open20\amos\sondaggi\models\Sondaggi' => 'sondaggi',
+                'News' => 'news',
+                'Event' => 'eventi',
+                'DiscussioniTopic' => 'disc',
+                'Documenti' => 'fatture',
+                'PartnershipProfiles' => 'propostecollaborazione',
+                'Result' => 'risultati',
+                'Initiative' => 'iniziative',
+                'Sondaggi' => 'sondaggi',
             ];
         }
 
@@ -103,8 +103,10 @@ class CommunityPublishedContentsWidget extends Widget
                 $count = '(' . $count . ')';
             }
         }
+        $model = new \ReflectionClass($this->modelContent);
+        $shortclassname = $model->getShortName();
 
-        $icons = !empty($this->iconsContents[$this->modelContent]) ? AmosIcons::show($this->iconsContents[$this->modelContent], [], $this->frameworkIcons) : '';
+        $icons = isset($this->iconsContents[$shortclassname]) ? AmosIcons::show($this->iconsContents[$shortclassname], [], $this->frameworkIcons) : '';
         return  Html::tag('div',
                 $icons .
                 Html::tag('span', $count, ['class' => 'counter']) .

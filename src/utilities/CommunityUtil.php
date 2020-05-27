@@ -309,29 +309,36 @@ class CommunityUtil
         return $query;
     }
     
+    /**
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
     public static function isLoggedCommunityManager()
     {
         $cwhModule = \Yii::$app->getModule('cwh');
-        if (isset($cwhModule) && !empty($cwhModule->getCwhScope())) {
+        if (isset($cwhModule)) {
             $scope = $cwhModule->getCwhScope();
-            if (isset($scope['community'])) {
+            if (!empty($scope) && isset($scope['community'])) {
                 $model = Community::findOne($scope['community']);
                 return CommunityUtil::hasRole($model);
             }
         }
-        
         return false;
     }
     
     /**
-     * @param $user_id
-     * @param $model Community
+     * @param Community $model
+     * @param int $userId
      * @return bool
+     * @throws \yii\base\InvalidConfigException
      */
-    public static function hasRole($model)
+    public static function hasRole($model, $userId = null)
     {
+        if (is_null($userId)) {
+            $userId = \Yii::$app->user->id;
+        }
         $communityUserMm = CommunityUserMm::find()
-            ->andWhere(['user_id' => \Yii::$app->user->id])
+            ->andWhere(['user_id' => $userId])
             ->andWhere(['community_id' => $model->id])
             ->andWhere(['role' =>  $model->getManagerRole()])
             ->one();
@@ -524,6 +531,10 @@ class CommunityUtil
      */
     public static function autoAddCommunityManagersToCommunity($community, $managerStatus = CommunityUserMm::STATUS_ACTIVE, $communityModule = null)
     {
+        if ($community->isDeleted()) {
+            return true;
+        }
+        
         if (is_null($communityModule)) {
             $communityModule = AmosCommunity::instance();
         }

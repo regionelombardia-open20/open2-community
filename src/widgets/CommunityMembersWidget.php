@@ -13,12 +13,16 @@ namespace open20\amos\community\widgets;
 use open20\amos\admin\widgets\UserCardWidget;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
+use open20\amos\community\models\CommunityContextInterface;
 use open20\amos\community\models\CommunityUserMm;
 use open20\amos\community\utilities\CommunityUtil;
 use open20\amos\core\forms\editors\m2mWidget\M2MWidget;
 use open20\amos\core\forms\editors\Select;
 use open20\amos\core\helpers\Html;
 use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\module\AmosModule;
+use open20\amos\core\module\BaseAmosModule;
+use open20\amos\core\record\Record;
 use open20\amos\core\utilities\JsUtility;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -179,6 +183,14 @@ class CommunityMembersWidget extends Widget
         
         $gridId = $this->gridId . (!empty($this->showRoles) ? '-' . implode('-', $this->showRoles) : '');
         $model = $this->model;
+        $communityModuleName = AmosCommunity::getModuleName();
+        $communityContextClassName = $model->context;
+        /** @var CommunityContextInterface $communityContext */
+        $communityContext = Yii::createObject($communityContextClassName);
+        $contextModelModuleName = $communityContext->getPluginModule();
+        /** @var AmosModule $contextModelModuleObj */
+        $contextModelModuleObj = Yii::$app->getModule($contextModelModuleName);
+        
         $params = [];
         $params['showRoles'] = $this->showRoles;
         $params['showAdditionalAssociateButton'] = $this->showAdditionalAssociateButton;
@@ -269,12 +281,16 @@ class CommunityMembersWidget extends Widget
                 'contentOptions' => [
                     'headers' => AmosCommunity::t('amoscommunity', 'Role'),
                 ],
-                'value' => function ($model) {
+                'value' => function ($model) use ($communityModuleName, $contextModelModuleName, $contextModelModuleObj) {
                     /** @var \open20\amos\community\models\CommunityUserMm $model */
                     if ($model->role == 'COMMUNITY_MANAGER' && !empty($this->communityManagerRoleName)) {
                         return AmosCommunity::t('amoscommunity', $this->communityManagerRoleName);
                     }
-                    return AmosCommunity::t('amoscommunity', $model->role);
+                    if ($communityModuleName == $contextModelModuleName) {
+                        return AmosCommunity::t('amoscommunity', $model->role);
+                    } else {
+                        return BaseAmosModule::t($contextModelModuleObj->getAmosUniqueId(), $model->role);
+                    }
                 }
             ],
         ];

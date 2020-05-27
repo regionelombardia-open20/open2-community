@@ -8,6 +8,7 @@
  * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
+
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
 use open20\amos\community\widgets\CommunityPublishedContentsWidget;
@@ -59,30 +60,29 @@ $url = $model->getAvatarUrl('original');
 $isLoggedUserParticipant = $model->isNetworkUser();
 ?>
 
-<?php /*if ($model->status != Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) { */?><!--
+<?php /*if ($model->status != Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) { */ ?>
+<!--
     <?/*= WorkflowTransitionStateDescriptorWidget::widget([
         'model' => $model,
         'workflowId' => Community::COMMUNITY_WORKFLOW,
         'classDivMessage' => 'message',
         'viewWidgetOnNewRecord' => true
-    ]); */?>
---><?php /*} */?>
+    ]); */ ?>
+--><?php /*} */ ?>
 
 
 <div class="community-view">
 
-    <div class="community-description">
-        <div class="container-custom">
-            <?php if (Yii::$app->user->can('ADMIN') && Yii::$app->getModule('community') && Yii::$app->getModule('community')->enableUserJoinedReportDownload) { ?>
+    <?php if (Yii::$app->user->can('ADMIN') && Yii::$app->getModule('community') && Yii::$app->getModule('community')->enableUserJoinedReportDownload) { ?>
+        <div class="community-description">
+            <div class="container-custom">
                 <div class="community-download-report col-xs-12 nop text-right">
                     <?= Html::a(AmosIcons::show('download') . ' ' . AmosCommunity::t('amoscommunity', '#download_user_joined_report'), ['user-joined-report-download', 'communityId' => $model->id], ['class' => 'btn btn-primary']); ?>
                 </div>
-            <?php } ?>
-            <div class="col-xs-12 nop">
-                <?= $model->description ?>
             </div>
         </div>
-    </div>
+    <?php } ?>
+
 
     <div id="bk-pluginGrafici" class="sub-dashboard-graphics wrap-graphic-widget">
         <div id="widgets-graphic" class="community-view-content">
@@ -93,10 +93,10 @@ $isLoggedUserParticipant = $model->isNetworkUser();
 
                     <div class="col-xs-12 community-content-count-section">
                         <?php
-                        if (!empty($modelsEnabled)):
-                            foreach ($modelsEnabled as $modelEnabled):
+                        if (!empty($modelsEnabled)) :
+                            foreach ($modelsEnabled as $modelEnabled) :
                                 // Exclusion difined in configuration array
-                                if (!in_array($modelEnabled, $hideContentsModels)): ?>
+                                if (!in_array($modelEnabled, $hideContentsModels)) : ?>
                                     <?php
                                     try {
                                         echo CommunityPublishedContentsWidget::widget([
@@ -107,7 +107,7 @@ $isLoggedUserParticipant = $model->isNetworkUser();
                                         Yii::getLogger()->log($e->getMessage(), Logger::LEVEL_ERROR);
                                     }
                                     ?>
-                                <?php
+                            <?php
                                 endif;
                             endforeach;
                             ?>
