@@ -45,10 +45,11 @@ COMMUNITY DASHBOARD
   background-color: #474145;
 
   @media screen and (min-width: 768px) {
-    > nav {
+    >nav {
       padding-top: 25px !important;
       padding-bottom: 25px !important;
-      + .sub-dashboard-graphics{
+
+      +.sub-dashboard-graphics {
         margin-top: 0;
       }
     }
@@ -122,10 +123,12 @@ COMMUNITY DASHBOARD
             margin: 0;
             justify-content: space-between;
             align-items: center;
+
             @media (max-width: @smartphone-only) {
               padding: 15px;
               flex-wrap: wrap;
             }
+
             .btn.btn-icon,
             .wrap-icons .amos-tooltip,
             .wrap-icons .report-dropdown .btn,
@@ -179,9 +182,11 @@ COMMUNITY DASHBOARD
           background-color: rgba(0, 0, 0, 0.4);
           padding: 30px 30px 15px;
           width: 70%;
-          p > a{
+
+          p>a {
             color: @white-color;
           }
+
           @media (max-width: @smartphone-only) {
             width: 100%;
             padding: 15px;
@@ -194,9 +199,32 @@ COMMUNITY DASHBOARD
           display: block;
           margin: 0;
           padding: 30px 0 0;
+
           @media (max-width: @smartphone-only) {
             width: 100%;
             padding: 15px 0 0;
+          }
+
+          .flexbox;
+          .flexbox-row;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+
+          @media(min-width: 1200px) {
+            .back-to-dashboard,
+            .exit-community {
+              max-width: 45%;
+              margin-top: 0 !important;
+            }
+          }
+
+          @media(max-width: 767px) {
+            .back-to-dashboard,
+            .exit-community {
+              max-width: 45%;
+              margin-top: 0 !important;
+            }
           }
 
           .back-to-dashboard {
@@ -204,16 +232,31 @@ COMMUNITY DASHBOARD
             display: block;
             text-align: center;
           }
-          .enter-community{
+
+          .enter-community {
             background: #FFBB00;
             color: contrast(#FFBB00);
             padding: @padding-min @padding-default;
           }
+
+          .exit-community {
+            color: contrast(@warning-color);
+            text-transform: uppercase;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px @padding-default;
+            background: @warning-color;
+            width: 100%;
+            display: block;
+            text-align: center;
+            margin-top: @margin-default;
+          }
         }
 
-        .network-name{
+        .network-name {
           margin-top: 0;
         }
+
         .network-name>a {
           font-size: 0.8em;
           text-decoration: none;
@@ -341,9 +384,34 @@ COMMUNITY CARD VIEW
 
   .icon-footer {
     height: 30px;
-    background-color: @community-card-background-footer;
+    //background-color: @community-card-background-footer;
     position: absolute;
     bottom: 0;
+    //border-top: 1px solid @border-color-default;
+    .flexbox;
+    .flexbox-row;
+    align-items: center;
+    justify-content: center;
+
+    .badge {
+      position: relative;
+      border-radius: 0;
+
+      &.category1 {
+        background-color: @success-color;
+        color: contrast(@success-color);
+      }
+
+      &.category2 {
+        background-color: @warning-color;
+        color: contrast(@warning-color);
+      }
+
+      &.category3 {
+        background-color: @disabled-color;
+        color: contrast(@disabled-color);
+      }
+    }
 
     .amos-tooltip {
       margin-left: @margin-default;

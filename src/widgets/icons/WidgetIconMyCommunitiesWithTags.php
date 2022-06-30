@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -14,11 +13,9 @@ namespace open20\amos\community\widgets\icons;
 use open20\amos\core\widget\WidgetIcon;
 use open20\amos\core\widget\WidgetAbstract;
 use open20\amos\core\icons\AmosIcons;
-
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
 use open20\amos\community\models\search\CommunitySearch;
-
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -61,21 +58,9 @@ class WidgetIconMyCommunitiesWithTags extends WidgetIcon
 
         $this->setClassSpan(
             ArrayHelper::merge(
-                $this->getClassSpan(),
-                $paramsClassSpan
+                $this->getClassSpan(), $paramsClassSpan
             )
         );
-
-//        if ($this->disableBulletCounters == false) {
-//            $search = new CommunitySearch();
-//            $this->setBulletCount(
-//                $this->makeBulletCounter(
-//                    Yii::$app->getUser()->id,
-//                    Community::className(),
-//                    $search->buildQuery([], 'own-interest-with-tags')
-//                )
-//            );
-//        }
     }
 
     /**
@@ -86,5 +71,4 @@ class WidgetIconMyCommunitiesWithTags extends WidgetIcon
     {
         return AmosCommunity::t('amoscommunity', '#communities_of_interest');
     }
-
 }

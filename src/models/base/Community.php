@@ -94,7 +94,7 @@ abstract class Community extends NetworkModel
             [['context'], 'string'],
             [['logo_id', 'cover_image_id'], 'number'],
             [['hide_participants', 'force_workflow', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id', 'hits'], 'integer'],
+            [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id', 'hits', 'for_all_user'], 'integer'],
             [['status', 'name'], 'string', 'max' => 255],
         ];
     }
@@ -178,13 +178,6 @@ abstract class Community extends NetworkModel
     public function getSubcommunities()
     {
         return $this->hasMany(\open20\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere(['context' => self::className()]);
-    }
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getParent()
-    {
-        return $this->hasOne(\open20\amos\community\models\Community::className(), ['id' => 'parent_id']);
     }
     
     /**

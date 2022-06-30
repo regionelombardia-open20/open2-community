@@ -68,16 +68,7 @@ class WidgetIconAdminAllCommunity extends WidgetIcon
         );
 
         
-        if ($this->disableBulletCounters == false) {
-            $search = new CommunitySearch();
-            $this->setBulletCount(
-                $this->makeBulletCounter(
-                    Yii::$app->getUser()->getId(),
-                    Community::className(),
-                    $search->buildQuery([], 'admin-all')
-                )
-            );
-        }
+        
     }
 
     /**

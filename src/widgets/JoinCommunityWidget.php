@@ -135,7 +135,7 @@ class JoinCommunityWidget extends Widget
             $userCommunity = CommunityUserMm::findOne(['community_id' => $model->id, 'user_id' => $loggedUserId]);
         }
 
-        if (!$userProfile->validato_almeno_una_volta && is_null($userCommunity)) {
+        if (!$userProfile->validato_almeno_una_volta && is_null($userCommunity) && $model->for_all_user == 0) {
             $icon = 'plus-square';
             //$this->btnOptions['class'] = 'btn btn-action-primary' . (($this->isGridView && !$this->useIcon) ? ' font08' : '');
             $title = AmosCommunity::t('amoscommunity', 'Join') . AmosIcons::show($icon);

@@ -160,11 +160,6 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      */
     public $forceDefaultViewType = false;
     
-     /**
-     * @var bool $enableOpenJoin
-     */
-    public $enableOpenJoin = false;
-    
     /**
      * @var bool $enableUserJoinedReportDownload Enable to display the "download user joined report" button
      */

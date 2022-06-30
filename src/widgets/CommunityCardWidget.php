@@ -25,7 +25,8 @@ use yii\base\Widget;
  * Class CommunityCardWidget
  * @package open20\amos\community\widgets
  */
-class CommunityCardWidget extends Widget {
+class CommunityCardWidget extends Widget
+{
 
   /**
    * @var Community $model
@@ -50,7 +51,8 @@ class CommunityCardWidget extends Widget {
   /**
    * widget initialization
    */
-  public function init() {
+  public function init()
+  {
     parent::init();
 
     if (is_null($this->model)) {
@@ -61,7 +63,8 @@ class CommunityCardWidget extends Widget {
   /**
    * @return mixed
    */
-  public function run() {
+  public function run()
+  {
     $model = $this->model;
     $html = '';
     $confirm = $this->getConfirm();
@@ -82,7 +85,7 @@ class CommunityCardWidget extends Widget {
     if ($this->enableHierarchy && $this->model->level > 1) {
       $styleHierachy = "margin-left: " . ($this->model->level * 15) . "px";
     }
-    
+
     if ($this->enableHierarchy && $this->model->level > 0) {
       $htmlTagHierarchy = Html::tag('div', AmosIcons::show('long-arrow-return'), ['class' => 'hierarchy', 'style' => $styleHierachy]);
     }
@@ -93,45 +96,41 @@ class CommunityCardWidget extends Widget {
     if ($this->onlyLogo) {
       $link = null;
       if ($this->enableLink) {
-        if (!empty(\Yii::$app->params['isPoi']) && \Yii::$app->params['isPoi'] == true && $model->id == 2750) {
-          $link = '/community/join?id=' . $model->id;
-        } else {
-          $link = '/community/community/view?id=' . $model->id;
-        }
+        $link = '/community/join?id=' . $model->id;
         if ($this->absoluteUrl) {
           $link = Yii::$app->getUrlManager()->createAbsoluteUrl($link);
         }
       }
-      
+
       $html .= $htmlTagHierarchy;
       $html .= Html::a($img, $link, [
-          'title' => $model->name,
-          'data' => $confirm
+        'title' => $model->name,
+        'data' => $confirm
       ]);
     } else {
       $modals = JoinCommunityWidget::widget([
         'model' => $this->model,
         'onlyModals' => true
       ]);
-      
+
       $html = $modals . Html::a(
-          $img,
-          null,
-          [
-            'data' => [
-              'toggle' => 'tooltip',
-              'html' => true,
-              'placement' => 'right',
-              'delay' => ['show' => 100, 'hide' => 5000],
-              'trigger' => 'hover',
-              'template' => '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="background-color:transparent;min-width: 200px;"></div></div>'
-            ],
-            'title' => $this->getHtmlTooltip(),
-            'style' => 'border-color:transparent;'
-          ]
+        $img,
+        null,
+        [
+          'data' => [
+            'toggle' => 'tooltip',
+            'html' => true,
+            'placement' => 'right',
+            'delay' => ['show' => 100, 'hide' => 5000],
+            'trigger' => 'hover',
+            'template' => '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="background-color:transparent;min-width: 200px;"></div></div>'
+          ],
+          'title' => $this->getHtmlTooltip(),
+          'style' => 'border-color:transparent;'
+        ]
       );
     }
-    
+
     return $html;
   }
 
@@ -139,7 +138,8 @@ class CommunityCardWidget extends Widget {
    * 
    * @return string
    */
-  private function getHtmlTooltip() {
+  private function getHtmlTooltip()
+  {
     $model = $this->model;
 
     $viewUrl = "/community/community/view?id=" . $model->id;
@@ -147,16 +147,16 @@ class CommunityCardWidget extends Widget {
     if (!is_null($model->communityLogo)) {
       $url = $model->communityLogo->getUrl('square_small', false, true);
     }
-    
+
     Yii::$app->imageUtility->methodGetImageUrl = 'getUrl';
-    
+
     $roundImage = Yii::$app->imageUtility->getRoundImage($model->communityLogo);
     $logo = Html::img($url, [
       'class' => $roundImage['class'],
       'style' => ((!$this->imgStyleDisableHorizontalFix) ? "margin-left: " . $roundImage['margin-left'] . "%;" : "") . "margin-top: " . $roundImage['margin-top'] . "%;",
       'alt' => $model->getAttributeLabel('communityLogo')
     ]);
-    
+
     $tooltip = '<div class="icon-view"><div class="card-container col-xs-12 nop">' .
       ContextMenuWidget::widget([
         'model' => $model,
@@ -173,13 +173,13 @@ class CommunityCardWidget extends Widget {
                          <div class="container-round-img">' .
       Html::a($logo, $viewUrl, ['title' => $model->name]) . '</div>';
     $tooltip .= JoinCommunityWidget::widget([
-        'model' => $model,
-        'divClassBtnContainer' => 'under-img',
-        'onlyButton' => true
+      'model' => $model,
+      'divClassBtnContainer' => 'under-img',
+      'onlyButton' => true
     ]);
     $tooltip .= '</div><div class="icon-body">';
     $newsWidget = NewsWidget::widget([
-        'model' => $model,
+      'model' => $model,
     ]);
     $tooltip .= $newsWidget . '<h3>' . Html::a($model->name, $viewUrl, ['title' => $model->name]) . '</h3>';
 
@@ -193,17 +193,17 @@ class CommunityCardWidget extends Widget {
         $title = AmosCommunity::t('amoscommunity', 'Validated');
       }
       $statusIcon = AmosIcons::show('check-all', [
-          'class' => 'am-2 ',
-          'style' => 'color: ' . $color,
-          'title' => $title
+        'class' => 'am-2 ',
+        'style' => 'color: ' . $color,
+        'title' => $title
       ]);
       $icons .= $statusIcon;
       $tooltip .= Html::tag('div', $icons);
     }
 
-    $tooltip .= '<p>' 
-      . AmosCommunity::t('amoscommunity', 'Access type: ') 
-      . AmosCommunity::t('amoscommunity', $model->getCommunityTypeName()) 
+    $tooltip .= '<p>'
+      . AmosCommunity::t('amoscommunity', 'Access type: ')
+      . AmosCommunity::t('amoscommunity', $model->getCommunityTypeName())
       . '</p></div></div></div>';
 
     return $tooltip;
@@ -212,14 +212,14 @@ class CommunityCardWidget extends Widget {
   /**
    * @return array|null
    */
-  public function getConfirm() {
+  public function getConfirm()
+  {
     $controller = Yii::$app->controller;
     $isActionUpdate = ($controller->action->id == 'update');
-    $confirm = $isActionUpdate ? 
-      ['confirm' => BaseAmosModule::t('amoscore', '#confirm_exit_without_saving')] 
+    $confirm = $isActionUpdate ?
+      ['confirm' => BaseAmosModule::t('amoscore', '#confirm_exit_without_saving')]
       : null;
-    
+
     return $confirm;
   }
-
 }

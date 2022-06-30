@@ -726,7 +726,7 @@ class CommunityController extends \open20\amos\community\controllers\base\Commun
             /**
              * If The User is not validated once - not possible to subscribe
              */
-            if ($userProfile->validato_almeno_una_volta == 0) {
+            if ($userProfile->validato_almeno_una_volta == 0 && $community->for_all_user == 0) {
                 $this->addFlash('danger',
                     AmosCommunity::t('amoscommunity',
                         'You Can\'t Join Communities, your profile has never been validated'));
@@ -1137,7 +1137,8 @@ class CommunityController extends \open20\amos\community\controllers\base\Commun
             $enableModal                   = $params['enableModal'];
             $gridId                        = $params['gridId'];
             $communityManagerRoleName      = $params['communityManagerRoleName'];
-
+            $targetUrlInvitation      = $params['targetUrlInvitation'];
+            $invitationModule      = $params['invitationModule'];
 
             return $this->render('community-members',
                     [
@@ -1156,6 +1157,8 @@ class CommunityController extends \open20\amos\community\controllers\base\Commun
                     'enableModal' => $enableModal,
                     'gridId' => $gridId,
                     'communityManagerRoleName' => $communityManagerRoleName,
+                    'targetUrlInvitation' => $targetUrlInvitation,
+                    'invitationModule' => $invitationModule,
             ]);
         }
         return null;

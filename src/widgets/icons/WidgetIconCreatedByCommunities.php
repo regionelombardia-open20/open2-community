@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -14,11 +13,9 @@ namespace open20\amos\community\widgets\icons;
 use open20\amos\core\widget\WidgetIcon;
 use open20\amos\core\widget\WidgetAbstract;
 use open20\amos\core\icons\AmosIcons;
-
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
 use open20\amos\community\models\search\CommunitySearch;
-
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -51,7 +48,7 @@ class WidgetIconCreatedByCommunities extends WidgetIcon
             $this->setIcon('group');
         }
 
-        $url = ['/community/community/created-by-communities'];
+        $url     = ['/community/community/created-by-communities'];
         $scopeId = $this->checkScope('community');
         if ($scopeId != false) {
             $url = ['/community/subcommunities/created-by-communities', 'id' => $scopeId];
@@ -64,19 +61,9 @@ class WidgetIconCreatedByCommunities extends WidgetIcon
 
         $this->setClassSpan(
             ArrayHelper::merge(
-                $this->getClassSpan(),
-                $paramsClassSpan
+                $this->getClassSpan(), $paramsClassSpan
             )
         );
-
-//        $search = new CommunitySearch();
-//        $this->setBulletCount(
-//            $this->makeBulletCounter(
-//                Yii::$app->getUser()->getId(),
-//                Community::className(),
-//                $search->buildQuery([], 'created-by')
-//            )
-//        );
     }
 
     /**
@@ -86,5 +73,4 @@ class WidgetIconCreatedByCommunities extends WidgetIcon
     {
         return AmosCommunity::t('amoscommunity', 'Communities created by me');
     }
-
 }

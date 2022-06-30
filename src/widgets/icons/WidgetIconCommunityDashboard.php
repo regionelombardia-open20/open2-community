@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -23,6 +22,7 @@ use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
+
 /**
  * Class WidgetIconCommunityDashboard
  * @package open20\amos\community\widgets\icons
@@ -40,9 +40,9 @@ class WidgetIconCommunityDashboard extends WidgetIcon
     public function init()
     {
         parent::init();
-        
-        $this->setLabel(AmosCommunity::tHtml('amoscommunity', 'Community'));
-        $this->setDescription(AmosCommunity::t('amoscommunity', 'Community module'));
+
+        $this->setLabel(AmosCommunity::tHtml('amoscommunity', '#widget_icon_community_dashboard_label'));
+        $this->setDescription(AmosCommunity::t('amoscommunity', '#widget_icon_community_dashboard_description Community module'));
 
         $paramsClassSpan = [
             'bk-backgroundIcon',
@@ -56,7 +56,7 @@ class WidgetIconCommunityDashboard extends WidgetIcon
             $this->setIcon('group');
         }
 
-        $url = ['/community'];
+        $url     = ['/community'];
         $scopeId = $this->checkScope('community');
         if ($scopeId !== false) {
             $url = ['/community/subcommunities/my-communities', 'id' => $scopeId];
@@ -71,92 +71,22 @@ class WidgetIconCommunityDashboard extends WidgetIcon
 
         $this->setClassSpan(
             ArrayHelper::merge(
-                $this->getClassSpan(),
-                $paramsClassSpan
+                $this->getClassSpan(), $paramsClassSpan
             )
         );
 
         // To avoid multiple call
         if (self::$_called === false) {
             self::$_called = true;
-            return ;
+            return;
         }
 
         if ($this->disableBulletCounters == false) {
+            $widgetAll = \Yii::createObject(['class' => WidgetIconCommunity::className(), 'saveMicrotime' => false]);
             $this->setBulletCount(
-                $this->makeBulletCounter(
-                    Yii::$app->getUser()->getId()
-                )
+                $widgetAll->getBulletCount()
             );
         }
-    }
-
-    /**
-     * 
-     * @param type $userId
-     * @param type $className
-     * @param type $externalQuery
-     * @return type
-     */
-    public function makeBulletCounter($userId = null, $className = null, $externalQuery = null)
-    {
-        return $this->getBulletCountChildWidgets($userId);
-    }
-
-    /**
-     * @throws \yii\base\InvalidConfigException
-     * 
-     * @param type $userId
-     * @return int - the sum of bulletCount internal widget
-     */
-    private function getBulletCountChildWidgets($userId = null)
-    {
-        /** @var AmosUserDashboards $userModuleDashboard */
-        $userModuleDashboard = AmosUserDashboards::findOne([
-            'user_id' => $userId,
-            'module' => AmosCommunity::getModuleName()
-        ]);
-
-        if (is_null($userModuleDashboard)) {
-            return 0;
-        }
-
-        $listWidgetChild = $userModuleDashboard->amosUserDashboardsWidgetMms;
-        if (is_null($listWidgetChild)) {
-            return 0;
-        }
-
-        /** @var AmosUserDashboardsWidgetMm $widgetChild */
-//        $nameSpace = $this->getNamespace();
-//        $tmp = [];
-//        foreach ($listWidgetChild as $widgetChild) {
-//            if ($widgetChild->amos_widgets_classname != $nameSpace) {
-//                $tmp[] = $widgetChild->amos_widgets_classname;
-//            }
-//        }
-//
-//        $query = new Query();
-//        $amosWidgets = $query
-//            ->select([
-//                'id', 'classname', 'deleted_at'
-//            ])
-//            ->from(AmosWidgets::tableName())
-//            ->andWhere([
-//                'classname' => $tmp,
-//                'type' => AmosWidgets::TYPE_ICON,
-//                'deleted_at' => null,
-//            ])
-//            ->all();
-//
-//        $count = 0;
-//        foreach ($amosWidgets as $k => $amosWidget) {
-//            $widget = \Yii::createObject($amosWidget['classname']);
-//
-//            $count += (int) $widget->getBulletCount();
-//        }
-        $widgetAllCommunity = new WidgetIconCommunity();
-
-        return $widgetAllCommunity->getBulletCount();
     }
 
     /**
@@ -201,8 +131,7 @@ class WidgetIconCommunityDashboard extends WidgetIcon
     public function getOptions()
     {
         return ArrayHelper::merge(
-                parent::getOptions(),
-                ['children' => $this->getWidgetsIcon()]
+                parent::getOptions(), ['children' => $this->getWidgetsIcon()]
         );
     }
 
@@ -226,5 +155,4 @@ class WidgetIconCommunityDashboard extends WidgetIcon
 
         return $widgets;
     }
-
 }

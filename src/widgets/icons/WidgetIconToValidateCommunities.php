@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -49,7 +48,7 @@ class WidgetIconToValidateCommunities extends WidgetIcon
             $this->setIcon('group');
         }
 
-        $url = ['/community/community/to-validate-communities'];
+        $url        = ['/community/community/to-validate-communities'];
         $checkScope = $this->checkScope('cwh');
         if ($checkScope != false) {
             $url = ['/community/subcommunities/to-validate-communities', 'id' => $scope['community']];
@@ -62,21 +61,9 @@ class WidgetIconToValidateCommunities extends WidgetIcon
 
         $this->setClassSpan(
             ArrayHelper::merge(
-                $this->getClassSpan(),
-                $paramsClassSpan
+                $this->getClassSpan(), $paramsClassSpan
             )
         );
-
-//        if ($this->disableBulletCounters == false) {
-//            $search = new CommunitySearch();
-//            $this->setBulletCount(
-//                $this->makeBulletCounter(
-//                    Yii::$app->getUser()->getId(),
-//                    Community::className(),
-//                    $search->buildQuery([], 'to-validate')
-//                )
-//            );
-//        }
     }
 
     /**
@@ -86,5 +73,4 @@ class WidgetIconToValidateCommunities extends WidgetIcon
     {
         return AmosCommunity::t('amoscommunity', 'Communities to validate');
     }
-
 }

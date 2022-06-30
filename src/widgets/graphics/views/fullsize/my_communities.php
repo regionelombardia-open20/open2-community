@@ -111,7 +111,7 @@ $communitiesModels = $communitiesList->getModels();
                                     }
                                     ?>
 
-                                    <?= Html::a($decoded_name, ['/community/community/view', 'id' => $community->id]) ?>
+                                    <?= Html::a($decoded_name, ['/community/join', 'id' => $community->id]) ?>
                                 </h2>
                                 <p class="box-widget-text">
                                     <?php

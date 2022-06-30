@@ -8,6 +8,7 @@
  * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
+
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\widgets\JoinCommunityWidget;
 use open20\amos\core\forms\ContextMenuWidget;
@@ -15,7 +16,7 @@ use open20\amos\core\helpers\Html;
 use open20\amos\core\icons\AmosIcons;
 use open20\amos\notificationmanager\forms\NewsWidget;
 use open20\amos\community\models\CommunityUserMm;
-use open20\amos\core\user\User; 
+use open20\amos\core\user\User;
 
 /**
  * @var \open20\amos\community\models\Community $model
@@ -27,11 +28,13 @@ $bypassWorkflow     = $communityModule->forceWorkflow($model);
 $loggedUserId  = Yii::$app->getUser()->getId();
 $userCommunity = CommunityUserMm::findOne(['community_id' => $model->id, 'user_id' => $loggedUserId]);
 $userProfile   = User::findOne($loggedUserId)->getProfile();
-if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null($userCommunity) && !in_array($userCommunity->status,
-        [CommunityUserMm::STATUS_WAITING_OK_COMMUNITY_MANAGER, CommunityUserMm::STATUS_WAITING_OK_USER])) {
-    $viewUrl = '/community/join?id='.$model->id;
+if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null($userCommunity) && !in_array(
+    $userCommunity->status,
+    [CommunityUserMm::STATUS_WAITING_OK_COMMUNITY_MANAGER, CommunityUserMm::STATUS_WAITING_OK_USER]
+)) {
+    $viewUrl = '/community/join?id=' . $model->id;
 } else {
-    $viewUrl = '/community/community/view?id='.$model->id;
+    $viewUrl = '/community/community/view?id=' . $model->id;
 }
 ?>
 
@@ -47,10 +50,10 @@ if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null(
         ]);*/
         ?>
         <?=
-        $newsWidget = NewsWidget::widget([
-            'model' => $model,
-            'css_class' => 'badge'
-        ])
+            $newsWidget = NewsWidget::widget([
+                'model' => $model,
+                'css_class' => 'badge'
+            ])
         ?>
         <div class="community-image">
             <?php
@@ -58,11 +61,13 @@ if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null(
             if (!is_null($model->communityLogo)) {
                 $url = $model->communityLogo->getUrl('item_community', false, true);
             }
-            $logo       = Html::img($url,
-                    [
+            $logo       = Html::img(
+                $url,
+                [
                     'class' => 'img-responsive',
                     'alt' => $model->getAttributeLabel('communityLogo')
-            ]);
+                ]
+            );
             ?>
             <?= Html::a($logo, $viewUrl, ['title' => $model->name]); ?>
         </div>
@@ -70,12 +75,18 @@ if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null(
     <div class="col-xs-12 nop icon-body">
         <h3 class="title">
             <?=
-            Html::a($model->name, $viewUrl,
-                ['title' => AmosCommunity::t('amoscommunity', '#icon_title_link').' '.$model->name]);
+                Html::a(
+                    $model->name,
+                    $viewUrl,
+                    ['title' => AmosCommunity::t('amoscommunity', '#icon_title_link') . ' ' . $model->name]
+                );
             ?>
         </h3>
     </div>
-    <!--div class="col-xs-12 nop icon-footer">
+    <div class="col-xs-12 icon-footer">
+        <?php if (!$fixedCommunityType) : ?>
+            <span class="badge category<?= $model->communityType ?>"><?= $model->getCommunityTypeName() ?></span>
+        <?php endif; ?>
         <?php /*
         $accessType = '';
 
@@ -97,6 +108,5 @@ if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null(
             );
         } */
         ?>
-<?php // JoinCommunityWidget::widget(['model' => $model, 'divClassBtnContainer' => 'pull-right']) ?>
-    </div-->
+    </div>
 </div>

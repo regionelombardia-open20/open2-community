@@ -428,6 +428,10 @@ class CommunityMembersWidget extends Widget
                     ]);
             }
         }
+
+        if(empty(Yii::$app->request->getQueryParams()['sort'])){
+            $query->orderBy("user_profile.cognome, user_profile.nome");
+        }
         
         $contextObject = $model;
         $community = $model->getCommunityModel();

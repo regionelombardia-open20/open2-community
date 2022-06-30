@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -17,6 +16,7 @@ use open20\amos\core\icons\AmosIcons;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
 use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\utility\models\BulletCounters;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -49,7 +49,7 @@ class WidgetIconMyCommunities extends WidgetIcon
             $this->setIcon('group');
         }
 
-        $url = ['/community/community/my-communities'];
+        $url       = ['/community/community/my-communities'];
         $moduleCwh = Yii::$app->getModule('cwh');
         if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
             $scope = $moduleCwh->getCwhScope();
@@ -65,18 +65,15 @@ class WidgetIconMyCommunities extends WidgetIcon
 
         $this->setClassSpan(
             ArrayHelper::merge(
-                $this->getClassSpan(),
-                $paramsClassSpan
+                $this->getClassSpan(), $paramsClassSpan
             )
         );
 
         if ($this->disableBulletCounters == false) {
-            $search = new CommunitySearch();
             $this->setBulletCount(
-                $this->makeBulletCounter(
-                    Yii::$app->getUser()->id,
-                    Community::className(),
-                    $search->buildQuery([], 'own-interest')
+                BulletCounters::getAmosWidgetIconCounter(
+                    Yii::$app->getUser()->getId(), AmosCommunity::getModuleName(), $this->getNamespace(),
+                    $this->resetBulletCount(), WidgetIconCommunity::className()
                 )
             );
         }
@@ -90,5 +87,4 @@ class WidgetIconMyCommunities extends WidgetIcon
     {
         return AmosCommunity::t('amoscommunity', 'My communities');
     }
-
 }

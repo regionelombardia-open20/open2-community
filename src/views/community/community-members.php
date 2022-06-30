@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -8,7 +7,6 @@
  * @package    open20\amos\community\views\community
  * @category   CategoryName
  */
-
 echo \open20\amos\community\widgets\CommunityMembersWidget::widget([
     'model' => $model,
     'showRoles' => $showRoles,
@@ -24,9 +22,8 @@ echo \open20\amos\community\widgets\CommunityMembersWidget::widget([
     'targetUrlParams' => $targetUrlParams,
     'enableModal' => $enableModal,
     'gridId' => $gridId,
-    'targetUrlInvitation' => '/invitations/invitation/index' . (Yii::$app->user->can('INVITATIONS_ADMINISTRATOR') ? '-all' : '') . '/',
-    'communityManagerRoleName' => $communityManagerRoleName
+    'communityManagerRoleName' => $communityManagerRoleName,
+    'targetUrlInvitation' => $targetUrlInvitation,
+    'invitationModule' => $invitationModule,
 ]);
-
-
 ?>

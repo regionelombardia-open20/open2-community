@@ -82,7 +82,7 @@ $isLoggedUserParticipant = $model->isNetworkUser();
             </div>
         </div>
     <?php } ?>
-
+ 
 
     <div id="bk-pluginGrafici" class="sub-dashboard-graphics wrap-graphic-widget">
         <div id="widgets-graphic" class="community-view-content">
