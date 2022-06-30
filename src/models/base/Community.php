@@ -179,6 +179,13 @@ abstract class Community extends NetworkModel
     {
         return $this->hasMany(\open20\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere(['context' => self::className()]);
     }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParent()
+    {
+        return $this->hasOne(\open20\amos\community\models\Community::className(), ['id' => 'parent_id']);
+    }
     
     /**
      * @return string the name of the community type

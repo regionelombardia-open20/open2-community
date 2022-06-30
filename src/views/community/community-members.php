@@ -24,6 +24,7 @@ echo \open20\amos\community\widgets\CommunityMembersWidget::widget([
     'targetUrlParams' => $targetUrlParams,
     'enableModal' => $enableModal,
     'gridId' => $gridId,
+    'targetUrlInvitation' => '/invitations/invitation/index' . (Yii::$app->user->can('INVITATIONS_ADMINISTRATOR') ? '-all' : '') . '/',
     'communityManagerRoleName' => $communityManagerRoleName
 ]);
 
