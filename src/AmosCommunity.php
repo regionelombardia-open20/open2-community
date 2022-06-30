@@ -213,7 +213,9 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
     public $communityContextsToSearch = [];
 
     public $enableAutoLinkLanding = false;
-    
+
+    public $disableEmailCommunityDeleted = false;
+
     /**
      * @inheritdoc
      */
