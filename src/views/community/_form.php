@@ -9,24 +9,25 @@
  * @category   CategoryName
  */
 
+use open20\amos\attachments\components\CropInput;
+use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
+use open20\amos\community\utilities\CommunityUtil;
 use open20\amos\community\widgets\mini\CommunityMembersMiniWidget;
 use open20\amos\community\widgets\mini\SubcommunitiesMiniWidget;
+use open20\amos\core\forms\AccordionWidget;
+use open20\amos\core\forms\ActiveForm;
+use open20\amos\core\forms\CreatedUpdatedWidget;
+use open20\amos\core\forms\RequiredFieldsTipWidget;
 use open20\amos\core\forms\TextEditorWidget;
+use open20\amos\core\helpers\Html;
 use open20\amos\cwh\widgets\DestinatariPlusTagWidget;
 use open20\amos\report\widgets\ReportFlagWidget;
 use open20\amos\workflow\widgets\WorkflowTransitionButtonsWidget;
 use open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
-use open20\amos\community\AmosCommunity;
-use open20\amos\community\models\Community;
-use open20\amos\community\utilities\CommunityUtil;
-use open20\amos\core\forms\ActiveForm;
-use open20\amos\core\forms\CreatedUpdatedWidget;
-use open20\amos\core\helpers\Html;
-use open20\amos\core\forms\AccordionWidget;
 use kartik\select2\Select2;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
-use open20\amos\attachments\components\CropInput;
 
 
 /**
@@ -217,6 +218,24 @@ $form = ActiveForm::begin([
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
+    
+            <?php if ($moduleCommunity->forceWorkflowSingleCommunity) : ?>
+                <div class="col-xs-12">
+                    <?php
+                    if ($model->isNewRecord) {
+                        $model->force_workflow = 1;
+                    }
+                    echo Html::tag('div',
+                        $form->field($model, 'force_workflow')->inline()->radioList(
+                            [
+                                '1' => AmosCommunity::t('amoscommunity', '#force_ok'),
+                                '0' => AmosCommunity::t('amoscommunity', '#force_ko')
+                            ], ['class' => 'comment-choice'])->label(AmosCommunity::t('amoscommunity', '#force_workflow')
+                            , ['class' => 'col-md-8 col-xs-12']));
+                    ?>
+
+                </div>
+            <?php endif; ?>
 
             <?php
 
@@ -246,30 +265,6 @@ $form = ActiveForm::begin([
                     </div>
                 </div>
             <?php endif; ?>
-
-            <?php if (isset($moduleCommunity->forceWorkflowSingleCommunity) && $moduleCommunity->forceWorkflowSingleCommunity) : ?>
-                <div class="col-xs-12">
-                    <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_optional'), ['class' => 'subtitle-form']) ?>
-                    <?php
-                        if ($model->isNewRecord) {
-                            $model->force_workflow = 1;
-                        }
-                        echo Html::tag('div',
-                            $form->field($model, 'force_workflow')->inline()->radioList(
-                                    [
-                                        '1' => AmosCommunity::t('amoscommunity', '#force_ok'),
-                                        '0' => AmosCommunity::t('amoscommunity', '#force_ko')
-                                    ], ['class' => 'comment-choice'])->label(AmosCommunity::t('amoscommunity', '#force_workflow')
-                                    , ['class' => 'col-md-8 col-xs-12']));
-                    ?>
-
-                </div>
-                <div class="clearfix"></div>
-            <?php endif; ?>
-            
-            <div class="col-xs-12 note_asterisk">
-                <span><?= AmosCommunity::t('amoscommunity', '#required_field') ?></span>
-            </div>
 
         </div>
         <div class="col-md-4 col-xs-12">
@@ -361,6 +356,7 @@ $form = ActiveForm::begin([
         <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>
         <?= $form->field($model, 'visible_on_edit')->hiddenInput()->label(false) ?>
     </div>
+    <div class="col-xs-12 m-t-20 nop"><?= RequiredFieldsTipWidget::widget() ?></div>
 
     <?php
 

@@ -42,7 +42,7 @@ class WidgetIconCommunityDashboard extends WidgetIcon
         parent::init();
 
         $this->setLabel(AmosCommunity::tHtml('amoscommunity', '#widget_icon_community_dashboard_label'));
-        $this->setDescription(AmosCommunity::t('amoscommunity', '#widget_icon_community_dashboard_description Community module'));
+        $this->setDescription(AmosCommunity::t('amoscommunity', '#widget_icon_community_dashboard_description'));
 
         $paramsClassSpan = [
             'bk-backgroundIcon',
