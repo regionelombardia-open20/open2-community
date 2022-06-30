@@ -183,13 +183,14 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function searchCommunitiesRecommended($params, $limit = null)
     {
         $dataProvider = $this->searchAdminAllCommunities($params);
+        /** @var ActiveQuery $query */
         $query        = $dataProvider->query;
 
         $subqueryId = $this->searchMyCommunitiesId();
 
         $query->where(['not in', 'community.id', $subqueryId])->limit($limit)->all();
         $query->andWhere('community.deleted_at is null');
-        $query->andWhere(['in', self::tableName().'.context', [Community::className(), 'open20\amos\events\models\Event']]);
+        $query->andWhere(['in', self::tableName().'.context', $this->communityModule->communityContextsToSearch]);
         $query->andWhere(['community.parent_id' => null]);
         $query->andWhere(['in', 'community.community_type_id', [CommunityType::COMMUNITY_TYPE_OPEN, CommunityType::COMMUNITY_TYPE_PRIVATE]]);
 
@@ -303,7 +304,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function filterByContext($query)
     {
         if (!empty($query)) {
-            $query->andWhere(['in', self::tableName().'.context', [Community::className(), 'open20\amos\events\models\Event']]);
+            $query->andWhere(['in', self::tableName().'.context', $this->communityModule->communityContextsToSearch]);
             $query->andWhere([self::tableName().'.deleted_at' => null]);
         }
         /** @var AmosCommunity $moduleCommunity */

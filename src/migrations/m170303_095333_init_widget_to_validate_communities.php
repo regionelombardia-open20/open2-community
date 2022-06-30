@@ -79,7 +79,6 @@ class m170303_095333_init_widget_to_validate_communities extends \yii\db\Migrati
     }
 
     /**
-     * @see \yii\db\Migration::init() for more info.
      */
     public function init()
     {

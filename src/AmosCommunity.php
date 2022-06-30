@@ -203,6 +203,11 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
     public $autoCommunityManagerRoles = [];
     
     /**
+     * @var array $communityContextsToSearch In this array you can configure which communities you want to see in the plugin lists by configure the community contexts.
+     */
+    public $communityContextsToSearch = [];
+    
+    /**
      * @inheritdoc
      */
     public static function getModuleName()
@@ -220,6 +225,9 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
         // initialize the module with the configuration loaded from config.php
         \Yii::configure($this, require(__DIR__ . DIRECTORY_SEPARATOR . self::$CONFIG_FOLDER . DIRECTORY_SEPARATOR . 'config.php'));
         $this->autoCommunityManagerRoles = array_unique($this->autoCommunityManagerRoles);
+        if (empty($this->communityContextsToSearch)) {
+            $this->communityContextsToSearch = [$this->model('Community')];
+        }
     }
     
     /**

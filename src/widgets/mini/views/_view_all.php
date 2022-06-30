@@ -1,13 +1,4 @@
 <?php
-
-/**
- * Aria S.p.A.
- * OPEN 2.0
- *
- *
- * @package    Open20Package
- * @category   CategoryName
- */
 /** @var $dataProvider \yii\data\ActiveDataProvider*/
 
 use open20\amos\community\AmosCommunity;

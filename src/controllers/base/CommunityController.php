@@ -313,7 +313,6 @@ class CommunityController extends CrudController
      * Deletes an existing Community model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * in Community model beforeDelete is overwritten to allow deletion of related models
-     * @see Community::beforeDelete()
      *
      * @param integer $id
      * @return mixed

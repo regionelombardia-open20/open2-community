@@ -1,13 +1,4 @@
 <?php
-
-/**
- * Aria S.p.A.
- * OPEN 2.0
- *
- *
- * @package    Open20Package
- * @category   CategoryName
- */
 use open20\amos\community\utilities\CommunityUtil;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\CommunityUserMm;

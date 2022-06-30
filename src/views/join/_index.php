@@ -120,7 +120,7 @@ use open20\amos\community\widgets\icons\WidgetIconAccademyDocument;
         if (isset(Yii::$app->params['isPoi']) && (Yii::$app->params['isPoi'] === true) && ($model->id == 2772 )) {
             $widgetClassname1 = open20\amos\partnershipprofiles\widgets\icons\WidgetIconPartnershipProfilesDashboard::className();
             $widgetClassname2 = open20\amos\partnershipprofiles\widgets\icons\WidgetIconExpressionsOfInterestDashboard::className();
-            $widgetClassname3 = open20\amos\ticket\widgets\icons\WidgetIconTicketDashboard::className();
+            $widgetClassname3 = open2\amos\ticket\widgets\icons\WidgetIconTicketDashboard::className();
             $widget1 = Yii::createObject($widgetClassname1);
             $widget2 = Yii::createObject($widgetClassname2);
             $widget3 = Yii::createObject($widgetClassname3);

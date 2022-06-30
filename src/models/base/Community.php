@@ -60,6 +60,20 @@ use yii\helpers\ArrayHelper;
 abstract class Community extends NetworkModel
 {
     /**
+     * @var AmosCommunity $communityModule
+     */
+    protected $communityModule = null;
+    
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        $this->communityModule = AmosCommunity::instance();
+        parent::init();
+    }
+    
+    /**
      * @inheritdoc
      */
     public static function tableName()

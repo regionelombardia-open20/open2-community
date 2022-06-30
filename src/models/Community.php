@@ -96,11 +96,6 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public $backToEdit;
     public $level = 0;
-    
-    /**
-     * @var AmosCommunity $communityModule
-     */
-    protected $communityModule;
 
     /**
      * @inheritdoc
@@ -114,7 +109,6 @@ class Community extends \open20\amos\community\models\base\Community implements 
             if ($this->status == self::COMMUNITY_WORKFLOW_STATUS_VALIDATED) {
                 $this->validated_once = 1;
             }
-            $this->communityModule = Yii::$app->getModule('community');
             if (!is_null($this->communityModule->communityType)) {
                 $this->community_type_id = $this->communityModule->communityType;
             }
@@ -218,7 +212,6 @@ class Community extends \open20\amos\community\models\base\Community implements 
     }
 
     /**
-     * @see \yii\base\Model::rules() for more info.
      */
     public function rules()
     {
