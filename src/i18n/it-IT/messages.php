@@ -184,7 +184,7 @@ return [
     'Descrizione' => 'Descrizione',
     "Devi essere validato per poter effettuare l'iscrizione alla community" => "Devi essere validato per poter effettuare l'iscrizione alla community",
     'Directly accept invitation and enter into community' => 'Diretta accettazione dell\'invito e accesso alla community',
-    'disiscriviti' => 'unsubscribe',
+    'disiscriviti' => 'disiscriviti',
     'Disiscriviti dalla community' => 'Disiscriviti dalla community',
     'documenti module not found' => 'modulo documenti non trovato',
     'Documents types' => 'Tipologia documenti',
@@ -564,6 +564,5 @@ return [
     "#beforeActionSubtitleSectionLogged" => "Cocreazione per la generazione di nuove idee: le community sono uno degli strumenti caratteristici di questa piattaforma. Attraverso gruppi di lavoro dedicati, le iniziative di {platformName} creano spazi di collaborazione, innovazione, condivisione e networking.",
     'Community Name' => 'Nome community',
     'Community Created At' => 'Community creata da',
-    'Rispondi all\'invito' => 'Rispondi all\'invito'
-
+    'Rispondi all\'invito' => 'Rispondi all\'invito',
     ];
