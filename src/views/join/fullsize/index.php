@@ -25,6 +25,7 @@ $this->params['checkedByDefault'] = false;
 //if (!is_null($model->parent_id)) {
 //    $this->title = AmosCommunity::t('amoscommunity', '#welcome_to_subcommunity');
 //}
+$this->title = $model->getTitle();
 ?>
 <div class="actions-dashboard-container community-dashboard-container">
     <nav>
