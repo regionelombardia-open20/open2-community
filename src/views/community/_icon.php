@@ -18,6 +18,9 @@ use open20\amos\community\models\CommunityUserMm;
 use open20\amos\core\user\User;
 use open20\amos\core\forms\ContextMenuWidget;
 use open20\amos\community\models\Community;
+use open20\design\assets\ShimmerDesignAsset;
+ShimmerDesignAsset::register($this);
+
 
 /**
  * @var \open20\amos\community\models\Community $model
@@ -101,7 +104,7 @@ if (!$isGuest) {
     ])
     ?>
     <div class="image-container position-relative">
-        <div class="community-image">
+        <div class="community-image ">
             <?php
             $url        = '/img/img_default.jpg';
             if (!is_null($model->communityLogo)) {
@@ -110,16 +113,16 @@ if (!$isGuest) {
             $logo = Html::img(
                 $url,
                 [
-                    'class' => 'img-responsive',
+                    'class' => 'img-responsive shimmer-image',
                     'alt' => $model->getAttributeLabel('communityLogo')
                 ]
             );
 
             if (!$isGuest) {
                 if (!empty($urlRedirect)) {
-                    echo Html::a($logo . $newsWidget, $urlRedirect), ['title' => $model->name, 'target' => '_blank'];
+                    echo Html::a($logo . $newsWidget, $urlRedirect), ['title' => $model->name, 'class' => 'img-shimmer', 'target' => '_blank'];
                 } else {
-                    echo Html::a($logo . $newsWidget, $viewUrl, ['title' => $model->name]);
+                    echo Html::a($logo . $newsWidget, $viewUrl, ['title' => $model->name, 'class' => 'img-shimmer']);
                 }
             } else {
                 echo $logo;

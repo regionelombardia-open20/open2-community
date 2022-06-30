@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -10,18 +11,13 @@
 
 namespace open20\amos\community\widgets\icons;
 
-use open20\amos\core\widget\WidgetIcon;
-use open20\amos\core\widget\WidgetAbstract;
-use open20\amos\core\icons\AmosIcons;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
-use open20\amos\dashboard\models\AmosUserDashboards;
-use open20\amos\dashboard\models\AmosUserDashboardsWidgetMm;
-use open20\amos\dashboard\models\AmosWidgets;
+use open20\amos\core\icons\AmosIcons;
+use open20\amos\core\widget\WidgetAbstract;
+use open20\amos\core\widget\WidgetIcon;
 use Yii;
-use yii\db\Query;
 use yii\helpers\ArrayHelper;
-
 
 /**
  * Class WidgetIconCommunityDashboard
@@ -95,15 +91,19 @@ class WidgetIconCommunityDashboard extends WidgetIcon
     public function isVisible()
     {
         $moduleCwh = \Yii::$app->getModule('cwh');
-
+        /** @var AmosCommunity $moduleCommunity */
+        $moduleCommunity = \Yii::$app->getModule('community');
+        $classnamesEnabled = $moduleCommunity->enableSubcommunitiesForNewtworks ;
         if (isset($moduleCwh)) {
             /** @var \open20\amos\cwh\AmosCwh $moduleCwh */
             if (!empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
-                    $community = Community::findOne($scope['community']);
-
-                    if (!is_null($community) && ($community->context == Community::className())) {
+                    /** @var Community $communityModel */
+                    $communityModel = $moduleCommunity->createModel('Community');
+                    /** @var Community $community */
+                    $community = $communityModel::findOne($scope['community']);
+                    if (!is_null($community) && ($community->context == $moduleCommunity->model('Community') || in_array($community->context, $classnamesEnabled))) {
                         return parent::isVisible();
                     }
 
@@ -125,8 +125,8 @@ class WidgetIconCommunityDashboard extends WidgetIcon
 
     /**
      * Aggiunge all'oggetto container tutti i widgets recuperati dal controller del modulo
-     * 
-     * @return type
+     *
+     * @return array|\open20\amos\core\widget\type
      */
     public function getOptions()
     {
@@ -134,10 +134,9 @@ class WidgetIconCommunityDashboard extends WidgetIcon
                 parent::getOptions(), ['children' => $this->getWidgetsIcon()]
         );
     }
-
+    
     /**
-     * 
-     * @return type
+     * @return array
      */
     public function getWidgetsIcon()
     {

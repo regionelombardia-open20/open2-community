@@ -130,11 +130,12 @@ class UserNetworkWidget extends Widget
                     }
                 }
             ],
+            /* -- Disabilitato --
             'created_by' => [
                 'attribute' => 'created_by',
                 'format' => 'html',
                 'value' => function ($model) {
-                    /** @var Community $model */
+                    /** @var Community $model
                     $name = '-';
                     if (!is_null($model->created_by)) {
                         $creator = User::findOne($model->created_by);
@@ -145,6 +146,7 @@ class UserNetworkWidget extends Widget
                     return $name;
                 }
             ],
+            */
             'status' => [
                 'attribute' => 'status',
                 'label' => AmosCommunity::t('amoscommunity', 'Status'),
@@ -192,7 +194,8 @@ class UserNetworkWidget extends Widget
                     \open20\amos\community\models\CommunityType::COMMUNITY_TYPE_CLOSED
                 ],
                 ['in', 'community.id', $communitiesMms]
-            ]);
+            ])
+            ->orderBy(['community_user_mm.created_at' => SORT_DESC]);
         }
         
         if (isset($_POST[$searchPostName])) {

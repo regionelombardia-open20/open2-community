@@ -71,7 +71,14 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      * @var bool
      */
     public $showSubcommunitiesWidget = false;
-    
+
+    /**
+     * @var array
+     * ['open20\amos\modules\models\Modelname1', 'open20\amos\modules\models\Modelname2',]
+     */
+    public $enableSubcommunitiesForNewtworks = [];
+
+
     /**
      * @var bool|false $bypassWorkflow - if ignore community workflow
      */
@@ -252,6 +259,13 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
     
 
     public $disableEmailCommunityDeleted = false;
+
+
+    /**
+     * @var array
+     *  ['open20/amos/models/ModelName1', 'open20/amos/models/ModelName2']
+     */
+    public $disableFirstLevelAssociaCommunityOnContext = [];
 
     /**
      * @inheritdoc

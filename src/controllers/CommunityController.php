@@ -72,7 +72,8 @@ class CommunityController extends BaseCommunityController
     public $layout = 'list';
 
     /**
-     * @inheritdoc
+     * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
      */
     public function init()
     {
@@ -98,10 +99,15 @@ class CommunityController extends BaseCommunityController
 
         $this->setM2mAttributesManageViewPath('manage-m2m-attributes');
         $this->setCustomQuery(true);
-        $this->setMmTableAttributesDefault([
-            'status' => CommunityUserMm::STATUS_INVITE_IN_PROGRESS,
-            'role' => CommunityUserMm::ROLE_PARTICIPANT
-        ]);
+
+        if(\Yii::$app->request->get('id')) {
+           $this->setDefaultRoleContextCommunity();
+        } else {
+            $this->setMmTableAttributesDefault([
+                'status' => CommunityUserMm::STATUS_INVITE_IN_PROGRESS,
+                'role' => CommunityUserMm::ROLE_PARTICIPANT
+            ]);
+        }
         $this->setUpLayout('main');
         $this->setModuleClassName(AmosCommunity::className());
         $this->on(M2MEventsEnum::EVENT_BEFORE_ASSOCIATE_M2M, [$this, 'beforeAssociateM2m']);
@@ -227,6 +233,25 @@ class CommunityController extends BaseCommunityController
         );
 
         return $behaviors;
+    }
+
+    /**
+     * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function setDefaultRoleContextCommunity(){
+        /** @var Community $community */
+        $community = $this->findModel(\Yii::$app->request->get('id'));
+        $role = $community->getRoleContextCommunity(CommunityUserMm::ROLE_PARTICIPANT);
+        $communityModelClassName = $this->communityModule->model('Community');
+        if ($community->context != $communityModelClassName) {
+            if (!empty($community->parent_id)) {
+                $this->setMmTableAttributesDefault([
+                    'status' => CommunityUserMm::STATUS_INVITE_IN_PROGRESS,
+                    'role' => $role
+                ]);
+            }
+        }
     }
 
     /**
@@ -847,7 +872,7 @@ class CommunityController extends BaseCommunityController
 
             $parentId = null;
             $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) { 
+            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
                     $parentId = $scope['community'];
@@ -1075,7 +1100,7 @@ class CommunityController extends BaseCommunityController
 
                     $this->sendMail(null, $invitedByUser->email, $subjectToManager, $textToManager, [], []);
                     $this->sendMail(null, $user->email, $subjectToUser, $textToUser, [], []);
-                    $nu   = new NotifyUtility();				
+                    $nu   = new NotifyUtility();
                     if($this->communityModule->setDefaultCommunityNotificationImmediate){
                         if (!empty($user) && !empty($communityId)) {
                             $nu->saveNetworkNotification(Yii::$app->user->id,
@@ -1084,7 +1109,7 @@ class CommunityController extends BaseCommunityController
                             ]);
                         }
 					}
-                        
+
                 } else {
 
                     $message = AmosCommunity::tHtml('amoscommunity', "Invitation to") . $communityName . ' ' . AmosCommunity::tHtml(
@@ -1264,7 +1289,7 @@ class CommunityController extends BaseCommunityController
         }
 
         if ($ok) {
-            $nu   = new NotifyUtility();            
+            $nu   = new NotifyUtility();
             if($this->communityModule->setDefaultCommunityNotificationImmediate){
                     if (!empty($user) && !empty($communityId)) {
                             $nu->saveNetworkNotification(Yii::$app->user->id,

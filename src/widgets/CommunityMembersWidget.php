@@ -5,12 +5,13 @@
  * OPEN 2.0
  *
  *
- * @package    open20\amos\community
+ * @package    open20\amos\community\widgets
  * @category   CategoryName
  */
 
 namespace open20\amos\community\widgets;
 
+use open20\amos\admin\AmosAdmin;
 use open20\amos\admin\widgets\UserCardWidget;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
@@ -23,158 +24,164 @@ use open20\amos\core\helpers\Html;
 use open20\amos\core\icons\AmosIcons;
 use open20\amos\core\module\AmosModule;
 use open20\amos\core\module\BaseAmosModule;
-use open20\amos\core\record\Record;
 use open20\amos\core\utilities\JsUtility;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
 use yii\bootstrap\Modal;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\web\View;
 use yii\widgets\PjaxAsset;
-use open20\amos\admin\AmosAdmin;
-use yii\data\ActiveDataProvider;
 
 /**
  * Class CommunityMembersWidget
  * @package open20\amos\community\widgets
  */
-class CommunityMembersWidget extends Widget {
-
+class CommunityMembersWidget extends Widget
+{
+    /**
+     * @var AmosCommunity $communityModule
+     */
+    protected $communityModule = null;
+    
     /**
      * @var Community $model
      */
     public $model = null;
-
+    
     /**
      * (eg. ['PARTICIPANT'] - thw widget will show only member with role participant)
      * @var array Array of roles to show
      */
     public $showRoles = null;
-
+    
     /**
      * @var bool $showAdditionalAssociateButton Set to true if another 'invite user' button is required
      */
     public $showAdditionalAssociateButton = false;
-
+    
     /**
      * @var array $additionalColumns Additional Columns
      */
     public $additionalColumns = [];
-
+    
     /**
      * @var bool $viewEmail
      */
     public $viewEmail = false;
-
+    
     /**
      * @var bool $viewInvitation
      */
     public $viewInvitation = false;
-
+    
     /**
      * @var bool $checkManagerRole
      */
     public $checkManagerRole = false;
-
+    
     /**
      * @var string $addPermission
      */
     public $addPermission = 'COMMUNITY_UPDATE';
-
+    
     /**
      * @var string $manageAttributesPermission
      */
     public $manageAttributesPermission = 'COMMUNITY_UPDATE';
-
+    
     /**
      * @var bool $forceActionColumns
      */
     public $forceActionColumns = false;
-
+    
     /**
      * @var string $actionColumnsTemplate
      */
     public $actionColumnsTemplate = '';
-
+    
     /**
      * @var bool $viewM2MWidgetGenericSearch
      */
     public $viewM2MWidgetGenericSearch = false;
-
+    
     /**
      * @var array $targetUrlParams
      */
     public $targetUrlParams = null;
-
+    
     /**
      * @var array $targetUrlInvitation
      */
     public $targetUrlInvitation = null;
-
+    
     /**
      * @var array $invitationModule
      */
     public $invitationModule = null;
-
+    
     /**
      * @var string $gridId
      */
     public $gridId = 'community-members-grid';
     public $enableModal = false;
-
+    
     /**
      * @var string $delete_member_message
      */
     public $delete_member_message = false;
-
+    
     /**
      * @var string
      */
     public $communityManagerRoleName = '';
-
+    
     /**
      *
      * @var bool $externalInvitationUsers
      */
     public $externalInvitationUsers = true;
-
+    
     /**
      *
-     * @var array $exportMittenteConfig 
+     * @var array $exportMittenteConfig
      */
     public $exportMittenteConfig = [];
-
+    
     /**
-     *  @var string $additionalButtons
+     * @var string $additionalButtons
      */
     public $additionalButtons = '';
-
+    
     /**
      * @var array|null $listView - option for data provider list view
      */
     public $listView = null;
-
+    
     /**
      * @var array|null $iconView - option for data provider icon view
      */
     public $iconView = null;
-
-    /** 	
-     * @var int|null $itemsSenderPageSize - number of pages	
+    
+    /**
+     * @var int|null $itemsSenderPageSize - number of pages
      */
     public $itemsSenderPageSize = 20;
-
-    /** 	
-     * @var string|null $pageParam - sting definition for page	
+    
+    /**
+     * @var string|null $pageParam - sting definition for page
      */
     public $pageParam = 'page';
-
+    
     /**
      * @inheritdoc
      * @throws InvalidConfigException
      */
-    public function init() {
+    public function init()
+    {
+        $this->communityModule = AmosCommunity::instance();
+        
         parent::init();
         if (!$this->model) {
             throw new InvalidConfigException($this->throwErrorMessage('model'));
@@ -182,26 +189,27 @@ class CommunityMembersWidget extends Widget {
         if (($this->model instanceof Community)) {
             $this->enableModal = true;
         }
-
+        
         $this->delete_member_message = ($this->delete_member_message) ? $this->delete_member_message : AmosCommunity::t('amoscommunity',
-                        'Are you sure to remove this user?');
+            'Are you sure to remove this user?');
     }
-
-    protected function throwErrorMessage($field) {
+    
+    protected function throwErrorMessage($field)
+    {
         return AmosCommunity::t('amoscommunity', 'Wrong widget configuration: missing field {field}',
-                        [
-                            'field' => $field
-        ]);
+            [
+                'field' => $field
+            ]);
     }
-
+    
     /**
      * @inheritdoc
      */
-    public function run() {
-
-        $customInvitationForm = AmosCommunity::instance()->customInvitationForm;
-        $inviteUserOfcommunityParent = AmosCommunity::instance()->inviteUserOfcommunityParent;
-
+    public function run()
+    {
+        $customInvitationForm = $this->communityModule->customInvitationForm;
+        $inviteUserOfcommunityParent = $this->communityModule->inviteUserOfcommunityParent;
+        
         $gridId = $this->gridId . (!empty($this->showRoles) ? '-' . implode('-', $this->showRoles) : '');
         $model = $this->model;
         $communityModuleName = AmosCommunity::getModuleName();
@@ -211,7 +219,7 @@ class CommunityMembersWidget extends Widget {
         $contextModelModuleName = $communityContext->getPluginModule();
         /** @var AmosModule $contextModelModuleObj */
         $contextModelModuleObj = Yii::$app->getModule($contextModelModuleName);
-
+        
         $params = [];
         $params['showRoles'] = $this->showRoles;
         $params['showAdditionalAssociateButton'] = $this->showAdditionalAssociateButton;
@@ -228,10 +236,10 @@ class CommunityMembersWidget extends Widget {
         $params['enableModal'] = $this->enableModal;
         $params['gridId'] = $this->gridId;
         $params['communityManagerRoleName'] = $this->communityManagerRoleName;
-
+        
         $params['targetUrlInvitation'] = $this->targetUrlInvitation;
         $params['invitationModule'] = $this->invitationModule;
-
+        
         $url = \Yii::$app->urlManager->createUrl([
             '/community/community/community-members',
             'id' => $model->id,
@@ -239,11 +247,11 @@ class CommunityMembersWidget extends Widget {
             'params' => $params
         ]);
         $searchPostName = 'searchMemberName' . (!empty($this->showRoles) ? implode('', $this->showRoles) : '');
-
+        
         $js = JsUtility::getSearchM2mFirstGridJs($gridId, $url, $searchPostName);
         PjaxAsset::register($this->getView());
         $this->getView()->registerJs($js, View::POS_LOAD);
-
+        
         $itemsMittente = [
             'Photo' => [
                 'headerOptions' => [
@@ -273,11 +281,11 @@ class CommunityMembersWidget extends Widget {
                 'value' => function ($model) {
                     /** @var \open20\amos\community\models\CommunityUserMm $model */
                     return Html::a($model->user->userProfile->surnameName,
-                            ['/' . AmosAdmin::getModuleName() . '/user-profile/view', 'id' => $model->user->userProfile->id],
-                            [
-                                'title' => AmosCommunity::t('amoscommunity', 'Apri il profilo di {nome_profilo}',
-                                        ['nome_profilo' => $model->user->userProfile->surnameName])
-                    ]);
+                        ['/' . AmosAdmin::getModuleName() . '/user-profile/view', 'id' => $model->user->userProfile->id],
+                        [
+                            'title' => AmosCommunity::t('amoscommunity', 'Apri il profilo di {nome_profilo}',
+                                ['nome_profilo' => $model->user->userProfile->surnameName])
+                        ]);
                 },
                 'format' => 'html'
             ],
@@ -317,7 +325,7 @@ class CommunityMembersWidget extends Widget {
                 }
             ],
         ];
-
+        
         $exportColumns = [
             'user.userProfile.nome',
             'user.userProfile.cognome',
@@ -354,12 +362,12 @@ class CommunityMembersWidget extends Widget {
                 }
             ],
         ];
-
+        
         $view_email_partecipants = false;
-        if (isset(Yii::$app->getModule('community')->view_email_partecipants)) {
-            $view_email_partecipants = Yii::$app->getModule('community')->view_email_partecipants;
+        if (isset($this->communityModule->view_email_partecipants)) {
+            $view_email_partecipants = $this->communityModule->view_email_partecipants;
         }
-
+        
         if (($view_email_partecipants && $this->checkManager()) || ($this->viewEmail)) {
             $itemsMittente['email'] = [
                 'label' => AmosCommunity::t('amoscommunity', 'Email'),
@@ -375,7 +383,7 @@ class CommunityMembersWidget extends Widget {
                 }
             ];
         }
-
+        
         if ($this->viewInvitation) {
             $itemsMittente['invited_at'] = [
                 'attribute' => 'invited_at',
@@ -421,10 +429,10 @@ class CommunityMembersWidget extends Widget {
             ];
         }
         $isSubCommunity = !empty($model->getCommunityModel()->parent_id);
-
+        
         //Merge additional solumns
         $itemsMittente = ArrayHelper::merge($itemsMittente, $this->additionalColumns);
-
+        
         $actionColumnsTemplate = '';
         if ($this->checkManager()) {
             $actionColumnsTemplate = '{acceptUser}{rejectUser}{relationAttributeManage}{deleteRelation}';
@@ -432,38 +440,38 @@ class CommunityMembersWidget extends Widget {
         if ($this->forceActionColumns) {
             $actionColumnsTemplate = $this->actionColumnsTemplate;
         }
-
+        
         $associateBtnDisabled = false;
         if (($model instanceof Community && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED && !$model->validated_once)) {
             $associateBtnDisabled = true;
         }
-
+        
         $query = !empty($this->showRoles) ? $model->getCommunityModel()->getCommunityUserMms()->andWhere(['role' => $this->showRoles])->andWhere([
-                    '!=', 'role', CommunityUserMm::ROLE_GUEST]) : $model->getCommunityModel()->getCommunityUserMms()->andWhere([
-                    '!=', 'role', CommunityUserMm::ROLE_GUEST]);
-
+            '!=', 'role', CommunityUserMm::ROLE_GUEST]) : $model->getCommunityModel()->getCommunityUserMms()->andWhere([
+            '!=', 'role', CommunityUserMm::ROLE_GUEST]);
+        
         $query
-                ->innerJoin('user_profile up', 'community_user_mm.user_id = up.user_id')
-                ->andWhere(['up.attivo' => 1]);
-
+            ->innerJoin('user_profile up', 'community_user_mm.user_id = up.user_id')
+            ->andWhere(['up.attivo' => 1]);
+        
         if (isset($_POST[$searchPostName])) {
             $searchName = $_POST[$searchPostName];
             if (!empty($searchName)) {
                 $query->andWhere('community_user_mm.deleted_at IS NULL')
-                        ->andWhere(['!=', 'community_user_mm.role', CommunityUserMm::ROLE_GUEST])
-                        ->andWhere(['or',
-                            ['like', 'user_profile.nome', $searchName],
-                            ['like', 'user_profile.cognome', $searchName],
-                            ['like', "CONCAT( user_profile.nome , ' ', user_profile.cognome )", $searchName],
-                            ['like', "CONCAT( user_profile.cognome , ' ', user_profile.nome )", $searchName]
-                ]);
+                    ->andWhere(['!=', 'community_user_mm.role', CommunityUserMm::ROLE_GUEST])
+                    ->andWhere(['or',
+                        ['like', 'user_profile.nome', $searchName],
+                        ['like', 'user_profile.cognome', $searchName],
+                        ['like', "CONCAT( user_profile.nome , ' ', user_profile.cognome )", $searchName],
+                        ['like', "CONCAT( user_profile.cognome , ' ', user_profile.nome )", $searchName]
+                    ]);
             }
         }
-
+        
         if (empty(Yii::$app->request->getQueryParams()['sort'])) {
             $query->orderBy("user_profile.cognome, user_profile.nome");
         }
-
+        
         $pagination = [
             'pageSize' => $this->itemsSenderPageSize,
             'pageParam' => $this->pageParam
@@ -472,7 +480,7 @@ class CommunityMembersWidget extends Widget {
             'query' => $query,
             'pagination' => $pagination
         ]);
-
+        
         $itemsMittenteDataProvider->setSort([
             'attributes' => [
                 'user.userProfile.surnameName' => [
@@ -484,7 +492,7 @@ class CommunityMembersWidget extends Widget {
                 'role',
             ]
         ]);
-
+        
         $contextObject = $model;
         $community = $model->getCommunityModel();
         if ($model->context != Community::className()) {
@@ -498,10 +506,17 @@ class CommunityMembersWidget extends Widget {
         foreach ($roles as $role) {
             $rolesArray[$role] = $role;
         }
-
+        
         $insass = ($inviteUserOfcommunityParent && !$isSubCommunity && $customInvitationForm) || (!$inviteUserOfcommunityParent && $customInvitationForm);
-
         $canAdmin = Yii::$app->user->can('ADMIN');
+        $disableAssociaButton = (!CommunityUtil::isLoggedCommunityManager() && !$canAdmin);
+        
+        $disableFirstLevelAssociaCommunityOnContext = $this->communityModule->disableFirstLevelAssociaCommunityOnContext;
+        if (in_array($community->context, $disableFirstLevelAssociaCommunityOnContext) && is_null($community->parent_id)) {
+            $disableAssociaButton = true;
+        }
+
+        $moduleInvitations = \Yii::$app->getModule('invitations');
 
         $configM2MW = [
             'itemsMittenteDataProvider' => $itemsMittenteDataProvider,
@@ -511,8 +526,8 @@ class CommunityMembersWidget extends Widget {
             'btnInvitationClass' => 'btn btn-primary' . ($associateBtnDisabled ? ' disabled' : ''),
             'targetUrlInvitation' => $this->targetUrlInvitation,
             'invitationModule' => $this->invitationModule,
-            'externalInvitationEnabled' => (\Yii::$app->getModule('community')->externalInvitationUsers == true) ? ($canAdmin || CommunityUtil::isLoggedCommunityManager()) : false,
-            'disableAssociaButton' => (!CommunityUtil::isLoggedCommunityManager() && !$canAdmin),
+            'externalInvitationEnabled' => ( ($this->communityModule->externalInvitationUsers == true) && $moduleInvitations) ? ($canAdmin || CommunityUtil::isLoggedCommunityManager()) : false,
+            'disableAssociaButton' => $disableAssociaButton,
             'model' => $model->getCommunityModel(),
             'modelId' => $model->getCommunityModel()->id,
             'modelData' => $query,
@@ -554,9 +569,9 @@ class CommunityMembersWidget extends Widget {
                     $btn = '';
                     if ($status == CommunityUserMm::STATUS_MANAGER_TO_CONFIRM) {
                         $btn = Html::a(
-                                        AmosIcons::show('check-circle', ['class' => 'btn btn-tool-secondary']),
-                                        Yii::$app->urlManager->createUrl($createUrlParams),
-                                        ['title' => AmosCommunity::t('amoscommunity', 'Confirm manager')]);
+                            AmosIcons::show('check-circle', ['class' => 'btn btn-tool-secondary']),
+                            Yii::$app->urlManager->createUrl($createUrlParams),
+                            ['title' => AmosCommunity::t('amoscommunity', 'Confirm manager')]);
                     }
                     return $btn;
                 },
@@ -567,9 +582,9 @@ class CommunityMembersWidget extends Widget {
                     $btn = '';
                     if ($status == CommunityUserMm::STATUS_WAITING_OK_COMMUNITY_MANAGER) {
                         $btn = Html::a(
-                                        AmosCommunity::t('amoscommunity', 'Accept user'),
-                                        Yii::$app->urlManager->createUrl($createUrlParams),
-                                        ['class' => 'btn btn-primary', 'style' => 'font-size: 0.8em']);
+                            AmosCommunity::t('amoscommunity', 'Accept user'),
+                            Yii::$app->urlManager->createUrl($createUrlParams),
+                            ['class' => 'btn btn-primary', 'style' => 'font-size: 0.8em']);
                     }
                     return $btn;
                 },
@@ -579,9 +594,9 @@ class CommunityMembersWidget extends Widget {
                     $createUrlParams = ['/community/community/reject-user', 'communityId' => $model->community_id, 'userId' => $model->user_id];
                     if ($model->status == CommunityUserMm::STATUS_WAITING_OK_COMMUNITY_MANAGER) {
                         $btn = Html::a(
-                                        AmosCommunity::t('amoscommunity', 'Reject user'),
-                                        Yii::$app->urlManager->createUrl($createUrlParams),
-                                        ['class' => 'btn btn-primary', 'style' => 'font-size: 0.8em']);
+                            AmosCommunity::t('amoscommunity', 'Reject user'),
+                            Yii::$app->urlManager->createUrl($createUrlParams),
+                            ['class' => 'btn btn-primary', 'style' => 'font-size: 0.8em']);
                     }
                     return $btn;
                 },
@@ -602,34 +617,34 @@ class CommunityMembersWidget extends Widget {
                                     'header' => AmosCommunity::t('amoscommunity', 'Manage role and permission'),
                                     'id' => $modalId,
                                 ]);
-
+                                
                                 echo Html::tag('div',
-                                        Select::widget([
-                                            'auto_fill' => true,
-                                            'hideSearch' => true,
-                                            'theme' => 'bootstrap',
-                                            'data' => $rolesArray,
-                                            'model' => $model,
-                                            'attribute' => 'role',
-                                            'value' => isset($rolesArray[$model->role]) ? AmosCommunity::t('amoscommunity',
-                                                    $rolesArray[$model->role]) : $rolesArray[$contextObject->getBaseRole()],
-                                            'options' => [
+                                    Select::widget([
+                                        'auto_fill' => true,
+                                        'hideSearch' => true,
+                                        'theme' => 'bootstrap',
+                                        'data' => $rolesArray,
+                                        'model' => $model,
+                                        'attribute' => 'role',
+                                        'value' => isset($rolesArray[$model->role]) ? AmosCommunity::t('amoscommunity',
+                                            $rolesArray[$model->role]) : $rolesArray[$contextObject->getBaseRole()],
+                                        'options' => [
 //                                    'prompt' => AmosCommunity::t('amoscommunity', 'Select') . '...',
-                                                'disabled' => false,
-                                                'id' => $selectId
-                                            ],
-                                            'pluginOptions' => [
-                                                'allowClear' => false,
-                                            ]
-                                        ]), ['class' => 'm-15-0']);
-
+                                            'disabled' => false,
+                                            'id' => $selectId
+                                        ],
+                                        'pluginOptions' => [
+                                            'allowClear' => false,
+                                        ]
+                                    ]), ['class' => 'm-15-0']);
+                                
                                 echo Html::tag('div',
-                                        Html::a(AmosCommunity::t('amoscommunity', 'Cancel'), null,
-                                                ['class' => 'btn btn-secondary', 'data-dismiss' => 'modal'])
-                                        . Html::a(AmosCommunity::t('amoscommunity', 'Save'), null,
-                                                [
-                                                    'class' => 'btn btn-primary',
-                                                    'onclick' => "
+                                    Html::a(AmosCommunity::t('amoscommunity', 'Cancel'), null,
+                                        ['class' => 'btn btn-secondary', 'data-dismiss' => 'modal'])
+                                    . Html::a(AmosCommunity::t('amoscommunity', 'Save'), null,
+                                        [
+                                            'class' => 'btn btn-primary',
+                                            'onclick' => "
                                     $('.loading').show();
                                     $('#$modalId').modal('hide');
                                     $.ajax({
@@ -652,16 +667,16 @@ class CommunityMembersWidget extends Widget {
                                 );
 //                        echo $this->render('@vendor/open20/amos-community/src/views/community/change-user-role', ['model' => $model]);
                                 Modal::end();
-
+                                
                                 $btn = Html::a(
-                                                AmosCommunity::t('amoscommunity', 'Change role'), null,
-                                                [
-                                                    'class' => 'btn btn-tools-secondary btn-tools-secondary-text',
-                                                    'title' => AmosCommunity::t('amoscommunity', 'Change role'),
-                                                    'data-toggle' => 'modal',
-                                                    'data-target' => '#' . $modalId,
-                                                    'onclick' => 'checkSelect2Init("' . $modalId . '", "' . $selectId . '");'
-                                ]);
+                                    AmosCommunity::t('amoscommunity', 'Change role'), null,
+                                    [
+                                        'class' => 'btn btn-tools-secondary btn-tools-secondary-text',
+                                        'title' => AmosCommunity::t('amoscommunity', 'Change role'),
+                                        'data-toggle' => 'modal',
+                                        'data-target' => '#' . $modalId,
+                                        'onclick' => 'checkSelect2Init("' . $modalId . '", "' . $selectId . '");'
+                                    ]);
 
 //                        $btn = Html::a(
 //                            AmosCommunity::t('amoscommunity', 'Change role'),
@@ -683,11 +698,11 @@ class CommunityMembersWidget extends Widget {
                     $loggedUser = Yii::$app->getUser();
                     if ($loggedUser->can('COMMUNITY_UPDATE', ['model' => $this->model])) {
                         $btnDelete = Html::a(
-                                        AmosIcons::show('close', ['class' => '']), $urlDelete,
-                                        ['title' => AmosCommunity::t('amoscommunity', 'Delete'),
-                                            'data-confirm' => $this->delete_member_message,
-                                            'class' => 'btn btn-danger-inverse'
-                                        ]
+                            AmosIcons::show('close', ['class' => '']), $urlDelete,
+                            ['title' => AmosCommunity::t('amoscommunity', 'Delete'),
+                                'data-confirm' => $this->delete_member_message,
+                                'class' => 'btn btn-danger-inverse'
+                            ]
                         );
                         if (($community->created_by == $model->user_id) && !$loggedUser->can("ADMIN")) {
                             $btnDelete = '';
@@ -700,7 +715,7 @@ class CommunityMembersWidget extends Widget {
             ],
             'itemsMittente' => $itemsMittente,
         ];
-
+        
         //TODO : rimuovere una volta taggato amos-core.
         $tmp = new M2MWidget(['model' => $model->getCommunityModel(),
             'modelId' => $model->getCommunityModel()->id,
@@ -711,7 +726,7 @@ class CommunityMembersWidget extends Widget {
             'listView' => $this->listView,
             'iconView' => $this->iconView,
         ]);
-
+        
         if ($tmp->hasProperty('exportMittenteConfig')) {
             if (empty($this->exportMittenteConfig)) {
                 $this->exportMittenteConfig = [
@@ -721,20 +736,21 @@ class CommunityMembersWidget extends Widget {
             }
             $configM2MW['exportMittenteConfig'] = $this->exportMittenteConfig;
         }
-
+        
         $widget = M2MWidget::widget($configM2MW);
-
+        
         $message = $associateBtnDisabled ? AmosCommunity::t('amoscommunity', '#invite_users_disabled_msg') : '';
         return $message . "<div id='" . $gridId . "' data-pjax-container='" . $gridId . "-pjax' data-pjax-timeout=\"9000\"  class=\"table-responsive\">" . $widget . "</div>"
-                . "<div class=\"loading\" id=\"loader\" hidden></div>";
+            . "<div class=\"loading\" id=\"loader\" hidden></div>";
     }
-
-    private function checkManager() {
+    
+    private function checkManager()
+    {
         if (!$this->checkManagerRole) {
             return true;
         }
         $communityUtil = new CommunityUtil();
         return $communityUtil->isManagerLoggedUser($this->model);
     }
-
+    
 }

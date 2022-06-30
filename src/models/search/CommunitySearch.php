@@ -35,7 +35,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     /** @var bool|false $subcommunityMode - true if navigating child communities of a main community */
     public
         $subcommunityMode = false,
-        $isSearch         = true;
+        $isSearch = true;
 
     /**
      * @inheritdoc
@@ -64,7 +64,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
 
         /** @var Community $className */
         $className = $moduleCommunity->modelMap['Community'];
-        $query     = $className::find()->distinct();
+        $query = $className::find()->distinct();
         if (\Yii::$app->user->isGuest) {
             $query->andWhere(['community.community_type_id' => [1, 2]]);
         }
@@ -125,7 +125,11 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
      */
     public function searchMyCommunities($params, $limit = null, $onlyActiveStatus = false)
     {
-        return $this->search($params, 'own-interest', $limit, $onlyActiveStatus);
+        $dataProvider = $this->search($params, 'own-interest', $limit, true, $onlyActiveStatus);
+        $dataProvider->query
+            ->orderBy([CommunityUserMm::tableName() . '.created_at' => SORT_DESC]);
+
+        return $dataProvider;
     }
 
     /**
@@ -190,13 +194,13 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     {
         $dataProvider = $this->searchAdminAllCommunities($params);
         /** @var ActiveQuery $query */
-        $query        = $dataProvider->query;
+        $query = $dataProvider->query;
 
         $subqueryId = $this->searchMyCommunitiesId();
 
         $query->where(['not in', 'community.id', $subqueryId])->limit($limit)->all();
         $query->andWhere('community.deleted_at is null');
-        $query->andWhere(['in', self::tableName().'.context', $this->communityModule->communityContextsToSearch]);
+        $query->andWhere(['in', self::tableName() . '.context', $this->communityModule->communityContextsToSearch]);
         $query->andWhere(['community.parent_id' => null]);
         $query->andWhere(['in', 'community.community_type_id', [CommunityType::COMMUNITY_TYPE_OPEN, CommunityType::COMMUNITY_TYPE_PRIVATE]]);
 
@@ -204,18 +208,18 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
             $loggedProfile = \open20\amos\admin\models\UserProfile::find()->andWhere(['user_id' => \Yii::$app->user->id])->one();
 
             $listaTagId = \open20\amos\cwh\models\CwhTagOwnerInterestMm::findAll([
-                    'classname' => 'open20\amos\admin\models\UserProfile',
-                    'record_id' => $loggedProfile->id
+                'classname' => 'open20\amos\admin\models\UserProfile',
+                'record_id' => $loggedProfile->id
             ]);
 
             if (!empty($listaTagId)) {
                 $orQueries = null;
-                $i         = 0;
+                $i = 0;
                 foreach ($listaTagId as $tag) {
                     if (!is_null($tag)) {
                         if ($i == 0) {
                             $query->innerJoin('entitys_tags_mm entities_tag',
-                                "entities_tag.classname = '".addslashes($this->modelClassName)."' AND entities_tag.record_id=".static::tableName().".id");
+                                "entities_tag.classname = '" . addslashes($this->modelClassName) . "' AND entities_tag.record_id=" . static::tableName() . ".id");
                             $orQueries[] = 'or';
                         }
                         $orQueries[] = ['and', ["entities_tag.tag_id" => $tag->tag_id], ['entities_tag.root_id' => $tag->root_id],
@@ -252,22 +256,22 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         // Se c'è l'utente loggato le community aperte, riservate e quelle chiuse di cui l'utente fa parte.
         // Se non c'è un utente a cui fare riferimento si considerano solamente le community aperte.
         if (!is_null($userId)) {
-            $excludeSubcomm = (new \yii\db\Query())->from(Community::tableName().' father')
-                ->innerJoin(Community::tableName().' child', 'father.id = child.parent_id')
+            $excludeSubcomm = (new \yii\db\Query())->from(Community::tableName() . ' father')
+                ->innerJoin(Community::tableName() . ' child', 'father.id = child.parent_id')
                 ->leftJoin(CommunityUserMm::tableName(),
-                    'child.id = '.CommunityUserMm::tableName().'.community_id'
-                    .' AND '.CommunityUserMm::tableName().'.user_id = '.$userId)
-                ->leftJoin(CommunityUserMm::tableName().' up',
+                    'child.id = ' . CommunityUserMm::tableName() . '.community_id'
+                    . ' AND ' . CommunityUserMm::tableName() . '.user_id = ' . $userId)
+                ->leftJoin(CommunityUserMm::tableName() . ' up',
                     'father.id = up.community_id'
-                    .' AND up.user_id = '.$userId)
+                    . ' AND up.user_id = ' . $userId)
                 ->andWhere(['is not', 'child.parent_id', null])
-                ->andWhere(CommunityUserMm::tableName().'.deleted_at is null')
+                ->andWhere(CommunityUserMm::tableName() . '.deleted_at is null')
                 ->andWhere(['or',
                     ['and',
                         ['father.community_type_id' => CommunityType::COMMUNITY_TYPE_CLOSED],
                         ['OR',
-                            ['<>', CommunityUserMm::tableName().'.status', CommunityUserMm::STATUS_ACTIVE],
-                            [CommunityUserMm::tableName().'.status' => null],
+                            ['<>', CommunityUserMm::tableName() . '.status', CommunityUserMm::STATUS_ACTIVE],
+                            [CommunityUserMm::tableName() . '.status' => null],
                         ],
                         ['or',
                             ['<>', 'up.status', CommunityUserMm::STATUS_ACTIVE],
@@ -286,30 +290,30 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
                 ->select('child.id');
 
             /** @var ActiveQuery $queryClosed */
-            $queryClosed    = $this->baseSearch($params);
+            $queryClosed = $this->baseSearch($params);
             $queryClosed->innerJoin(CommunityUserMm::tableName(),
-                    'community.id = '.CommunityUserMm::tableName().'.community_id'
-                    .' AND '.CommunityUserMm::tableName().'.user_id = '.$userId)
+                'community.id = ' . CommunityUserMm::tableName() . '.community_id'
+                . ' AND ' . CommunityUserMm::tableName() . '.user_id = ' . $userId)
                 ->andFilterWhere([
                     'community.community_type_id' => CommunityType::COMMUNITY_TYPE_CLOSED
                 ])
-                ->andWhere(['<>', CommunityUserMm::tableName().'.status', 'GUEST'])
-                ->andWhere(CommunityUserMm::tableName().'.deleted_at is null');
+                ->andWhere(['<>', CommunityUserMm::tableName() . '.status', 'GUEST'])
+                ->andWhere(CommunityUserMm::tableName() . '.deleted_at is null');
             $queryClosed->select('community.id');
             $queryNotClosed = $this->baseSearch($params);
             $queryNotClosed->leftJoin(CommunityUserMm::tableName(),
-                    'community.parent_id = '.CommunityUserMm::tableName().'.community_id'
-                    .' AND '.CommunityUserMm::tableName().'.user_id = '.$userId)
-                ->andWhere(CommunityUserMm::tableName().'.deleted_at is null');
-            $andWhere       = ['or',
-                [self::tableName().'.parent_id' => null],
+                'community.parent_id = ' . CommunityUserMm::tableName() . '.community_id'
+                . ' AND ' . CommunityUserMm::tableName() . '.user_id = ' . $userId)
+                ->andWhere(CommunityUserMm::tableName() . '.deleted_at is null');
+            $andWhere = ['or',
+                [self::tableName() . '.parent_id' => null],
                 ['and',
-                    ['not', [self::tableName().'.parent_id' => null]],
-                    ['not', [CommunityUserMm::tableName().'.community_id' => null]],
+                    ['not', [self::tableName() . '.parent_id' => null]],
+                    ['not', [CommunityUserMm::tableName() . '.community_id' => null]],
                 ]
             ];
             if ($onlyActiveStatus) {
-                $andWhere['or']['and'][] = [CommunityUserMm::tableName().'.status' => CommunityUserMm::STATUS_ACTIVE];
+                $andWhere['or']['and'][] = [CommunityUserMm::tableName() . '.status' => CommunityUserMm::STATUS_ACTIVE];
             }
             $queryNotClosed->andWhere($andWhere);
             $queryNotClosed->andWhere([
@@ -317,9 +321,9 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
             ]);
             $queryNotClosed->select('community.id');
             $query->andWhere(['or',
-                    ['community.id' => $queryClosed],
-                    ['community.id' => $queryNotClosed]
-                ])
+                ['community.id' => $queryClosed],
+                ['community.id' => $queryNotClosed]
+            ])
                 ->andWhere(['not in', 'community.id', $excludeSubcomm]);
         } else {
             $query->andWhere([
@@ -334,11 +338,11 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function filterValidated($query)
     {
         $query->andWhere(['or',
-            ['community.status' => Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED],
-            ['and',
-                ['community.validated_once' => 1],
-                ['community.visible_on_edit' => 1]
-            ]
+                ['community.status' => Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED],
+                ['and',
+                    ['community.validated_once' => 1],
+                    ['community.visible_on_edit' => 1]
+                ]
             ]
         );
     }
@@ -348,12 +352,9 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
      */
     public function filterByContext($query)
     {
-        if (!empty($query)) {
-            $query->andWhere(['in', self::tableName().'.context', $this->communityModule->communityContextsToSearch]);
-            $query->andWhere([self::tableName().'.deleted_at' => null]);
-        }
+        $communityId = null;
         /** @var AmosCommunity $moduleCommunity */
-        $moduleCommunity     = Yii::$app->getModule('community');
+        $moduleCommunity = Yii::$app->getModule('community');
         $showSubscommunities = $moduleCommunity->showSubcommunities;
         if ($this->subcommunityMode) {
             /** @var AmosCwh $moduleCwh */
@@ -361,16 +362,34 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
             if (!is_null($moduleCwh)) {
                 $scope = $moduleCwh->getCwhScope();
                 if (!empty($scope) && isset($scope[self::tableName()])) {
-                    $communityId         = $scope[self::tableName()];
+                    $communityId = $scope[self::tableName()];
                     //filter by communities chlid of the community ID in cwh scope
-                    $query->andWhere([self::tableName().'.parent_id' => $communityId]);
+                    $query->andWhere([self::tableName() . '.parent_id' => $communityId]);
                     //and show subcommunities in the list anyway (we are in community dashboard)
                     $showSubscommunities = true;
+                    $parentCommunity = Community::findOne($communityId);
                 }
             }
         }
+
+        if (!empty($query)) {
+            if ($showSubscommunities) {
+                $contextParentCommunity = null;
+                if($parentCommunity){
+                    $contextParentCommunity = $parentCommunity->context;
+                }
+                $query->andWhere(['OR',
+                    ['=', self::tableName() . '.context', $contextParentCommunity],
+                    ['in', self::tableName() . '.context', $this->communityModule->communityContextsToSearch]
+                ]);
+            } else {
+                $query->andWhere(['in', self::tableName() . '.context', $this->communityModule->communityContextsToSearch]);
+            }
+            $query->andWhere([self::tableName() . '.deleted_at' => null]);
+        }
+
         if (!$showSubscommunities) {
-            $query->andWhere([self::tableName().'.parent_id' => null]);
+            $query->andWhere([self::tableName() . '.parent_id' => null]);
         }
     }
 
@@ -380,7 +399,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function searchParticipants($params)
     {
         /** @var yii\db\ActiveQuery $query */
-        $query                    = $this->getCommunityUserMms();
+        $query = $this->getCommunityUserMms();
         $query->orderBy('user_profile.cognome ASC');
         $participantsDataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -453,7 +472,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         $parentToInclude = [];
 
         // search Community children anc get the community Fathre to build the tree
-        if(!empty(\Yii::$app->request->get()['CommunitySearch']['name'])) {
+        if (!empty(\Yii::$app->request->get()['CommunitySearch']['name'])) {
             foreach ($communitiesChildClone as $communityChild) {
 //            pr($communityChild->name, 'first'.' - '.$communityChild->id);
                 while (!is_null($communityChild->parent_id)) {
@@ -465,14 +484,14 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
             }
         }
 
-        $orderBy                 = $this->getOrderStringSql();
+        $orderBy = $this->getOrderStringSql();
         $query->orderBy($orderBy);
         foreach ($query->all() as $comunity) {
             $availableCommunitiesIds [] = $comunity->id;
         }
 
-        $communities        = $query
-                ->andWhere(['IS', 'parent_id', null])->all();
+        $communities = $query
+            ->andWhere(['IS', 'parent_id', null])->all();
         $orderedCommunities = [];
 
         $communities = ArrayHelper::merge($communities, $parentToInclude);
@@ -482,7 +501,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
                 $orderedCommunities [] = $communityFather;
             }
             $orderedCommunities = ArrayHelper::merge($orderedCommunities,
-                    $this->recursiveGetSubcommunities($communityFather, $availableCommunitiesIds));
+                $this->recursiveGetSubcommunities($communityFather, $availableCommunitiesIds));
         }
         return $orderedCommunities;
     }
@@ -494,8 +513,8 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
      */
     public function recursiveGetSubcommunities($communityFather, $availableCommunitiesIds)
     {
-        $orderBy           = $this->getOrderStringSql();
-        $communities       = $communityFather->getSubcommunities()->orderBy($orderBy)->all();
+        $orderBy = $this->getOrderStringSql();
+        $communities = $communityFather->getSubcommunities()->orderBy($orderBy)->all();
         $returnCommunities = [];
         if (count($communities) == 0) {
             return [];
@@ -504,9 +523,9 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
                 if (in_array($community->id, $availableCommunitiesIds)) {
                     $returnCommunities[] = $community;
                 }
-                $community->level  = $communityFather->level + 1;
+                $community->level = $communityFather->level + 1;
                 $returnCommunities = ArrayHelper::merge($returnCommunities,
-                        $this->recursiveGetSubcommunities($community, $availableCommunitiesIds));
+                    $this->recursiveGetSubcommunities($community, $availableCommunitiesIds));
             }
 
             return $returnCommunities;
@@ -519,20 +538,20 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function getOrderStringSql()
     {
         $orderAttribute = !empty(\Yii::$app->request->get()['CommunitySearch']['orderAttribute']) ? \Yii::$app->request->get()['CommunitySearch']['orderAttribute']
-                : '';
-        $orderType      = !empty(\Yii::$app->request->get()['CommunitySearch']['orderType']) ? \Yii::$app->request->get()['CommunitySearch']['orderType']
-                : '';
+            : '';
+        $orderType = !empty(\Yii::$app->request->get()['CommunitySearch']['orderType']) ? \Yii::$app->request->get()['CommunitySearch']['orderType']
+            : '';
         if ($orderType == 4) {
             $orderType = 'ASC';
         } else if ($orderType == 3) {
             $orderType = 'DESC';
         }
-        $orderBy = $orderAttribute.' '.$orderType;
+        $orderBy = $orderAttribute . ' ' . $orderType;
         return $orderBy;
     }
 
     /**
-     * 
+     *
      * @param type $params
      * @param type $limit
      * @return type
@@ -542,7 +561,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
 
         if (\Yii::$app->user->isGuest) {
             $dataProvider = $this->search($params, 'all', $limit, false);
-            $paramSearch  = $params['conditionSearch'];
+            $paramSearch = $params['conditionSearch'];
             if (is_string($paramSearch)) {
                 $paramSearch = explode(',', $paramSearch);
             }
@@ -553,10 +572,10 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         }
         return $dataProvider;
     }
-    
-    
+
+
     /**
-     * 
+     *
      * @param type $params
      * @param type $limit
      * @return type
@@ -567,10 +586,12 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
             $dataProvider = $this->search($params, 'all', $limit, false);
             $orderBy = ['community.created_at' => SORT_DESC];
             $dataProvider->query->andWhere(['community.community_type_id' => CommunityType::COMMUNITY_TYPE_OPEN])
-                    ->andWhere(['community.status' => Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED])
-                    ->orderBy($orderBy);
+                ->andWhere(['community.status' => Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED])
+                ->orderBy($orderBy);
         } else {
             $dataProvider = $this->search($params, 'own-interest', $limit, true);
+            $dataProvider->query
+                ->orderBy([CommunityUserMm::tableName() . '.created_at' => SORT_DESC]);
         }
 
         if (!empty($params["withPagination"])) {
@@ -584,7 +605,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     }
 
     /**
-     * 
+     *
      * @param type $params
      * @param type $limit
      * @return type

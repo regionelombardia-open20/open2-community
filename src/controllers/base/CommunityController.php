@@ -159,9 +159,8 @@ class CommunityController extends CrudController
 
 
     /**
-     * Creates a new Community model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionCreate()
     {
@@ -173,7 +172,14 @@ class CommunityController extends CrudController
         $parentId = Yii::$app->request->getQueryParam('parentId');
         if(!is_null($parentId)){
             $model->parent_id = $parentId;
+            /** @var Community $communityModel */
+            $communityModel = $this->communityModule->createModel('Community');
+            $parentCommunity = $communityModel::findOne($parentId);
+            if($parentCommunity){
+                $model->context = $parentCommunity->context;
+            }
         }
+
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 
             if (Yii::$app->getModule('community')->forceWorkflow($model)) {
@@ -203,7 +209,8 @@ class CommunityController extends CrudController
                 $userCommunity->community_id = $model->id;
                 $userCommunity->user_id = $loggedUserId;
                 $userCommunity->status = CommunityUserMm::STATUS_ACTIVE;
-                $userCommunity->role = CommunityUserMm::ROLE_COMMUNITY_MANAGER;
+                $userCommunity->role = $model->getRoleContextCommunity(CommunityUserMm::ROLE_COMMUNITY_MANAGER);
+
                 // add cwh auth-assignment permission for community/user
                 $model->setCwhAuthAssignments($userCommunity);
                 $ok = $userCommunity->save(false);
@@ -229,6 +236,8 @@ class CommunityController extends CrudController
             ]);
         }
     }
+
+
 
     /**
      * Creates a new Community model by ajax request.
