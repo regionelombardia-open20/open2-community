@@ -23,11 +23,16 @@ use open20\amos\core\user\User;
  */
 $communityModule    = Yii::$app->getModule('community');
 $fixedCommunityType = !is_null($communityModule->communityType);
+$hideCommunityType = $communityModule->hideCommunityTypeInCommunityIconView;
 $bypassWorkflow     = $communityModule->forceWorkflow($model);
 
 $loggedUserId  = Yii::$app->getUser()->getId();
 $userCommunity = CommunityUserMm::findOne(['community_id' => $model->id, 'user_id' => $loggedUserId]);
 $userProfile   = User::findOne($loggedUserId)->getProfile();
+$urlRedirect = null;
+if(!empty($communityModule) && $communityModule->enableAutoLinkLanding == true && !empty($model->redirect_url)){
+    $urlRedirect = $model->redirect_url;
+}
 if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null($userCommunity) && !in_array(
     $userCommunity->status,
     [CommunityUserMm::STATUS_WAITING_OK_COMMUNITY_MANAGER, CommunityUserMm::STATUS_WAITING_OK_USER]
@@ -69,11 +74,24 @@ if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null(
                 ]
             );
             ?>
+            <?php if(!empty($urlRedirect)){ ?>
+            <?= Html::a($logo, $urlRedirect, ['title' => $model->name, 'target' => '_blank']); ?>
+            <?php } else { ?>
             <?= Html::a($logo, $viewUrl, ['title' => $model->name]); ?>
+            <?php } ?>
         </div>
     </div>
     <div class="col-xs-12 nop icon-body">
         <h3 class="title">
+             <?php if(!empty($urlRedirect)){ ?>
+            <?=
+                Html::a(
+                    $model->name,
+                    $urlRedirect,
+                    ['title' => AmosCommunity::t('amoscommunity', '#icon_title_link') . ' ' . $model->name, 'target' => '_blank']
+                );
+            ?>
+            <?php } else { ?>
             <?=
                 Html::a(
                     $model->name,
@@ -81,10 +99,14 @@ if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null(
                     ['title' => AmosCommunity::t('amoscommunity', '#icon_title_link') . ' ' . $model->name]
                 );
             ?>
+            <?php } ?>
         </h3>
     </div>
+    <?php
+    if (!$hideCommunityType):
+    ?>
     <div class="col-xs-12 icon-footer">
-        <?php if (!$fixedCommunityType) : ?>
+    <?php if (!$fixedCommunityType) : ?>
             <span class="badge category<?= $model->communityType ?>"><?= $model->getCommunityTypeName() ?></span>
         <?php endif; ?>
         <?php /*
@@ -109,4 +131,5 @@ if (!empty($userProfile) && $userProfile->validato_almeno_una_volta && !is_null(
         } */
         ?>
     </div>
+    <?php endif; ?>
 </div>

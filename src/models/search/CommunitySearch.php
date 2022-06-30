@@ -246,6 +246,39 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         // Se c'è l'utente loggato le community aperte, riservate e quelle chiuse di cui l'utente fa parte.
         // Se non c'è un utente a cui fare riferimento si considerano solamente le community aperte.
         if (!is_null($userId)) {
+             $excludeSubcomm = (new \yii\db\Query())->from(Community::tableName().' father')
+                ->innerJoin(Community::tableName().' child', 'father.id = child.parent_id')
+                ->leftJoin(CommunityUserMm::tableName(),
+                    'child.id = '.CommunityUserMm::tableName().'.community_id'
+                    .' AND '.CommunityUserMm::tableName().'.user_id = '.$userId)
+                ->leftJoin(CommunityUserMm::tableName().' up',
+                    'father.id = up.community_id'
+                    .' AND up.user_id = '.$userId)
+                ->andWhere(['is not', 'child.parent_id', null])
+                ->andWhere(CommunityUserMm::tableName().'.deleted_at is null')
+                ->andWhere(['or',
+                    ['and',
+                        ['father.community_type_id' => CommunityType::COMMUNITY_TYPE_CLOSED],
+                        ['OR',
+                            ['<>', CommunityUserMm::tableName().'.status', CommunityUserMm::STATUS_ACTIVE],
+                            [CommunityUserMm::tableName().'.status' => null],
+                        ],
+                        ['or',
+                            ['<>', 'up.status', CommunityUserMm::STATUS_ACTIVE],
+                            ['is', 'up.status', null],
+                        ],
+                    ],
+                    ['and',
+                        ['<>', 'father.community_type_id', CommunityType::COMMUNITY_TYPE_CLOSED],
+                        ['child.community_type_id' => CommunityType::COMMUNITY_TYPE_CLOSED],
+                        ['or',
+                            ['<>', 'up.status', CommunityUserMm::STATUS_ACTIVE],
+                            ['is', 'up.status', null],
+                        ],
+                    ],
+                ])
+                ->select('child.id');
+
             /** @var ActiveQuery $queryClosed */
             $queryClosed    = $this->baseSearch($params);
             $queryClosed->innerJoin(CommunityUserMm::tableName(),
@@ -253,7 +286,9 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
                     .' AND '.CommunityUserMm::tableName().'.user_id = '.$userId)
                 ->andFilterWhere([
                     'community.community_type_id' => CommunityType::COMMUNITY_TYPE_CLOSED
-                ])->andWhere(CommunityUserMm::tableName().'.deleted_at is null');
+                ])
+                ->andWhere(['<>', CommunityUserMm::tableName().'.status', 'GUEST'])
+                ->andWhere(CommunityUserMm::tableName().'.deleted_at is null');
             $queryClosed->select('community.id');
             $queryNotClosed = $this->baseSearch($params);
             $queryNotClosed->leftJoin(CommunityUserMm::tableName(),
@@ -275,7 +310,11 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
                 'community.community_type_id' => [CommunityType::COMMUNITY_TYPE_OPEN, CommunityType::COMMUNITY_TYPE_PRIVATE]
             ]);
             $queryNotClosed->select('community.id');
-            $query->andWhere(['community.id' => $queryClosed])->orWhere(['community.id' => $queryNotClosed]);
+            $query->andWhere(['or',
+                    ['community.id' => $queryClosed],
+                    ['community.id' => $queryNotClosed]
+                ])
+                ->andWhere(['not in', 'community.id', $excludeSubcomm]);
         } else {
             $query->andWhere([
                 'community.community_type_id' => CommunityType::COMMUNITY_TYPE_OPEN
@@ -409,7 +448,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         }
 
         $communities        = $query
-            ->andWhere(['IS', 'parent_id', null])->all();
+                ->andWhere(['IS', 'parent_id', null])->all();
         $orderedCommunities = [];
         /** @var  $communityFather Community */
         foreach ($communities as $communityFather) {

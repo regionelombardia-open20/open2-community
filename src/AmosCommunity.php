@@ -83,6 +83,11 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      * @var int|null $communityType - null if all community types are enabled, to have a fixed community type set this field
      */
     public $communityType = null;
+
+    /**
+     * @var true|false $communityType - if true hide the rendering of label (community type) in card view
+     */
+    public $hideCommunityTypeInCommunityIconView = false;
     
     /**
      * @var bool|true $viewTabContents - if tab contents in community view mode is visible
@@ -206,6 +211,8 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      * @var array $communityContextsToSearch In this array you can configure which communities you want to see in the plugin lists by configure the community contexts.
      */
     public $communityContextsToSearch = [];
+
+    public $enableAutoLinkLanding = false;
     
     /**
      * @inheritdoc
@@ -498,20 +505,24 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
         return 'groups';
     }
     
-    /*     * **
+    /* 
      * CmsModuleInterface
      */
-    
-    public static function getModelSearchClassName()
-    {
-        return __NAMESPACE__ . '\models\search\CommunitySearch';
+
+    /**
+     * @inheritdoc
+     */
+    public static function getModelSearchClassName() {
+        return AmosCommunity::instance()->model('CommunitySearch');
     }
-    
-    public static function getModelClassName()
-    {
-        return __NAMESPACE__ . '\models\Community';
+
+    /**
+     * @inheritdoc
+     */
+    public static function getModelClassName() {
+        return AmosCommunity::instance()->model('Community');
     }
-    
+
     /**
      * @inheritdoc
      */

@@ -93,6 +93,11 @@ class CommunityCardWidget extends Widget
     $htmlTagImg = Html::img($url, $htmlOptions);
     $img = Html::tag('div', $htmlTagImg, ['class' => 'container-img']);
 
+    $urlRedirect = null;
+    $communityModule    = Yii::$app->getModule('community');
+if(!empty($communityModule) && $communityModule->enableAutoLinkLanding == true && !empty($model->redirect_url)){
+    $urlRedirect = $model->redirect_url;
+}
     if ($this->onlyLogo) {
       $link = null;
       if ($this->enableLink) {
@@ -103,10 +108,19 @@ class CommunityCardWidget extends Widget
       }
 
       $html .= $htmlTagHierarchy;
+      if(!empty($urlRedirect)){
+
+      $html .= Html::a($img, $urlRedirect, [
+        'title' => $model->name,
+        'data' => $confirm,
+          'target' => '_blank',
+      ]);
+      } else {
       $html .= Html::a($img, $link, [
         'title' => $model->name,
         'data' => $confirm
       ]);
+      }
     } else {
       $modals = JoinCommunityWidget::widget([
         'model' => $this->model,

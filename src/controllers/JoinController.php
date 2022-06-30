@@ -174,7 +174,7 @@ class JoinController extends CrudController
      */
     private function setListsBreadcrumbs($model)
     {
-        if ($model->context != Community::className()) {
+        if (\open20\amos\core\helpers\StringHelper::basename($model->context) != \open20\amos\core\helpers\StringHelper::basename(Community::className())) {
             $contextModel                            = Yii::createObject($model->context);
             $callingModel                            = $contextModel::findOne(['community_id' => $model->id]);
 //            $createRedirectUrlParams = [

@@ -91,7 +91,7 @@ abstract class Community extends NetworkModel
         return [
             [$requiredArray, 'required'],
             [['description'], 'string' /*, 'max' => 500*/],
-            [['context'], 'string'],
+            [['context', 'redirect_url'], 'string'],
             [['logo_id', 'cover_image_id'], 'number'],
             [['hide_participants', 'force_workflow', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id', 'hits', 'for_all_user'], 'integer'],

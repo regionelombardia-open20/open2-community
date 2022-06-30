@@ -38,6 +38,7 @@ class ConfigureDashboardCommunityWidget extends Widget
      */
     public $model;
     public $hideParticipants = false;
+    public $defaultWidgetSelected = [];
 
 
     /**
@@ -58,18 +59,19 @@ class ConfigureDashboardCommunityWidget extends Widget
      */
     public function run()
     {
-        $params = self::getDashBoardWidgets($this->model, $this->hideParticipants);
+        $params = self::getDashBoardWidgets($this->model, $this->hideParticipants, $this->defaultWidgetSelected);
         return $this->render('configure_dashboard_community', $params);
     }
 
 
     /**
      * @param $model
+     * @param bool $hideParticipants
+     * @param null $defaultWidgetSelected
      * @return array
-     * @throws ForbiddenHttpException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getDashBoardWidgets($model, $hideParticipants = false){
+    public static function getDashBoardWidgets($model, $hideParticipants = false, $defaultWidgetSelected = null){
         $canPersonalize = \Yii::$app->user->can('COMMUNITY_WIDGETS_ADMIN_PERSONALIZE');
         $util = new CommunityUtil();
         //non serve, il controllo del permesso viene fatto nell'action
@@ -85,6 +87,9 @@ class ConfigureDashboardCommunityWidget extends Widget
         $widgetGraphicsSelected = $model->amosWidgetsGraphics;
         foreach ($widgetGraphicsSelected as $widget) {
             $widgetSelected[] = $widget->id;
+        }
+        if(empty($widgetSelected) && !empty($defaultWidgetSelected)){
+            $widgetSelected = $defaultWidgetSelected;
         }
 
 

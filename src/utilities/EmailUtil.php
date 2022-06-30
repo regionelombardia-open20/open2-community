@@ -107,7 +107,7 @@ class EmailUtil
             //it's a community created by another plugin
             $this->isCommunityContext = false;
             $context = \Yii::createObject($this->community->context);
-            $model = $context->findOne(['community_id' => $this->community->id]);
+            $model = $context->findOne([($context instanceof Community? 'id' : 'community_id') => $this->community->id]);
             //mail links will redirect to the model that created the community, not to the community itself
         }
         
