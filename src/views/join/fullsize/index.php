@@ -50,7 +50,7 @@ $this->params['checkedByDefault'] = false;
                         } else {
                             $urlDisplayParticipantsMm = "/community/community/participants?communityId={$model->id}";
                         }
-                        if ($showBox) :
+                        if (($showBox) && (!($model->context == 'open20\amos\moodle\models\MoodleCourse')))  :
                             ?>
 
                             <?php
