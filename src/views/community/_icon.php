@@ -78,7 +78,7 @@ if (!$isGuest) {
 ?>
 
 <div class="community-container p-3 d-flex flex-column justify-content-center align-items-center mb-5">
-    <?php $buttonTransform = \yii\helpers\Html::a(AmosCommunity::t('amoscommunity', "Trasforma in community"), ['/community/community/transform-to-community-parent', 'id' => $model->id],[
+    <?php $buttonTransform = \yii\helpers\Html::a(AmosCommunity::t('amoscommunity', "Trasforma in community"), ['/community/community/transform-to-community-parent', 'id' => $model->id], [
         'title' => AmosCommunity::t('amoscommunity', "Trasforma in community"),
         'data-confirm' => AmosCommunity::t('amoscommunity', 'Sei sicuro di trasformare la sottocommunity in community?')
     ]) ?>
@@ -87,14 +87,14 @@ if (!$isGuest) {
     ]) ?>
     <?php $additionalButtons = [];
     if (!$isGuest) {
-       if(Yii::$app->getUser()->can('COMMUNITY_UPDATE', ['model' => $model])) {
-           $additionalButtons[] = $buttonMove;
-           if (!empty($model->parent_id)) {
-               $additionalButtons[] = $buttonTransform;
-           }
-       }
+        if (Yii::$app->getUser()->can('COMMUNITY_UPDATE', ['model' => $model])) {
+            $additionalButtons[] = $buttonMove;
+            if (!empty($model->parent_id)) {
+                $additionalButtons[] = $buttonTransform;
+            }
+        }
     }
-    
+
     $newsWidget = NewsWidget::widget([
         'model' => $model,
         'css_class' => 'badge badge-pill'
@@ -105,7 +105,7 @@ if (!$isGuest) {
             <?php
             $url        = '/img/img_default.jpg';
             if (!is_null($model->communityLogo)) {
-                $url = $model->communityLogo->getUrl('item_community', false, true);
+                $url = $model->communityLogo->getWebUrl('item_community', false, true);
             }
             $logo = Html::img(
                 $url,
@@ -200,49 +200,65 @@ if (!$isGuest) {
         </h3>
     </div>
     <?php
-    if (!$hideCommunityType):
+    if (!$hideCommunityType) :
     ?>
-
-    <?php if (!$fixedCommunityType) : ?>
-        <?php if (!$isGuest) : ?>
-            <?php if ($isSigned) : ?>
-                <small class="d-flex align-items-end text-muted mt-4">
-                    <?= AmosCommunity::t('amoscommunity', 'Iscritto il') . ' ' ?><?= \Yii::$app->formatter->asDate($userCommunity->created_at, 'php:d M Y') ?>
-                </small>
-                <div class="button-container d-flex justify-content-center border-top">
-                    <a href="<?= $viewUrl ?>" class="btn btn-xs btn-link" title="Visita la community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Visita la community') ?></a>
-                </div>
-            <?php else : ?>
-                <?php if ($isOpenCommunity) : ?>
+        <?php if (!$fixedCommunityType) : ?>
+            <?php if (!$isGuest) : ?>
+                <?php if ($isSigned) : ?>
+                    <small class="d-flex align-items-end text-muted mt-4">
+                        <?= AmosCommunity::t('amoscommunity', 'Iscritto il') . ' ' ?><?= \Yii::$app->formatter->asDate($userCommunity->created_at, 'php:d M Y') ?>
+                    </small>
                     <div class="button-container d-flex justify-content-center border-top">
-                        <a href="<?= $viewUrl ?>" class="btn btn-xs btn-primary" title="Visita la community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Visita la community') ?></a>
-                    </div>
-                <?php elseif ($isPrivateCommunity) : ?>
-                    <?php if ($isWaitingToSigned) : ?>
-                        <small class="d-flex align-items-end text-muted mt-4">
-                            <?= AmosCommunity::t('amoscommunity', 'Richiesta iscrizione inviata') ?>
-                            <a href="javascript::void(0)" class="bi-form-field-tooltip-info m-l-5" data-toggle="tooltip" data-html="true" data-original-title="<?= AmosCommunity::t('amoscommunity', 'Sei in attesa che un community manager convalidi la richiesta per poter accedere alla community') ?>">
-                                <span class="am am-info-outline"></span>
-                                <span class="sr-only"><?= AmosCommunity::t('amoscommunity', 'Sei in attesa che un community manager convalidi la richiesta per poter accedere alla community') ?></span>
-                            </a>
-                        </small>
-                    <?php endif ?>
-                    <div class="button-container d-flex justify-content-center border-top">
-                        <a href="<?= $viewUrl ?>" class="btn btn-xs btn-primary" title="Visita la community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Visita la community') ?></a>
+                        <a href="<?= $viewUrl ?>" class="btn btn-xs btn-link" title="Visita la community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Visita la community') ?></a>
                     </div>
                 <?php else : ?>
-                    <?php if ($isWaitingToSigned) : ?>
-                        <div class="button-container d-flex justify-content-center border-top">
-                            <a href="<?= $viewUrl ?>" class="btn btn-xs btn-warning" title="Clicca per accettare o rifiutare l'invito alla community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Rispondi all\'invito') ?></a>
-                        </div>
-                    <?php else : ?>
+                    <?php if ($isOpenCommunity) : ?>
                         <div class="button-container d-flex justify-content-center border-top">
                             <a href="<?= $viewUrl ?>" class="btn btn-xs btn-primary" title="Visita la community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Visita la community') ?></a>
                         </div>
-                    <?php endif ?>
+                    <?php elseif ($isPrivateCommunity) : ?>
+                        <?php if ($isWaitingToSigned) : ?>
+                            <small class="d-flex align-items-end text-muted mt-4">
+                                <?= AmosCommunity::t('amoscommunity', 'Richiesta iscrizione inviata') ?>
+                                <a href="javascript::void(0)" class="bi-form-field-tooltip-info m-l-5" data-toggle="tooltip" data-html="true" data-original-title="<?= AmosCommunity::t('amoscommunity', 'Sei in attesa che un community manager convalidi la richiesta per poter accedere alla community') ?>">
+                                    <span class="am am-info-outline"></span>
+                                    <span class="sr-only"><?= AmosCommunity::t('amoscommunity', 'Sei in attesa che un community manager convalidi la richiesta per poter accedere alla community') ?></span>
+                                </a>
+                            </small>
+                        <?php endif ?>
+                        <div class="button-container d-flex justify-content-center border-top">
+                            <a href="<?= $viewUrl ?>" class="btn btn-xs btn-primary" title="Visita la community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Visita la community') ?></a>
+                        </div>
+                    <?php else : ?>
+                        <?php if ($isWaitingToSigned) : ?>
+                            <div class="button-container d-flex justify-content-center border-top">
+                                <a href="<?= $viewUrl ?>" class="btn btn-xs btn-warning" title="Clicca per accettare o rifiutare l'invito alla community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Rispondi all\'invito') ?></a>
+                            </div>
+                        <?php else : ?>
+                            <div class="button-container d-flex justify-content-center border-top">
+                                <a href="<?= $viewUrl ?>" class="btn btn-xs btn-primary" title="Visita la community <?= $model->name ?>"><?= AmosCommunity::t('amoscommunity', 'Visita la community') ?></a>
+                            </div>
+                        <?php endif ?>
+                    <?php endif; ?>
                 <?php endif; ?>
+            <?php else : ?>
+                <?php
+                $socialAuthModule = Yii::$app->getModule('socialauth');
+                $labelSigninOrSignup = AmosCommunity::t('amoscommunity', 'Accedi o registrati');
+                if ($socialAuthModule && ($socialAuthModule->enableRegister == false)) {
+                    $labelSigninOrSignup = AmosCommunity::t('amoscommunity', 'Accedi');
+                }
+                $tooltipPreventCtaView = AmosCommunity::t('amoscommunity',
+                    '{labelSigninOrSignup} alla piattaforma {platformName} per visitare la community',
+                    ['labelSigninOrSignup' => $labelSigninOrSignup, 'platformName' => \Yii::$app->name]
+                );
+                ?>
+                <div class="button-container w-100 d-flex justify-content-center border-top">
+                    <a href="javascript::void(0)" class="btn btn-primary btn-xs mt-2 disabled disabled-with-pointer-events" data-toggle="tooltip" data-html="true" data-original-title="<?= $tooltipPreventCtaView ?>">
+                        <?= AmosCommunity::t('amoscommunity', 'Visita la community') ?>
+                    </a>
+                </div>
             <?php endif; ?>
         <?php endif; ?>
-    <?php endif; ?>
     <?php endif; ?>
 </div>

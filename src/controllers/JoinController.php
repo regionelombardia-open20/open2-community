@@ -109,6 +109,10 @@ class JoinController extends CrudController
     {
         /** @var  $model Community */
         $model = $this->findModel($id);
+        if(!empty(\Yii::$app->params['befe'])){
+            return $this->redirect(['/community/join/open-join','id' => $id]);
+        }
+
 
         $userCommunity = CommunityUserMm::findOne(['user_id' => Yii::$app->user->id, 'community_id' => $id]);
 

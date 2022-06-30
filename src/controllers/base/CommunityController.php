@@ -104,6 +104,10 @@ class CommunityController extends CrudController
     {
         $this->setUpLayout('list');
 
+        $moduleCwh = \Yii::$app->getModule('cwh');
+        if (isset($moduleCwh)) {
+            $moduleCwh->resetCwhScopeInSession();
+        }
         Url::remember();
         $this->setDataProvider($this->getModelSearch()->searchAll(Yii::$app->request->getQueryParams()));
         return parent::actionIndex();

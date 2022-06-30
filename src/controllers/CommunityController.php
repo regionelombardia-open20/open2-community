@@ -2001,11 +2001,13 @@ class CommunityController extends BaseCommunityController
             ];
         }
 
-        $links[] = [
-            'title' => AmosCommunity::t('amoscommunity', 'Visualizza le community create da me'),
-            'label' => AmosCommunity::t('amoscommunity', 'Create da me'),
-            'url' => '/community/community/created-by-communities'
-        ];
+        if (\Yii::$app->user->can(WidgetIconCreatedByCommunities::class)) {
+            $links[] = [
+                'title' => AmosCommunity::t('amoscommunity', 'Visualizza le community create da me'),
+                'label' => AmosCommunity::t('amoscommunity', 'Create da me'),
+                'url' => '/community/community/created-by-communities'
+            ];
+        }
 
         $links[] = [
             'title' => AmosCommunity::t('amoscommunity', 'Le mie community'),

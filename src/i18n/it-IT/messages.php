@@ -353,7 +353,6 @@ return [
     'Publish request' => 'Richiesta pubblicazione',
     'Publish the Community' => 'Pubblica la Community',
     'Publish this Community?' => 'Pubblicare questa Community?',
-
     'READER' => 'Lettore',
     '#registation_notification_mail_title' => 'Notifica iscrizione a community',
     '#registation_notofication_mail_text_1' => 'si è iscritto/a al',
@@ -565,4 +564,9 @@ return [
     'Community Name' => 'Nome community',
     'Community Created At' => 'Community creata da',
     'Rispondi all\'invito' => 'Rispondi all\'invito',
+    'Non sei ancora iscritto a nessuna community!' => 'Non sei ancora iscritto a nessuna community!',
+    'Clicca qui' => 'Clicca qui',
+    'Clicca e scopri tutte le community di {platformName}' => 'Clicca e scopri tutte le community di {platformName}',
+    'e scopri ora tutte le community di {platformName}' => 'e scopri ora tutte le community di {platformName}',
+    'Non sono presenti community' => 'Non sono presenti community'
     ];

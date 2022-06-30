@@ -582,4 +582,9 @@ return [
     "Amministra sottocommunity" => "Administer subcommunity",
     "Qui troverai le sottocommunity della community \"{parent_community}\"." => "Here you will find the subcommunities of the \"{parent_community}\" community.",
     'Rispondi all\'invito' => 'Answer to the invitation',
+    'Non sei ancora iscritto a nessuna community!' => 'You are not yet a member of any community!',
+    'Clicca qui' => 'Click here',
+    'Clicca e scopri tutte le community di {platformName}' => 'Click and discover all the communities of {platformName}',
+    'e scopri ora tutte le community di {platformName}' => 'and discover now all the communities of{platformName}',
+    'Non sono presenti community' => 'There are no communities'
 ];
