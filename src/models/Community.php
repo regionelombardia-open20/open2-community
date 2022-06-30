@@ -741,7 +741,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public function getViewUrl()
     {
-        return "/community/community/view";
+        return "/community/join/open-join";
     }
 
     /**

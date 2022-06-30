@@ -74,6 +74,11 @@ class EmailUtil
     public $contextLabel = '';
     
     /**
+     * @var string $contextLabel
+     */
+    public $contextLabelInvitation = '';
+    
+    /**
      * @var string $appName
      */
     private $appName = '';
@@ -115,6 +120,7 @@ class EmailUtil
             $model = $community;
         }
         $this->contextLabel = $model->getGrammar()->getArticleSingular() . " " . $model->getGrammar()->getModelSingularLabel();
+        $this->contextLabelInvitation = $model->getGrammar()->getArticleInvitation() . " " . $model->getGrammar()->getModelSingularLabel();
         
         if (isset($url)) {
             $this->url = $url;

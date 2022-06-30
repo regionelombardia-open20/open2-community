@@ -47,7 +47,7 @@ if(!empty($profile)) {
             </div>
             <div style="width:100%;margin-top:30px">
                 <p><?=
-                    Html::a(AmosCommunity::t('amoscommunity', 'Sign into the platflorm'), $util->url, ['style' => 'color: green;']) . ' ' .
+                    Html::a(AmosCommunity::t('amoscommunity', 'Sign into the platflorm'), $util->url, ['style' => 'font-weight: 900;']) . ' ' .
                     AmosCommunity::t('amoscommunity', 'to view the participants list and accept or reject the request ')
                     ?>
                 </p>

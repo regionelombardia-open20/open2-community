@@ -58,6 +58,7 @@ return [
     '#article_indefinite' => 'una',
     '#article_plural' => 'le',
     '#article_singular' => 'la',
+    '#article_invitation' => 'alla',
     'Ascendent' => 'Crescente',
     'asked to join the community' => 'chiedi di accedere alla community',
     'asked to register to :' => 'ha chiesto di iscriversi a:',

@@ -100,7 +100,7 @@ class CommunityCardWidget extends Widget
         if ($this->onlyLogo) {
             $link = null;
             if ($this->enableLink) {
-                $link = '/community/join?id='.$model->id;
+                $link = '/community/join/open-join?id='.$model->id;
                 if ($this->absoluteUrl) {
                     $link = Yii::$app->getUrlManager()->createAbsoluteUrl($link);
                 }

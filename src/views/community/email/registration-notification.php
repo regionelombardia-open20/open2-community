@@ -47,7 +47,7 @@ if(!empty($profile)) {
             <div style="width:100%;margin-top:30px">
                 <p>
                     <?= AmosCommunity::t('amoscommunity', 'To view the detail and participants list ') ?>
-                    <?= Html::a(AmosCommunity::t('amoscommunity', '#mail_network_community_2'), $util->url, ['style' => 'color: green;']) ?>
+                    <?= Html::a(AmosCommunity::t('amoscommunity', '#mail_network_community_2'), $util->url, ['style' => 'font-weight: 900;']) ?>
                 </p>
             </div>
             <?php if ($util->isCommunityContext): ?>

@@ -25,7 +25,7 @@ if(!empty($profile)) {
         </div>
         <div
             style="border:1px solid #cccccc;padding:10px;margin-bottom: 10px;background-color: #ffffff; margin-top: 20px;">
-            <h2 style="font-size:2em;line-height: 1;"><?= $util->managerName . " " . AmosCommunity::t('amoscommunity', '#invitation_mail_text_1') . $util->contextLabel ?></h2>
+            <h2 style="font-size:2em;line-height: 1;"><?= $util->managerName . " " . AmosCommunity::t('amoscommunity', '#invitation_mail_text_1') . $util->contextLabelInvitation ?></h2>
 
             <div style="display: flex; padding: 10px;">
                 <?php if ($util->isCommunityContext): ?>
@@ -47,7 +47,7 @@ if(!empty($profile)) {
             </div>
             <div style="width:100%;margin-top:30px">
                 <p>
-                    <?= Html::a(AmosCommunity::t('amoscommunity', 'Sign into the platflorm'), $util->url, ['style' => 'color: green;']) . ' ' ?>
+                    <?= Html::a(AmosCommunity::t('amoscommunity', 'Sign into the platflorm'), $util->url, ['style' => 'font-weight: 900;']) . ' ' ?>
                     <?= AmosCommunity::t('amoscommunity', "to accept or reject the invitation.") ?>
                 </p>
             </div>
@@ -55,8 +55,8 @@ if(!empty($profile)) {
                 <p>
                     <?= AmosCommunity::t('amoscommunity', "#mail_network_community_1") ?>
                     <?= Html::a(' ' . AmosCommunity::t('amoscommunity', '#mail_network_community_2'),
-                        Yii::$app->urlManager->createAbsoluteUrl('dashboard'),
-                        ['style' => 'color: green;']
+                        Yii::$app->urlManager->createAbsoluteUrl('/'),
+                        ['style' => 'font-weight: 900;']
                     ) ?>
                     <?= ' ' . AmosCommunity::t('amoscommunity', '#mail_network_community_3') . ' ' ?>
                     <span

@@ -28,6 +28,8 @@ use open20\amos\core\interfaces\InvitationExternalInterface;
 use open20\amos\core\interfaces\SearchModuleInterface;
 use open20\amos\core\module\AmosModule;
 use open20\amos\core\module\ModuleInterface;
+use open20\amos\notificationmanager\models\NotificationsConfOpt;
+use open20\amos\notificationmanager\utility\NotifyUtility;
 use open20\amos\core\record\Record;
 use open20\amos\core\user\User;
 use yii\db\ActiveQuery;
@@ -91,6 +93,11 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      * @var int|null $communityType - null if all community types are enabled, to have a fixed community type set this field
      */
     public $communityType = null;
+    
+    /**
+     * @var int|null $setDefaultCommunityNotificationImmediate - false to set the notification to "never" when join to a open community, if true the notification are set to immediate
+     */
+    public $setDefaultCommunityNotificationImmediate = false;
 
     /**
      * @var true|false $communityType - if true hide the rendering of label (community type) in card view
@@ -571,6 +578,21 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      */
     public function addUserContextAssociation($userId, $modelId)
     {
+        if ($this->setDefaultCommunityNotificationImmediate) {
+            $communityUser = $this->createCommunityUser(
+            $modelId,
+            CommunityUserMm::STATUS_ACTIVE,
+            CommunityUserMm::ROLE_PARTICIPANT,
+            $userId);
+            if (!empty($userId) && !empty($modelId)) {
+                $nu = new NotifyUtility();
+                $nu->saveNetworkNotification($userId,
+                    [
+                        'notifyCommunity' => [$modelId => NotificationsConfOpt::EMAIL_IMMEDIATE]
+            ]);
+                
+            }
+        }
         return $this->createCommunityUser(
             $modelId,
             CommunityUserMm::STATUS_ACTIVE,

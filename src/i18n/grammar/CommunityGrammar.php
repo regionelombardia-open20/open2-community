@@ -48,6 +48,14 @@ class CommunityGrammar implements ModelGrammarInterface
     {
         return AmosCommunity::t('amoscommunity', '#article_plural');
     }
+    
+    /**
+     * @return mixed
+     */
+    public function getArticleInvitation()
+    {
+        return AmosCommunity::t('amoscommunity', '#article_invitation');
+    }
 
     /**
      * @return string

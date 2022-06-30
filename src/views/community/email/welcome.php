@@ -51,7 +51,7 @@ if(!empty($profile)) {
                     <span style="font-weight: 900"><?= AmosCommunity::t('amoscommunity', $util->role) . "." ?></span>
                 </p>
             </div>
-            <p><?= Html::a(AmosCommunity::t('amoscommunity', 'Sign into the platflorm'), $util->url, ['style' => 'color: green;']) . ' ' .
+            <p><?= Html::a(AmosCommunity::t('amoscommunity', 'Sign into the platflorm'), $util->url, ['style' => 'font-weight: 900']) . ' ' .
                 AmosCommunity::t('amoscommunity', "to start working within") . " " . $util->community->name
                 ?>
             </p>
@@ -59,8 +59,8 @@ if(!empty($profile)) {
                 <p>
                     <?= AmosCommunity::t('amoscommunity', "#mail_network_community_1") ?>
                     <?= Html::a(' ' . AmosCommunity::t('amoscommunity', '#mail_network_community_2'),
-                        Yii::$app->urlManager->createAbsoluteUrl('dashboard'),
-                        ['style' => 'color: green;']
+                        \yii\helpers\Url::home(true),
+                        ['style' => 'font-weight: 900']
                     ) ?>
                     <?= ' ' . AmosCommunity::t('amoscommunity', '#mail_network_community_3') . ' ' ?>
                     <span

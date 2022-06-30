@@ -58,6 +58,7 @@ return [
     '#article_indefinite' => 'a',
     '#article_plural' => 'the',
     '#article_singular' => 'the',
+    '#article_invitation' => 'the',
     'Ascendent' => 'Ascendent',
     'asked to join the community' => 'asked to join the community',
     'asked to register to :' => 'asked to register to :',

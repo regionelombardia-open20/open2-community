@@ -30,8 +30,10 @@ use open20\amos\community\widgets\icons\WidgetIconMyCommunitiesWithTags;
 use open20\amos\community\widgets\icons\WidgetIconToValidateCommunities;
 use open20\amos\core\forms\editors\m2mWidget\controllers\M2MWidgetControllerTrait;
 use open20\amos\core\forms\editors\m2mWidget\M2MEventsEnum;
+use open20\amos\notificationmanager\models\NotificationsConfOpt;
 use open20\amos\core\helpers\Html;
 use open20\amos\core\icons\AmosIcons;
+use open20\amos\notificationmanager\utility\NotifyUtility;
 use open20\amos\core\user\User;
 use open20\amos\core\utilities\Email;
 use open20\amos\core\utilities\SpreadSheetFactory;
@@ -580,13 +582,13 @@ class CommunityController extends BaseCommunityController
                 }
             }
 
-            if (!empty($parentId)) {
-
+            if (!empty($parentId) && \Yii::$app->controller->id == 'subcommunities') {
                 $parent = Community::findOne($parentId);
-
                 $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Tutte le sottocommunity');
-
                 if (!empty($parent)) {
+                    $urlLinkAll = '/community/subcommunities/my-communities?id='.$parentId;
+                    $this->view->params['urlLinkAll'] = $urlLinkAll;
+                    $this->view->params['labelLinkAll'] = AmosCommunity::t('amoscommunity', 'Le mie sottocommunity');
                     $this->view->params['subTitleSection'] = Html::tag(
                         'p',
                         AmosCommunity::t(
@@ -726,10 +728,11 @@ class CommunityController extends BaseCommunityController
                 }
             }
             if (!empty($parentId)) {
-
                 $parent = Community::findOne($parentId);
+                $urlLinkAll = '/community/subcommunities/index?id='.$parentId;
 
                 $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Le mie sottocommunity');
+                $this->view->params['urlLinkAll'] = $urlLinkAll;
 
                 if (!empty($parent)) {
                     $this->view->params['subTitleSection'] = Html::tag(
@@ -989,6 +992,7 @@ class CommunityController extends BaseCommunityController
      */
     public function actionJoinCommunity($communityId, $accept = false, $redirectAction = null)
     {
+		$module = \Yii::$app->getModule('community');
         $defaultAction = 'index';
 
         if (empty($redirectAction)) {
@@ -1071,6 +1075,16 @@ class CommunityController extends BaseCommunityController
 
                     $this->sendMail(null, $invitedByUser->email, $subjectToManager, $textToManager, [], []);
                     $this->sendMail(null, $user->email, $subjectToUser, $textToUser, [], []);
+                    $nu   = new NotifyUtility();				
+                    if($this->communityModule->setDefaultCommunityNotificationImmediate){
+                        if (!empty($user) && !empty($communityId)) {
+                            $nu->saveNetworkNotification(Yii::$app->user->id,
+                                [
+                                'notifyCommunity' => [$communityId => NotificationsConfOpt::EMAIL_IMMEDIATE]
+                            ]);
+                        }
+					}
+                        
                 } else {
 
                     $message = AmosCommunity::tHtml('amoscommunity', "Invitation to") . $communityName . ' ' . AmosCommunity::tHtml(
@@ -1128,6 +1142,15 @@ class CommunityController extends BaseCommunityController
                 $textToManager = $emailUtilToManager->getText();
                 $subjectToUser = $emailUtilToUser->getSubject();
                 $textToUser = $emailUtilToUser->getText();
+                $nu   = new NotifyUtility();
+                if($this->communityModule->setDefaultCommunityNotificationImmediate){
+                        if (!empty($user) && !empty($communityId)) {
+                                $nu->saveNetworkNotification(Yii::$app->user->id,
+                                        [
+                                        'notifyCommunity' => [$communityId => NotificationsConfOpt::EMAIL_IMMEDIATE]
+                                ]);
+                        }
+                }
 
                 foreach ($communityManagerEmailArray as $to) {
                     $this->sendMail(null, $to, $subjectToManager, $textToManager, [], []);
@@ -1241,6 +1264,15 @@ class CommunityController extends BaseCommunityController
         }
 
         if ($ok) {
+            $nu   = new NotifyUtility();            
+            if($this->communityModule->setDefaultCommunityNotificationImmediate){
+                    if (!empty($user) && !empty($communityId)) {
+                            $nu->saveNetworkNotification(Yii::$app->user->id,
+                                    [
+                                    'notifyCommunity' => [$communityId => NotificationsConfOpt::EMAIL_IMMEDIATE]
+                            ]);
+                    }
+            }
             $this->addFlash('success', $message);
             if (isset($redirectAction)) {
                 return $this->redirect($redirectAction);

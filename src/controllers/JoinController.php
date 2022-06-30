@@ -277,10 +277,14 @@ class JoinController extends CrudController
                     if (!empty(Yii::$app->user->id)) {
                         $nu   = new NotifyUtility();
                         $user = User::findOne(Yii::$app->user->id);
+                        $notification = NotificationsConfOpt::EMAIL_OFF;
+                        if($module->hasProperty(setDefaultCommunityNotificationImmediate) && $module->setDefaultCommunityNotificationImmediate){
+                            $notification = NotificationsConfOpt::EMAIL_IMMEDIATE;
+                        }
                         if (!empty($user) && !empty($id)) {
                             $nu->saveNetworkNotification(Yii::$app->user->id,
                                 [
-                                'notifyCommunity' => [$id => NotificationsConfOpt::EMAIL_OFF]
+                                'notifyCommunity' => [$id => $notification]
                             ]);
                         }
                     }
