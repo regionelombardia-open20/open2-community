@@ -10,6 +10,7 @@
  */
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\widgets\icons\WidgetIconAccademyDocument;
+use open20\amos\community\utilities\CommunityUtil;
 
 /**
  * @var $this \yii\web\View
@@ -20,10 +21,15 @@ use open20\amos\community\widgets\icons\WidgetIconAccademyDocument;
 //if (!is_null($model->parent_id)) {
 //    $this->title = AmosCommunity::t('amoscommunity', '#welcome_to_subcommunity');
 //}
+$module = AmosCommunity::instance();
 ?>
 
 <div class="actions-dashboard-container community-dashboard-container">
 
+    <?php 
+        if( !$module->showIconsPluginOnlyAdmin || ($module->showIconsPluginOnlyAdmin && (Yii::$app->user->can('ADMIN') || CommunityUtil::isManagerUser($model,'id')))){
+
+    ?>
     <ul id="widgets-icon" class="bk-sortableIcon plugin-list p-t-25" role="menu">
 
         <?php if ($model->hide_participants == 0 && $model->showParticipantWidget()) { ?>
@@ -83,6 +89,9 @@ use open20\amos\community\widgets\icons\WidgetIconAccademyDocument;
             ]);
         ?>
     </ul>
+    <?php
+        }
+    ?>
     <div class="clearfix"></div>
 
 

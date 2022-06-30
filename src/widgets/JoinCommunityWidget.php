@@ -129,7 +129,11 @@ class JoinCommunityWidget extends Widget
             $userCommunity = $model;
             $model         = Community::findOne($userCommunity->community_id);
         } else {
-            $userCommunity = CommunityUserMm::findOne(['community_id' => $model->id, 'user_id' => $loggedUserId]);
+            $userCommunity = CommunityUserMm::find()
+                ->andWhere(['community_id' => $model->id])
+                ->andWhere(['user_id' => $loggedUserId])
+                ->andWhere(['!=', 'role', CommunityUserMm::ROLE_GUEST])
+                ->one();
         }
         $urlRedirect     = null;
         $communityModule = Yii::$app->getModule('community');
@@ -165,7 +169,7 @@ class JoinCommunityWidget extends Widget
                 echo Html::tag('div',
                     Html::a(AmosAdmin::t('amosadmin', 'Not now'), null, $this->modalButtonCancelOptions)
                     .Html::a(AmosAdmin::t('amosadmin', 'Complete the profile'),
-                        ['/admin/first-access-wizard/introduction', 'id' => $userProfile->id],
+                        ['/'.AmosAdmin::getModuleName().'/first-access-wizard/introduction', 'id' => $userProfile->id],
                         $this->modalButtonConfirmationOptions), ['class' => 'pull-right m-15-0']
                 );
                 Modal::end();

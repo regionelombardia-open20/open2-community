@@ -61,7 +61,7 @@ class CommunityPublishedContentsWidget extends Widget
     public function init()
     {
 
-        if(!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS){
+        if (!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS) {
             $this->frameworkIcons = AmosIcons::IC;
 
             $this->iconsContents = [
@@ -79,7 +79,6 @@ class CommunityPublishedContentsWidget extends Widget
         /** @var \open20\amos\cwh\AmosCwh $moduleCwh */
         $object = Yii::createObject($this->modelContent);
         $this->modelLabel = $object->getGrammar()->getModelLabel();
-
     }
 
 
@@ -99,7 +98,7 @@ class CommunityPublishedContentsWidget extends Widget
             $query->filterByPublicationNetwork(Community::getCwhConfigId(), $this->modelCommunity->id);
             $count = $query->count();
 
-            if(empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] != WidgetAbstract::ENGINE_ROWS){
+            if (empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] != WidgetAbstract::ENGINE_ROWS) {
                 $count = '(' . $count . ')';
             }
         }
@@ -107,12 +106,18 @@ class CommunityPublishedContentsWidget extends Widget
         $shortclassname = $model->getShortName();
 
         $icons = isset($this->iconsContents[$shortclassname]) ? AmosIcons::show($this->iconsContents[$shortclassname], [], $this->frameworkIcons) : '';
-        return  Html::tag('div',
+
+        $html = '';
+
+        if ($count > 0) {
+            $html .= Html::tag(
+                'div',
                 $icons .
-                Html::tag('span', $count, ['class' => 'counter']) .
-                Html::tag('span', $this->modelLabel, ['class' => 'model-label']),
-                ['class' => 'content-widget-item']);
+                    Html::tag('span', $count, ['class' => 'counter']) .
+                    Html::tag('span', $this->modelLabel, ['class' => 'model-label']),
+                ['class' => 'content-widget-item']
+            );
+        }
+        return $html;
     }
-
-
 }

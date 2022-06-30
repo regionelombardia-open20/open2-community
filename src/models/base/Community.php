@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -90,11 +89,12 @@ abstract class Community extends NetworkModel
 
         return [
             [$requiredArray, 'required'],
-            [['description'], 'string' /*, 'max' => 500*/],
+            [['description'], 'string' /* , 'max' => 500 */],
             [['context', 'redirect_url'], 'string'],
             [['logo_id', 'cover_image_id'], 'number'],
             [['hide_participants', 'force_workflow', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id', 'hits', 'for_all_user'], 'integer'],
+            [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id',
+                'hits', 'for_all_user'], 'integer'],
             [['status', 'name'], 'string', 'max' => 255],
         ];
     }
@@ -133,11 +133,14 @@ abstract class Community extends NetworkModel
      */
     public function getCommunityUserMms()
     {
-        return $this->hasMany(\open20\amos\community\models\CommunityUserMm::className(), ['community_id' => 'id'])->inverseOf('community')
-            ->from([CommunityUserMm::tableName() => CommunityUserMm::tableName()])
-            ->innerJoin(User::tableName() . ' usr1', CommunityUserMm::tableName() . '.user_id = usr1.id and usr1.deleted_at IS NULL')
-            ->innerJoin('user_profile', 'usr1.id = user_profile.user_id')
-            ->andWhere(['user_profile.attivo' => 1]);
+        return $this->hasMany(\open20\amos\community\models\CommunityUserMm::className(),
+                    ['community_id' => 'id'])->inverseOf('community')
+                ->from([CommunityUserMm::tableName() => CommunityUserMm::tableName()])
+                ->innerJoin(User::tableName().' usr1',
+                    CommunityUserMm::tableName().'.user_id = usr1.id and usr1.deleted_at IS NULL')
+                ->innerJoin('user_profile', 'usr1.id = user_profile.user_id')
+                ->andWhere(['user_profile.attivo' => 1])
+                ->andWhere(['!=', CommunityUserMm::tableName().'.role', CommunityUserMm::ROLE_GUEST]);
     }
 
     /**
@@ -145,7 +148,8 @@ abstract class Community extends NetworkModel
      */
     public function getCommunityType()
     {
-        return $this->hasOne(\open20\amos\community\models\CommunityType::className(), ['id' => 'community_type_id']);
+        return $this->hasOne(\open20\amos\community\models\CommunityType::className(),
+                ['id' => 'community_type_id']);
     }
 
     /**
@@ -177,7 +181,15 @@ abstract class Community extends NetworkModel
      */
     public function getSubcommunities()
     {
-        return $this->hasMany(\open20\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere(['context' => self::className()]);
+        return $this->hasMany(\open20\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere([
+                'context' => self::className()]);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParent()
+    {
+        return $this->hasOne(\open20\amos\community\models\Community::className(), ['id' => 'parent_id']);
     }
 
     /**
@@ -193,7 +205,8 @@ abstract class Community extends NetworkModel
      */
     public function getCommunityAmosWidgetsMms()
     {
-        return $this->hasMany(\open20\amos\community\models\CommunityAmosWidgetsMm::className(), ['community_id' => 'id']);
+        return $this->hasMany(\open20\amos\community\models\CommunityAmosWidgetsMm::className(),
+                ['community_id' => 'id']);
     }
 
     /**
@@ -212,7 +225,6 @@ abstract class Community extends NetworkModel
         return $this->hasMany(AmosWidgets::className(), ['id' => 'amos_widgets_id'])->andWhere(['type' => 'GRAPHIC'])->via('communityAmosWidgetsMms');
     }
 
-
     /**
      * Before deleting the community, deletion of related records:
      * - subcommunities if present (and releted records)
@@ -229,7 +241,7 @@ abstract class Community extends NetworkModel
 
         /** @var AmosCommunity $communityModule */
         $communityModule = \Yii::$app->getModule(AmosCommunity::getModuleName());
-        $cwhConfigId = \open20\amos\community\models\Community::getCwhConfigId();
+        $cwhConfigId     = \open20\amos\community\models\Community::getCwhConfigId();
 
         if ($communityModule->deleteCommunityWithSubcommunities) {
             try {
@@ -237,7 +249,8 @@ abstract class Community extends NetworkModel
                     $subcommunity->delete();
                 }
             } catch (\Exception $exception) {
-                throw new CommunityException(AmosCommunity::t('amoscommunity', '#delete_community_delete_subcommunities_error'));
+                throw new CommunityException(AmosCommunity::t('amoscommunity',
+                    '#delete_community_delete_subcommunities_error'));
             }
         }
 
@@ -249,6 +262,7 @@ abstract class Community extends NetworkModel
                 throw new CommunityException(AmosCommunity::t('amoscommunity', '#delete_community_delete_contents_error'));
             }
         }
+
         try {
             foreach ($this->communityUserMms as $communityUserMm) {
                 if (!$communityModule->disableEmailCommunityDeleted) {
@@ -258,16 +272,17 @@ abstract class Community extends NetworkModel
             }
 
             $cwhPermissions = CwhAuthAssignment::find()->andWhere([
-                'cwh_config_id' => $cwhConfigId,
-                'cwh_network_id' => $this->id
-            ])->all();
+                    'cwh_config_id' => $cwhConfigId,
+                    'cwh_network_id' => $this->id
+                ])->all();
 
             /** @var CwhAuthAssignment $cwhPermission */
             foreach ($cwhPermissions as $cwhPermission) {
                 $cwhPermission->delete();
             }
         } catch (\Exception $exception) {
-            throw new CommunityException(AmosCommunity::t('amoscommunity', '#delete_community_delete_members_permission_error'));
+            throw new CommunityException(AmosCommunity::t('amoscommunity',
+                '#delete_community_delete_members_permission_error'));
         }
 
         return parent::beforeDelete();
@@ -279,9 +294,10 @@ abstract class Community extends NetworkModel
      */
     protected function deletedCommunityParticipantsMail($communityUserMm)
     {
-        $emailUtil = new EmailUtil(EmailUtil::DELETED_COMMUNITY, $communityUserMm->role, $this, $communityUserMm->user->userProfile->nomeCognome, '', null, $communityUserMm->user_id);
-        $subject = $emailUtil->getSubject();
-        $text = $emailUtil->getText();
+        $emailUtil = new EmailUtil(EmailUtil::DELETED_COMMUNITY, $communityUserMm->role, $this,
+            $communityUserMm->user->userProfile->nomeCognome, '', null, $communityUserMm->user_id);
+        $subject   = $emailUtil->getSubject();
+        $text      = $emailUtil->getText();
         if (isset(\Yii::$app->params['email-assistenza'])) {
             $from = \Yii::$app->params['email-assistenza'];
         } else {
@@ -298,5 +314,4 @@ abstract class Community extends NetworkModel
     {
         return $this->hasMany(\open20\amos\community\models\CommunityUserField::className(), ['community_id' => 'id']);
     }
-
 }

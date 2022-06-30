@@ -10,6 +10,7 @@
 
 namespace open20\amos\community\widgets\mini;
 
+use open20\amos\admin\AmosAdmin;
 use open20\amos\admin\widgets\UserCardWidget;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
@@ -317,7 +318,7 @@ JS
         foreach ($roles as $role) {
             $rolesArray[$role] = $role;
         }
-        
+        $adminModuleName = AmosAdmin::getModuleName();
         $insass = ($inviteUserOfcommunityParent && !$isSubCommunity && $customInvitationForm) || (!$inviteUserOfcommunityParent && $customInvitationForm);
         $widget = \open20\amos\core\forms\editors\m2mWidget\M2MWidget::widget([
             'model' => $model->getCommunityModel(),
@@ -339,13 +340,13 @@ JS
             'disableCreateButton' => true,
             'disableAssociaButton' => (!$this->isUpdate || ($model->status != Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED)),
             'btnAssociaLabel' => AmosCommunity::t('amoscommunity', '#community_member_mini_widget_btn_label'),
-            'btnAssociaClass' => 'btn btn-primary btn-m2m' . ($associateBtnDisabled ? ' disabled' : ''),
+            'btnAssociaClass' => 'btn btn-primary' . ($associateBtnDisabled ? ' disabled' : ''),
             'btnAdditionalAssociateLabel' => AmosCommunity::t('amoscommunity', 'Invite internal users'),
             'actionColumnsTemplate' => $actionColumnsTemplate,
             'deleteRelationTargetIdField' => 'user_id',
             'targetUrl' => $insass ? '/community/community/insass-m2m' : '/community/community/associa-m2m',
             'additionalTargetUrl' => '/community/community/additional-associate-m2m',
-            'createNewTargetUrl' => '/admin/user-profile/create',
+            'createNewTargetUrl' => '/'.$adminModuleName.'/user-profile/create',
             'moduleClassName' => AmosCommunity::className(),
             'targetUrlController' => 'community',
             'postName' => 'Community',
@@ -464,11 +465,12 @@ JS
                                 Modal::end();
                                 
                                 $btn = Html::a(
-                                    AmosIcons::show('swap', ['class' => 'btn btn-icon']),
+                                    AmosIcons::show('swap'),
                                     null, [
                                     'title' => AmosCommunity::t('amoscommunity', 'Change role'),
                                     'data-toggle' => 'modal',
                                     'data-target' => '#' . $modalId,
+                                    'class' => 'btn btn-icon btn-secondary',
                                     'onclick' => 'checkSelect2Init("' . $modalId . '", "' . $selectId . '");'
                                 ]);
 
@@ -493,10 +495,12 @@ JS
                     $loggedUser = Yii::$app->getUser();
                     if ($loggedUser->can('COMMUNITY_UPDATE', ['model' => $this->model])) {
                         $btnDelete = Html::a(
-                            AmosIcons::show('close', ['class' => 'btn btn-icon']),
+                            AmosIcons::show('close'),
                             $urlDelete,
-                            ['title' => AmosCommunity::t('amoscommunity', 'Delete'),
-                                'data-confirm' => Yii::t('amoscommunity', 'Are you sure to remove this user?'),
+                            [
+                                'class' => 'btn btn-icon btn-danger',
+                                'title' => AmosCommunity::t('amoscommunity', 'Delete'),
+                                'data-confirm' => AmosCommunity::t('amoscommunity', 'Are you sure to remove this user?'),
                             ]
                         );
                         if (($community->created_by == $model->user_id) && !$loggedUser->can("ADMIN")) {

@@ -23,7 +23,10 @@ if (isset(Yii::$app->getModule('community')->view_email_partecipants)) {
 ?>
 <div class="member-items">
     <p class="member-item-name">
-        <?= \open20\amos\core\helpers\Html::a('<strong>' . $model->user->userProfile->surnameName . '</strong>', ['/admin/user-profile/view', 'id' => $model->user->userProfile->id ], [
+        <?php
+        $adminModuleName = \open20\amos\admin\AmosAdmin::getModuleName();
+        ?>
+        <?= \open20\amos\core\helpers\Html::a('<strong>' . $model->user->userProfile->surnameName . '</strong>', ['/'.$adminModuleName.'/user-profile/view', 'id' => $model->user->userProfile->id ], [
             'data' => $confirm
         ])?>
     </p>

@@ -31,11 +31,16 @@ use yii\widgets\ActiveForm;
     ?>
 
     <div class="col-xs-12">
-        <h2><?= AmosCommunity::tHtml('amoscommunity', 'Order by') ?></h2>
+        <p class="h3"><?= AmosCommunity::tHtml('amoscommunity', 'Order by') ?></p>
     </div>
 
     <div class="col-sm-6 col-lg-4">
-        <?= $form->field($model, 'orderAttribute')->dropDownList($model->getOrderAttributesLabels()) ?>
+        <?php
+        $labels = $model->getOrderAttributesLabels();
+        foreach ($labels as $key => $label){
+            $labels[$key] = AmosCommunity::t('amoscommunity', $label);
+        }?>
+        <?= $form->field($model, 'orderAttribute')->dropDownList($labels) ?>
     </div>
     <div class="col-sm-6 col-lg-4">
         <?= $form->field($model, 'orderType')->dropDownList(

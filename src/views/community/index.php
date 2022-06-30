@@ -20,8 +20,9 @@ use open20\amos\core\helpers\Html;
 use open20\amos\core\icons\AmosIcons;
 use open20\amos\core\views\DataProviderView;
 use yii\helpers\Url;
-use yii\web\View; 
-  
+use yii\web\View;
+
+
 /**
  * @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
@@ -29,7 +30,7 @@ use yii\web\View;
  * @var \open20\amos\dashboard\models\AmosUserDashboards $currentDashboard
  * @var string $currentView
  */
-  
+
 $communityModule = Yii::$app->getModule('community');
 $fixedCommunityType = !is_null($communityModule->communityType);
 $bypassWorkflow = $communityModule->forceWorkflow($model);
@@ -76,9 +77,9 @@ $columns = [];
 $columns['logo_id'] = [
     'label' => AmosCommunity::t('amoscommunity', 'Logo'),
     'format' => 'raw',
-    'value' => function ($model)use($enabledHierarchy) {
+    'value' => function ($model) use ($enabledHierarchy) {
         $options = ['model' => $model];
-        if($enabledHierarchy){
+        if ($enabledHierarchy) {
             $options['enableHierarchy'] = true;
         }
         return CommunityCardWidget::widget($options);
@@ -87,7 +88,8 @@ $columns['logo_id'] = [
 
 $columns['name'] = [
     'attribute' => 'name',
-    'label' => AmosCommunity::t('amoscommunity', '#community_name')
+    'label' => AmosCommunity::t('amoscommunity', '#community_name'),
+    'format' => 'html',
 ];
 
 if (!$fixedCommunityType) {
@@ -118,7 +120,7 @@ if (!$bypassWorkflow) {
 
 $actionColumns = [
     'class' => 'open20\amos\core\views\grid\ActionColumn',
-    'template' => '{publish}{reject}{joinCommunity}{view}{update}{delete}',
+    'template' => '{publish}{reject}{joinCommunity}{move}{transform}{view}{update}{delete}',
     'buttons' => [
         'publish' => function ($url, $model) {
             $createUrlParams = [
@@ -128,8 +130,8 @@ $actionColumns = [
             ];
             $btn = '';
             if ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE && (Yii::$app->getUser()->can('COMMUNITY_VALIDATOR') ||
-                    Yii::$app->getUser()->can(ValidateSubcommunitiesRule::className(), ['model' => $model]))) {
-                $btn = Html::a(AmosIcons::show('check-circle', ['class' => '']), Yii::$app->urlManager->createUrl($createUrlParams), ['title' => AmosCommunity::t('amoscommunity', 'Publish'),'class' => 'btn btn-tool-secondary']);
+                Yii::$app->getUser()->can(ValidateSubcommunitiesRule::className(), ['model' => $model]))) {
+                $btn = Html::a(AmosIcons::show('check-circle', ['class' => '']), Yii::$app->urlManager->createUrl($createUrlParams), ['title' => AmosCommunity::t('amoscommunity', 'Publish'), 'class' => 'btn btn-tool-secondary']);
             }
             return $btn;
         },
@@ -140,14 +142,26 @@ $actionColumns = [
             ];
             $btn = '';
             if ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE && (Yii::$app->getUser()->can('COMMUNITY_VALIDATOR') ||
-                    Yii::$app->getUser()->can(ValidateSubcommunitiesRule::className(), ['model' => $model]))) {
+                Yii::$app->getUser()->can(ValidateSubcommunitiesRule::className(), ['model' => $model]))) {
                 $btn = Html::a(AmosIcons::show('minus-circle', ['class' => '']), Yii::$app->urlManager->createUrl($createUrlParams), ['title' => AmosCommunity::t('amoscommunity', 'Reject'), 'class' => 'btn btn-tool-secondary']);
             }
             return $btn;
         },
         'joinCommunity' => function ($url, $model) {
-            if(\Yii::$app->user->can(UpdateOwnNetworkCommunity::className(), ['model' => $model])){
+            if (\Yii::$app->user->can(UpdateOwnNetworkCommunity::className(), ['model' => $model])) {
                 return JoinCommunityWidget::widget(['model' => $model, 'isGridView' => true, 'useIcon' => true]);
+            }
+            return '';
+        },
+        'move' => function ($url, $model) {
+            if (\Yii::$app->user->can('AMMINISTRATORE_COMMUNITY')) {
+                return Html::a(AmosIcons::show('swap'),[ '/community/community/move','id' => $model->id], ['title' => AmosCommunity::t('amoscommunity', 'Sposta community'), 'class' => 'btn btn-tool-secondary']);
+            }
+            return '';
+        },
+        'transform' => function ($url, $model) {
+            if (\Yii::$app->user->can('AMMINISTRATORE_COMMUNITY')) {
+                return Html::a(AmosIcons::show('transform'), [ '/community/community/transform-to-community-parent','id' => $model->id], ['title' => AmosCommunity::t('amoscommunity', 'Trasforma sottocommunity in community'), 'class' => 'btn btn-tool-secondary']);
             }
             return '';
         },
@@ -179,6 +193,7 @@ $columns[] = $actionColumns;
 ?>
 
 <div class="community-index">
+
     <?= $this->render('_search', [
         'model' => $model,
         'originAction' => Yii::$app->controller->action->id
@@ -187,18 +202,26 @@ $columns[] = $actionColumns;
         'model' => $model,
         'originAction' => Yii::$app->controller->action->id
     ]); ?>
+    <?php /*$this->render('_legenda', [
+        'model' => $model,
+        'originAction' => Yii::$app->controller->action->id
+    ]); */?>
 
-    <?php echo DataProviderView::widget([
-        'dataProvider' => $dataProvider,
-        //'filterModel' => $model,
-        'currentView' => $currentView,
-        'gridView' => [
-            'columns' => $columns,
-        ],
-        'iconView' => [
-            'itemView' => '_icon'
-        ],
-    ]); ?>
+    <?php
+    if ($dataProvider->getTotalCount() > 0) {
+        echo DataProviderView::widget([
+            'dataProvider' => $dataProvider,
+            //'filterModel' => $model,
+            'currentView' => $currentView,
+            'gridView' => [
+                'columns' => $columns,
+            ],
+            'iconView' => [
+                'itemView' => '_icon'
+            ],
+        ]);
+    }
+    ?>
 
 </div>
 

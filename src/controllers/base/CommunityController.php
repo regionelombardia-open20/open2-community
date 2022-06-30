@@ -274,10 +274,9 @@ class CommunityController extends CrudController
         Yii::$app->view->params['textHelp']['filename'] = 'create_community_dashboard_description';
         /** @var Community $model */
         $model = $this->findModel($id);
-        $communityModule = Yii::$app->getModule('community');
         $previousStatus = $model->status;
         if ($model->load(Yii::$app->request->post())) {
-            if(!$communityModule->forceWorkflow($model) && $model->backToEdit && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_DRAFT && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE){
+            if($model->backToEdit && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_DRAFT && $model->status != Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE){
                 if($model->validated_once) {
                     $model->status = Community::COMMUNITY_WORKFLOW_STATUS_DRAFT;
                 }
@@ -287,7 +286,7 @@ class CommunityController extends CrudController
             }
 
             if ($model->validate()) {
-                if ($model->save()) {
+                if ($model->save(false)) {
                     $model->saveDashboardCommunity();
                     $this->addFlash('success', AmosCommunity::t('amoscommunity', 'Community updated successfully.'));
                     return $this->redirectOnUpdate($model, $previousStatus);
@@ -348,7 +347,7 @@ class CommunityController extends CrudController
             if(Yii::$app->getUser()->can('COMMUNITY_VALIDATOR')) {
                 return $this->redirect(['/community/community/update', 'id' => $model->id]);
             } else {
-                return $this->redirect(BreadcrumbHelper::lastCrumbUrl());
+                return $this->redirect('/community/community/index');
             }
         } else {
             return $this->redirect(['/community/community/update', 'id' => $model->id]);

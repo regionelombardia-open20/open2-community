@@ -22,7 +22,7 @@ class CommunityGrammar implements ModelGrammarInterface
      */
     public function getModelSingularLabel()
     {
-        return AmosCommunity::t('amoscommunity', '#community');
+        return AmosCommunity::t('amoscommunity', 'community');
     }
 
     /**

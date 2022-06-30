@@ -401,7 +401,9 @@ class ReportsUtility extends BaseObject
      */
     public function getAllCommunityAndSubcommunitiesUsersData()
     {
-        $query_cm = \open20\amos\community\models\CommunityUserMm::find()->select('user_id');
+        $query_cm = \open20\amos\community\models\CommunityUserMm::find()
+            ->andWhere(['!=', 'role', \open20\amos\community\models\CommunityUserMm::ROLE_GUEST])
+            ->select('user_id');
         /** @var ActiveQuery $query */
         $query = UserProfile::find();
         $query->andWhere(['id' => $query_cm]);

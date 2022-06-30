@@ -11,6 +11,7 @@
 
 namespace open20\amos\community\widgets;
 
+use open20\amos\admin\AmosAdmin;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\assets\AmosCommunityAsset;
 use open20\amos\community\models\Community;
@@ -24,6 +25,8 @@ use open20\amos\core\user\User;
 use open20\amos\core\utilities\JsUtility;
 use Yii;
 use yii\base\Widget;
+use yii\helpers\Url;
+use yii\web\ForbiddenHttpException;
 use yii\web\View;
 use yii\widgets\PjaxAsset;
 
@@ -178,7 +181,9 @@ class UserNetworkWidget extends Widget
         $communities = $communityObject->getUserNetworkQuery($this->userId);
         
         if (!Yii::$app->user->can('ADMIN')) {
-            $communitiesMms = CommunityUserMm::find()->andWhere(['user_id' => Yii::$app->user->id])->select('community_id');
+            $communitiesMms = CommunityUserMm::find()->andWhere(['user_id' => Yii::$app->user->id])
+                 ->andWhere(['!=', 'role', \open20\amos\community\models\CommunityUserMm::ROLE_GUEST])
+                ->select('community_id');
             $communities->andWhere([
                 'or',
                 [
@@ -223,7 +228,7 @@ class UserNetworkWidget extends Widget
             'actionColumnsTemplate' => $this->isUpdate ? '{joinCommunity}{deleteRelation}' : '',
             'deleteRelationTargetIdField' => 'user_id',
             'targetUrl' => '/community/community/associate-community-m2m',
-            'createNewTargetUrl' => '/admin/user-profile/create',
+            'createNewTargetUrl' => '/'.AmosAdmin::getModuleName().'/user-profile/create',
             'moduleClassName' => AmosCommunity::className(),
             'targetUrlController' => 'community',
             'postName' => 'User',
@@ -246,7 +251,8 @@ class UserNetworkWidget extends Widget
                     $urlDelete = Yii::$app->urlManager->createUrl([
                         $url,
                         'id' => $communityId,
-                        'targetId' => $targetId
+                        'targetId' => $targetId,
+                        'redirectAction' => Url::current(),
                     ]);
                     $loggedUser = Yii::$app->getUser();
                     

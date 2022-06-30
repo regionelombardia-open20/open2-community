@@ -126,7 +126,7 @@ class SubcommunitiesMiniWidget extends Widget
             'disableAssociaButton' => !$this->isUpdate || !$enableWizard,
             'createNewBtnLabel' => AmosCommunity::t('amoscommunity', '#subcommunity_mini_widget_btn_label'),
             'btnAssociaLabel' => AmosCommunity::t('amoscommunity', '#subcommunity_mini_widget_btn_label'),
-            'btnAssociaClass' => 'btn btn-primary btn-m2m',
+            'btnAssociaClass' => 'btn btn-primary',
             'layoutMittente' => "{toolbarMittenteMini}\n{itemsMittente}\n{footerMittente}",
             'actionColumnsTemplate' => '{update}{delete}',
             'actionColumnsButtons' => [

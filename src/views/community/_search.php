@@ -26,7 +26,8 @@ $moduleTag = Yii::$app->getModule('tag');
 
 /** @var AmosCommunity $moduleCommunity */
 $moduleCommunity = Yii::$app->getModule(AmosCommunity::getModuleName());
-$enableAutoOpenSearchPanel = !isset(\Yii::$app->params['enableAutoOpenSearchPanel']) || \Yii::$app->params['enableAutoOpenSearchPanel'] === true;
+/* $enableAutoOpenSearchPanel = !isset(\Yii::$app->params['enableAutoOpenSearchPanel']) || \Yii::$app->params['enableAutoOpenSearchPanel'] === true; */
+$enableAutoOpenSearchPanel = false;
 
 ?>
 <div class="community-search element-to-toggle" data-toggle-element="form-search">
@@ -42,7 +43,7 @@ $enableAutoOpenSearchPanel = !isset(\Yii::$app->params['enableAutoOpenSearchPane
     ?>
 
     <div class="col-xs-12">
-        <h2><?= AmosCommunity::tHtml('amoscommunity', 'Search by') ?></h2>
+        <p class="h3"><?= AmosCommunity::tHtml('amoscommunity', 'Search by') ?></p>
     </div>
 
 
@@ -78,24 +79,24 @@ $enableAutoOpenSearchPanel = !isset(\Yii::$app->params['enableAutoOpenSearchPane
 </div>
 <?php endif; ?>
 
-<?php if (isset($moduleTag) && in_array(Community::className(), $moduleTag->modelsEnabled) && $moduleTag->behaviors): ?>
+<?php if (isset($moduleTag) && in_array(Community::className(), $moduleTag->modelsEnabled) && $moduleCommunity->searchByTags && $moduleTag->behaviors): ?>
 <div class="col-xs-12">
 <?php
           $params = \Yii::$app->request->getQueryParams();
-          /* echo \open20\amos\tag\widgets\TagWidget::widget([
+          echo \open20\amos\tag\widgets\TagWidget::widget([
             'model' => $model,
             'attribute' => 'tagValues',
             'form' => $form,
             'isSearch' => true,
             'form_values' => isset($params[$model->formName()]['tagValues']) ? $params[$model->formName()]['tagValues'] : []
-            ]); */
+            ]);
           ?>
       </div>
 <?php endif; ?>
 
 <div class="col-xs-12">
   <div class="pull-right">
-  <?= Html::a(AmosCommunity::tHtml('amoscommunity', 'Cancel'), [Yii::$app->controller->action->id, 'currentView' => Yii::$app->request->getQueryParam('currentView')],
+  <?= Html::a(AmosCommunity::tHtml('amoscommunity', 'Cancel'), [isset($cancelAction) ? $cancelAction : Yii::$app->controller->action->id, 'currentView' => Yii::$app->request->getQueryParam('currentView')],
     ['class' => 'btn btn-secondary', 'title' => AmosCommunity::t('amoscommunity', 'Cancel search')])
   ?>
   <?= Html::submitButton(AmosCommunity::tHtml('amoscommunity', 'Search'), ['class' => 'btn btn-navigation-primary', 'title' => AmosCommunity::t('amoscommunity', 'Start search')]) ?>

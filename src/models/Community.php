@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -24,6 +23,9 @@ use open20\amos\cwh\behaviors\TaggableInterestingBehavior;
 use open20\amos\cwh\models\CwhAuthAssignment;
 use open20\amos\cwh\models\CwhConfig;
 use open20\amos\notificationmanager\behaviors\NotifyBehavior;
+use open20\amos\notificationmanager\models\NotificationconfNetwork;
+use open20\amos\notificationmanager\models\NotificationsConfOpt;
+use open20\amos\notificationmanager\utility\NotifyUtility;
 use open20\amos\seo\behaviors\SeoContentBehavior;
 use open20\amos\workflow\behaviors\WorkflowLogFunctionsBehavior;
 use raoul2000\workflow\base\SimpleWorkflowBehavior;
@@ -32,8 +34,9 @@ use yii\db\ActiveQuery;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use yii\helpers\VarDumper;
 use yii\log\Logger;
-
+use open20\amos\admin\models\UserProfile;
 
 /**
  * Class Community
@@ -46,7 +49,6 @@ use yii\log\Logger;
  */
 class Community extends \open20\amos\community\models\base\Community implements CommunityContextInterface
 {
-
     /**
      * @var    string    COMMUNITY_WORKFLOW    Community Workflow ID
      */
@@ -84,7 +86,6 @@ class Community extends \open20\amos\community\models\base\Community implements 
      * @var mixed $communityLogo Community logo.
      */
     //public $communityLogo;
-
     /**
      * @var mixed $communityCoverImage Community cover image.
      */
@@ -112,7 +113,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
             if (!is_null($this->communityModule->communityType)) {
                 $this->community_type_id = $this->communityModule->communityType;
             }
-            if($this->hasAttribute('force_workflow')){
+            if ($this->hasAttribute('force_workflow')) {
                 $this->force_workflow = ($this->communityModule->forceWorkflow($this) === true) ? 1 : 0;
             }
         }
@@ -128,7 +129,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
         //$this->communityLogo = $this->getCommunityLogo()->one();
         $this->communityCoverImage = $this->getCommunityCoverImage()->one();
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -137,7 +138,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
         parent::afterSave($insert, $changedAttributes);
         CommunityUtil::autoAddCommunityManagersToCommunity($this, CommunityUserMm::STATUS_ACTIVE);
     }
-    
+
     /**
      * This method checks if a community is deleted.
      * @return bool
@@ -146,15 +147,15 @@ class Community extends \open20\amos\community\models\base\Community implements 
     {
         return (!is_null($this->deleted_at));
     }
-    
+
     /**
      * Getter for $this->communityLogo;
      * @return \yii\db\ActiveQuery
      */
     /* public function getCommunityLogo()
-     {
-         return $this->communityLogo = $this->hasOneFile('communityLogo')->one();
-     }*/
+      {
+      return $this->communityLogo = $this->hasOneFile('communityLogo')->one();
+      } */
 
     public function getModelImage()
     {
@@ -215,10 +216,11 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public function rules()
     {
-        return ArrayHelper::merge(parent::rules(), [
-            [['communityLogo'], 'file', 'extensions' => 'jpeg, jpg, png, gif', 'minSize' => 1],
-            [['communityCoverImage'], 'file', 'extensions' => 'jpeg, jpg, png, gif', 'minSize' => 1],
-            [['backToEdit'], 'integer'],
+        return ArrayHelper::merge(parent::rules(),
+                [
+                [['communityLogo'], 'file', 'extensions' => 'jpeg, jpg, png, gif', 'minSize' => 1],
+                [['communityCoverImage'], 'file', 'extensions' => 'jpeg, jpg, png, gif', 'minSize' => 1],
+                [['backToEdit'], 'integer'],
         ]);
     }
 
@@ -227,8 +229,9 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public function attributeLabels()
     {
-        return ArrayHelper::merge(parent::attributeLabels(), [
-            'communityLogo' => AmosCommunity::t('amoscommunity', 'Logo')
+        return ArrayHelper::merge(parent::attributeLabels(),
+                [
+                'communityLogo' => AmosCommunity::t('amoscommunity', 'Logo')
         ]);
     }
 
@@ -245,7 +248,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public function getBaseRole()
     {
-        $baseRole = CommunityUserMm::ROLE_PARTICIPANT;
+        $baseRole        = CommunityUserMm::ROLE_PARTICIPANT;
         $moduleCommunity = Yii::$app->getModule('community');
         if ($moduleCommunity->extendRoles) {
             $baseRole = CommunityUserMm::ROLE_READER;
@@ -260,6 +263,9 @@ class Community extends \open20\amos\community\models\base\Community implements 
     {
         switch ($role) {
             case CommunityUserMm::ROLE_READER:
+                return [];
+                break;
+            case CommunityUserMm::ROLE_GUEST:
                 return [];
                 break;
             case CommunityUserMm::ROLE_AUTHOR:
@@ -311,30 +317,31 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public function behaviors()
     {
-        $behaviors = ArrayHelper::merge(parent::behaviors(), [
-            'workflow' => [
-                'class' => SimpleWorkflowBehavior::className(),
-                'defaultWorkflowId' => self::COMMUNITY_WORKFLOW,
-                'propagateErrorsToModel' => true,
-            ],
-            'NotifyBehavior' => [
-                'class' => NotifyBehavior::className(),
-                'conditions' => [],
-            ],
-            'fileBehavior' => [
-                'class' => FileBehavior::className()
-            ],
-            'WorkflowLogFunctionsBehavior' => [
-                'class' => WorkflowLogFunctionsBehavior::className(),
-            ],
-            'SeoContentBehavior' => [
-                'class' => SeoContentBehavior::className(),
-                'titleAttribute' => 'name',
-                'descriptionAttribute' => 'description',
-                'imageAttribute' => 'communityLogo',
-                'defaultOgType' => 'article',
-                'schema' => 'NewsArticle'
-            ]
+        $behaviors = ArrayHelper::merge(parent::behaviors(),
+                [
+                'workflow' => [
+                    'class' => SimpleWorkflowBehavior::className(),
+                    'defaultWorkflowId' => self::COMMUNITY_WORKFLOW,
+                    'propagateErrorsToModel' => true,
+                ],
+                'NotifyBehavior' => [
+                    'class' => NotifyBehavior::className(),
+                    'conditions' => [],
+                ],
+                'fileBehavior' => [
+                    'class' => FileBehavior::className()
+                ],
+                'WorkflowLogFunctionsBehavior' => [
+                    'class' => WorkflowLogFunctionsBehavior::className(),
+                ],
+                'SeoContentBehavior' => [
+                    'class' => SeoContentBehavior::className(),
+                    'titleAttribute' => 'name',
+                    'descriptionAttribute' => 'description',
+                    'imageAttribute' => 'communityLogo',
+                    'defaultOgType' => 'article',
+                    'schema' => 'NewsArticle'
+                ]
         ]);
 
         $cwhModule = Yii::$app->getModule('cwh');
@@ -360,7 +367,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public function getContextRoles()
     {
-        $roles = [
+        $roles           = [
             CommunityUserMm::ROLE_PARTICIPANT,
             CommunityUserMm::ROLE_COMMUNITY_MANAGER
         ];
@@ -386,7 +393,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
         $roleName = CommunityUserMm::ROLE_COMMUNITY_MANAGER;
         if (!empty($this->context) && strcmp($this->context, Community::className())) {
             /** @var CommunityContextInterface $obj */
-            $obj = new $this->context;
+            $obj      = new $this->context;
             $roleName = $obj->getManagerRole();
         }
         return $roleName;
@@ -418,7 +425,8 @@ class Community extends \open20\amos\community\models\base\Community implements 
 
     public function getAdditionalAssociationTargetQuery($communityId)
     {
-        $communityUserMms = CommunityUserMm::find()->andWhere(['community_id' => $communityId]);
+        $communityUserMms = CommunityUserMm::find()->andWhere(['community_id' => $communityId])->andWhere(['!=', 'role',
+            CommunityUserMm::ROLE_GUEST]);
         return User::find()->andFilterWhere(['not in', 'id', $communityUserMms->select('user_id')]);
     }
 
@@ -433,15 +441,15 @@ class Community extends \open20\amos\community\models\base\Community implements 
     public function setCwhAuthAssignments($communityUserMmRow, $delete = false)
     {
         /** @var AmosCwh $cwhModule */
-        $cwhModule = Yii::$app->getModule("cwh");
-        $cwhNodeId = 'community-' . $this->id;
-        $userId = $communityUserMmRow->user_id;
-        $cwhConfigId = self::getCwhConfigId();
+        $cwhModule      = Yii::$app->getModule("cwh");
+        $cwhNodeId      = 'community-'.$this->id;
+        $userId         = $communityUserMmRow->user_id;
+        $cwhConfigId    = self::getCwhConfigId();
         $cwhPermissions = CwhAuthAssignment::find()->andWhere([
-            'user_id' => $userId,
-            'cwh_config_id' => $cwhConfigId,
-            'cwh_network_id' => $this->id
-        ])->all();
+                'user_id' => $userId,
+                'cwh_config_id' => $cwhConfigId,
+                'cwh_network_id' => $this->id
+            ])->all();
 
         if ($delete) {
             if (!empty($cwhPermissions)) {
@@ -457,39 +465,39 @@ class Community extends \open20\amos\community\models\base\Community implements 
             }
 
             /** @var Community $callingModel */
-            $callingModel = Yii::createObject($this->context);
+            $callingModel     = Yii::createObject($this->context);
             /** @var array $rolePermissions */
-            $rolePermissions = $callingModel->getRolePermissions($communityUserMmRow->role);
+            $rolePermissions  = $callingModel->getRolePermissions($communityUserMmRow->role);
             $permissionsToAdd = [];
             if (!is_null($rolePermissions) && count($rolePermissions)) {
                 // for each enabled Content model in Cwh
                 foreach ($cwhModule->modelsEnabled as $modelClassname) {
                     foreach ($rolePermissions as $permission) {
-                        $cwhAuthAssignment = new CwhAuthAssignment();
-                        $cwhAuthAssignment->user_id = $userId;
-                        $cwhAuthAssignment->item_name = $permission . '_' . $modelClassname;
-                        $cwhAuthAssignment->cwh_nodi_id = $cwhNodeId;
-                        $cwhAuthAssignment->cwh_config_id = $cwhConfigId;
-                        $cwhAuthAssignment->cwh_network_id = $this->id;
+                        $cwhAuthAssignment                               = new CwhAuthAssignment();
+                        $cwhAuthAssignment->user_id                      = $userId;
+                        $cwhAuthAssignment->item_name                    = $permission.'_'.$modelClassname;
+                        $cwhAuthAssignment->cwh_nodi_id                  = $cwhNodeId;
+                        $cwhAuthAssignment->cwh_config_id                = $cwhConfigId;
+                        $cwhAuthAssignment->cwh_network_id               = $this->id;
                         $permissionsToAdd[$cwhAuthAssignment->item_name] = $cwhAuthAssignment;
                     }
                 }
             }
             // if role is CM add permissions of creation/validation of subcommunities of current community (N.B. only for community not created by events/projects)
             if ($this->context == self::className() && $communityUserMmRow->role == CommunityUserMm::ROLE_COMMUNITY_MANAGER) {
-                $cwhCreateSubCommunities = new CwhAuthAssignment();
-                $cwhCreateSubCommunities->user_id = $userId;
-                $cwhCreateSubCommunities->item_name = $cwhModule->permissionPrefix . "_CREATE_" . self::className();
-                $cwhCreateSubCommunities->cwh_nodi_id = $cwhNodeId;
-                $cwhCreateSubCommunities->cwh_config_id = $cwhConfigId;
-                $cwhCreateSubCommunities->cwh_network_id = $this->id;
-                $permissionsToAdd[$cwhCreateSubCommunities->item_name] = $cwhCreateSubCommunities;
-                $cwhValidateSubCommunities = new CwhAuthAssignment();
-                $cwhValidateSubCommunities->user_id = $userId;
-                $cwhValidateSubCommunities->item_name = $cwhModule->permissionPrefix . "_VALIDATE_" . self::className();
-                $cwhValidateSubCommunities->cwh_nodi_id = $cwhNodeId;
-                $cwhValidateSubCommunities->cwh_config_id = $cwhConfigId;
-                $cwhValidateSubCommunities->cwh_network_id = $this->id;
+                $cwhCreateSubCommunities                                 = new CwhAuthAssignment();
+                $cwhCreateSubCommunities->user_id                        = $userId;
+                $cwhCreateSubCommunities->item_name                      = $cwhModule->permissionPrefix."_CREATE_".self::className();
+                $cwhCreateSubCommunities->cwh_nodi_id                    = $cwhNodeId;
+                $cwhCreateSubCommunities->cwh_config_id                  = $cwhConfigId;
+                $cwhCreateSubCommunities->cwh_network_id                 = $this->id;
+                $permissionsToAdd[$cwhCreateSubCommunities->item_name]   = $cwhCreateSubCommunities;
+                $cwhValidateSubCommunities                               = new CwhAuthAssignment();
+                $cwhValidateSubCommunities->user_id                      = $userId;
+                $cwhValidateSubCommunities->item_name                    = $cwhModule->permissionPrefix."_VALIDATE_".self::className();
+                $cwhValidateSubCommunities->cwh_nodi_id                  = $cwhNodeId;
+                $cwhValidateSubCommunities->cwh_config_id                = $cwhConfigId;
+                $cwhValidateSubCommunities->cwh_network_id               = $this->id;
                 $permissionsToAdd[$cwhValidateSubCommunities->item_name] = $cwhValidateSubCommunities;
             }
             if (!empty($permissionsToAdd)) {
@@ -562,9 +570,9 @@ class Community extends \open20\amos\community\models\base\Community implements 
             $userId = $this->getUserId();
         }
         $mmRow = CommunityUserMm::findOne([
-            $this->getMmNetworkIdFieldName() => $networkId,
-            $this->getMmUserIdFieldName() => $userId,
-            'status' => CommunityUserMm::STATUS_ACTIVE
+                $this->getMmNetworkIdFieldName() => $networkId,
+                $this->getMmUserIdFieldName() => $userId,
+                'status' => CommunityUserMm::STATUS_ACTIVE
         ]);
         if (!is_null($mmRow)) {
             return true;
@@ -585,7 +593,8 @@ class Community extends \open20\amos\community\models\base\Community implements 
         if (!isset($community) || $community->isNewRecord) {
             return false;
         }
-        if ($community->status == self::COMMUNITY_WORKFLOW_STATUS_VALIDATED || ($community->validated_once && $community->visible_on_edit && $community->status == self::COMMUNITY_WORKFLOW_STATUS_DRAFT)) {
+        if ($community->status == self::COMMUNITY_WORKFLOW_STATUS_VALIDATED || ($community->validated_once && $community->visible_on_edit
+            && $community->status == self::COMMUNITY_WORKFLOW_STATUS_DRAFT)) {
             return true;
         }
         return false;
@@ -634,10 +643,10 @@ class Community extends \open20\amos\community\models\base\Community implements 
         }
         $managerRole = $this->getManagerRole();
         $communityMm = CommunityUserMm::findOne([
-            'community_id' => $this->id,
-            'role' => $managerRole,
-            'status' => CommunityUserMm::STATUS_ACTIVE,
-            'user_id' => $userId
+                'community_id' => $this->id,
+                'role' => $managerRole,
+                'status' => CommunityUserMm::STATUS_ACTIVE,
+                'user_id' => $userId
         ]);
         return !is_null($communityMm);
     }
@@ -652,10 +661,10 @@ class Community extends \open20\amos\community\models\base\Community implements 
             $userId = \Yii::$app->getUser()->id;
         }
         $communityMm = CommunityUserMm::findOne([
-            'community_id' => $this->id,
-            'role' => $role,
-            'status' => CommunityUserMm::STATUS_ACTIVE,
-            'user_id' => $userId
+                'community_id' => $this->id,
+                'role' => $role,
+                'status' => CommunityUserMm::STATUS_ACTIVE,
+                'user_id' => $userId
         ]);
         return !is_null($communityMm);
     }
@@ -686,14 +695,14 @@ class Community extends \open20\amos\community\models\base\Community implements 
 
         $communitySearch = new CommunitySearch();
         /** @var ActiveQuery $query */
-        $query = $communitySearch->buildQuery($params, 'all', $onlyActiveStatus, $userId);
+        $query           = $communitySearch->buildQuery($params, 'all', $onlyActiveStatus, $userId);
 
         /** @var ActiveQuery $queryJoined */
-        $queryJoined = $this->getUserNetworkQuery($userId, $params, false)->select(static::tableName() . '.id')->column();
+        $queryJoined = $this->getUserNetworkQuery($userId, $params, false)->select(static::tableName().'.id')->column();
         if (!empty($queryJoined)) {
-            $query->andWhere(['not in', static::tableName() . '.id', $queryJoined]);
+            $query->andWhere(['not in', static::tableName().'.id', $queryJoined]);
         }
-        $query->andWhere(static::tableName() . '.deleted_at is null');
+        $query->andWhere(static::tableName().'.deleted_at is null');
 
         return $query;
     }
@@ -726,7 +735,6 @@ class Community extends \open20\amos\community\models\base\Community implements 
         }
         return $ret;
     }
-
 
     /**
      * @return string The url to view a single model
@@ -786,7 +794,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
     {
         //default newtwork configuration id = 3 for community
         $cwhConfigId = self::COMMUNITY_DEFAULT_NETWORK_ID;
-        $cwhConfig = CwhConfig::findOne(['tablename' => self::tableName()]);
+        $cwhConfig   = CwhConfig::findOne(['tablename' => self::tableName()]);
         if (!is_null($cwhConfig)) {
             $cwhConfigId = $cwhConfig->id;
         }
@@ -815,7 +823,8 @@ class Community extends \open20\amos\community\models\base\Community implements 
         }
 
         $communitySearch = new CommunitySearch();
-        return $communitySearch->buildQuery($params, 'own-interest', $onlyActiveStatus, $userId);
+        $query           = $communitySearch->buildQuery($params, 'own-interest', $onlyActiveStatus, $userId);
+        return $query->andWhere(['!=', CommunityUserMm::tableName().'.role', CommunityUserMm::ROLE_GUEST]);
     }
 
     /**
@@ -824,8 +833,8 @@ class Community extends \open20\amos\community\models\base\Community implements 
     public function getCommunityManagerMms()
     {
         return $this->getCommunityUserMms()
-            ->andWhere([\open20\amos\community\models\CommunityUserMm::tableName() . '.status' => \open20\amos\community\models\CommunityUserMm::STATUS_ACTIVE])
-            ->andWhere([\open20\amos\community\models\CommunityUserMm::tableName() . '.role' => \open20\amos\community\models\CommunityUserMm::ROLE_COMMUNITY_MANAGER]);
+                ->andWhere([\open20\amos\community\models\CommunityUserMm::tableName().'.status' => \open20\amos\community\models\CommunityUserMm::STATUS_ACTIVE])
+                ->andWhere([\open20\amos\community\models\CommunityUserMm::tableName().'.role' => \open20\amos\community\models\CommunityUserMm::ROLE_COMMUNITY_MANAGER]);
     }
 
     /**
@@ -847,22 +856,23 @@ class Community extends \open20\amos\community\models\base\Community implements 
     {
         $query = new \yii\db\Query();
         $query->select([
-            "concat('" . Community::tableName() . "', '-', community_user_mm.community_id) AS objID",
-            'community.id', 'community.name', 'community.status', 'validated_once', 'visible_on_edit',
-            'community.created_by', 'community.deleted_at',
-            'community_user_mm.id', 'community_user_mm.community_id', 'community_user_mm.community_id AS reference',
-            'community_user_mm.status', 'community_user_mm.user_id', 'community_user_mm.deleted_at'
-        ])
+                "concat('".Community::tableName()."', '-', community_user_mm.community_id) AS objID",
+                'community.id', 'community.name', 'community.status', 'validated_once', 'visible_on_edit',
+                'community.created_by', 'community.deleted_at',
+                'community_user_mm.id', 'community_user_mm.community_id', 'community_user_mm.community_id AS reference',
+                'community_user_mm.status', 'community_user_mm.user_id', 'community_user_mm.deleted_at'
+            ])
             ->from(static::tableName())
-            ->leftJoin('community_user_mm', 'community_user_mm.community_id = community.id
+            ->leftJoin('community_user_mm',
+                'community_user_mm.community_id = community.id
           AND community_user_mm.deleted_at IS NULL
-          AND community_user_mm.status = \'' . CommunityUserMm::STATUS_ACTIVE . '\'')
+          AND community_user_mm.status = \''.CommunityUserMm::STATUS_ACTIVE.'\'')
             ->where(['community.id' => $networkIds])
             ->andWhere([
                 'community_user_mm.user_id' => $usersId,
                 'community.deleted_at' => null,
                 'community.status' => self::COMMUNITY_WORKFLOW_STATUS_VALIDATED
-            ]);
+        ]);
 
         return $query->all();
     }
@@ -870,21 +880,23 @@ class Community extends \open20\amos\community\models\base\Community implements 
     /**
      * @return bool
      */
-    public function showParticipantWidget(){
-        if($this->getAmosWidgetsIcons()->count() > 0) {
+    public function showParticipantWidget()
+    {
+        if ($this->getAmosWidgetsIcons()->count() > 0) {
             $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'open20\amos\admin\widgets\icons\WidgetIconUserProfile'])->count();
-            
+
             return $count > 0;
         }
-        
+
         return true;
     }
 
     /**
      * @return bool
      */
-    public function showSubCommunityWidget(){
-        if($this->getAmosWidgetsIcons()->count() > 0) {
+    public function showSubCommunityWidget()
+    {
+        if ($this->getAmosWidgetsIcons()->count() > 0) {
             $count = $this->getAmosWidgetsIcons()->andWhere(['classname' => 'open20\amos\community\widgets\icons\WidgetIconCommunityDashboard'])->count();
             return $count > 0;
         }
@@ -894,24 +906,95 @@ class Community extends \open20\amos\community\models\base\Community implements 
     /**
      *
      */
-    public function saveDashboardCommunity(){
-        $id = $this->id;
+    public function saveDashboardCommunity()
+    {
+        $id             = $this->id;
         $canPersonalize = \Yii::$app->user->can('COMMUNITY_WIDGETS_ADMIN_PERSONALIZE');
-        $ids = \Yii::$app->request->post('amosWidgetsIds');
-        if($canPersonalize){
+        $ids            = \Yii::$app->request->post('amosWidgetsIds');
+        if ($canPersonalize) {
             CommunityAmosWidgetsMm::deleteAll(['community_id' => $id]);
-        }else {
+        } else {
             CommunityAmosWidgetsMm::deleteAll(['community_id' => $id, 'personalized' => 0]);
         }
 
-        foreach ((Array) $ids as $amos_widgets_id){
-            $communityWidget = new CommunityAmosWidgetsMm();
-            $communityWidget->community_id = $id;
+        foreach ((Array) $ids as $amos_widgets_id) {
+            $communityWidget                  = new CommunityAmosWidgetsMm();
+            $communityWidget->community_id    = $id;
             $communityWidget->amos_widgets_id = $amos_widgets_id;
-            if($canPersonalize){
+            if ($canPersonalize) {
                 $communityWidget->personalized = 1;
             }
             $communityWidget->save(false);
+        }
+    }
+
+    public function isBslRegistered($userId)
+    {
+        $user = User::findOne($userId);
+        if (!empty($user)) {
+            $query = NotificationconfNetwork::find()
+                ->joinWith('modelsClassname')
+                ->andWhere(['models_classname.classname' => self::className()])
+                ->andWhere(['notificationconf_network.record_id' => $this->id])
+                ->andWhere(['notificationconf_network.user_id' => $user->id])
+                ->andWhere(['!=', 'notificationconf_network.email', NotificationsConfOpt::EMAIL_OFF])
+            ;
+            // VarDumper::dump( $query->createCommand()->rawSql, $depth = 10, $highlight = true);
+            if (!empty($query->one())) {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * @param $id
+     * @return ActiveQuery
+     */
+    public function getAssociationTargetQuery($id = null)
+    {
+        if (!is_null($id)) {
+            $this->id = $id;
+        }
+        $userNetworkIds = $this->getCommunityUserMms()->select('community_user_mm.user_id')->column();
+
+        /** @var ActiveQuery $userQuery */
+        $userQuery = User::find()
+            ->andFilterWhere(['not in', User::tableName().'.id', $userNetworkIds])
+            ->joinWith('userProfile')
+            ->andWhere(['is not', UserProfile::tableName().'.id', null])
+            ->andWhere([User::tableName().'.status' => User::STATUS_ACTIVE])
+            ->andWhere([UserProfile::tableName().'.attivo' => UserProfile::STATUS_ACTIVE])
+            ->orderBy(['cognome' => SORT_ASC, 'nome' => SORT_ASC]);
+
+        return $userQuery;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function myCommunityUser()
+    {
+        return CommunityUserMm::find()
+                ->andWhere(['community_id' => $this->id])
+                ->andWhere(['user_id' => \Yii::$app->user->id])
+                ->andWhere(['!=', 'role', CommunityUserMm::ROLE_GUEST])
+                ->andWhere(['!=', 'status', CommunityUserMm::STATUS_GUEST])
+                ->one();
+    }
+
+    /**
+     *
+     * @param type $user_id
+     * @return type
+     */
+    public function getRoleByUser($user_id = null){
+        $isManager = $this->isCommunityManager($user_id);
+        if($isManager){
+            return $this->getManagerRole();
+        } else {
+            return $this->getBaseRole();
         }
     }
 }

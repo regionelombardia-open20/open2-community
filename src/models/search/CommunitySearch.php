@@ -64,7 +64,12 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
 
         /** @var Community $className */
         $className = $moduleCommunity->modelMap['Community'];
-        return $className::find()->distinct();
+        $query     = $className::find()->distinct();
+        if (\Yii::$app->user->isGuest) {
+            $query->andWhere(['community.community_type_id' => [1, 2]]);
+        }
+
+        return $query;
     }
 
     /**
@@ -169,7 +174,8 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
 
         $communityUserMm = CommunityUserMm::find()
             ->select(['community_id'])
-            ->andWhere(['user_id' => \Yii::$app->user->id]);
+            ->andWhere(['user_id' => \Yii::$app->user->id])
+            ->andWhere(['!=', 'role', CommunityUserMm::ROLE_GUEST]);
 
         return $communityUserMm;
     }
@@ -246,7 +252,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         // Se c'è l'utente loggato le community aperte, riservate e quelle chiuse di cui l'utente fa parte.
         // Se non c'è un utente a cui fare riferimento si considerano solamente le community aperte.
         if (!is_null($userId)) {
-             $excludeSubcomm = (new \yii\db\Query())->from(Community::tableName().' father')
+            $excludeSubcomm = (new \yii\db\Query())->from(Community::tableName().' father')
                 ->innerJoin(Community::tableName().' child', 'father.id = child.parent_id')
                 ->leftJoin(CommunityUserMm::tableName(),
                     'child.id = '.CommunityUserMm::tableName().'.community_id'
@@ -394,7 +400,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
      */
     public function cmsSearch($params, $limit = null)
     {
-        $dataProvider = $this->search($params, $limit, 'all');
+        $dataProvider = $this->search($params, 'all', $limit);
         return $dataProvider;
     }
 
@@ -441,6 +447,24 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function searchCommunityTreeOrder($query, $params = null)
     {
         $availableCommunitiesIds = [];
+
+        $queryClone = clone $query;
+        $communitiesChildClone = $queryClone->andWhere(['IS NOT', 'parent_id', null])->all();
+        $parentToInclude = [];
+
+        // search Community children anc get the community Fathre to build the tree
+        if(!empty(\Yii::$app->request->get()['CommunitySearch']['name'])) {
+            foreach ($communitiesChildClone as $communityChild) {
+//            pr($communityChild->name, 'first'.' - '.$communityChild->id);
+                while (!is_null($communityChild->parent_id)) {
+                    $communityChild = Community::findOne($communityChild->parent_id);
+                }
+                $parentToInclude [] = $communityChild;
+                $availableCommunitiesIds [] = $communityChild->id;
+//            pr($communityChild->id, $communityChild->name);
+            }
+        }
+
         $orderBy                 = $this->getOrderStringSql();
         $query->orderBy($orderBy);
         foreach ($query->all() as $comunity) {
@@ -450,6 +474,8 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         $communities        = $query
                 ->andWhere(['IS', 'parent_id', null])->all();
         $orderedCommunities = [];
+
+        $communities = ArrayHelper::merge($communities, $parentToInclude);
         /** @var  $communityFather Community */
         foreach ($communities as $communityFather) {
             if (in_array($communityFather->id, $availableCommunitiesIds)) {
@@ -503,5 +529,74 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         }
         $orderBy = $orderAttribute.' '.$orderType;
         return $orderBy;
+    }
+
+    /**
+     * 
+     * @param type $params
+     * @param type $limit
+     * @return type
+     */
+    public function cmsSearchByIds($params, $limit = null)
+    {
+
+        if (\Yii::$app->user->isGuest) {
+            $dataProvider = $this->search($params, 'all', $limit, false);
+            $paramSearch  = $params['conditionSearch'];
+            if (is_string($paramSearch)) {
+                $paramSearch = explode(',', $paramSearch);
+            }
+            $orderBy = new \yii\db\Expression("field(id,{$params['conditionSearch']})");
+            $dataProvider->query->andWhere(['in', 'community.id', $paramSearch])->orderBy($orderBy);
+        } else {
+            $dataProvider = $this->search($params, 'own-interest', $limit, true);
+        }
+        return $dataProvider;
+    }
+    
+    
+    /**
+     * 
+     * @param type $params
+     * @param type $limit
+     * @return type
+     */
+    public function cmsSearchOwnInterest($params, $limit = null)
+    {
+        if (\Yii::$app->user->isGuest) {
+            $dataProvider = $this->search($params, 'all', $limit, false);
+            $orderBy = ['community.created_at' => SORT_DESC];
+            $dataProvider->query->andWhere(['community.community_type_id' => CommunityType::COMMUNITY_TYPE_OPEN])
+                    ->andWhere(['community.status' => Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED])
+                    ->orderBy($orderBy);
+        } else {
+            $dataProvider = $this->search($params, 'own-interest', $limit, true);
+        }
+
+        if (!empty($params["withPagination"])) {
+            $dataProvider->setPagination(['pageSize' => $limit]);
+            $dataProvider->query->limit(null);
+        } else {
+            $dataProvider->query->limit($limit);
+        }
+
+        return $dataProvider;
+    }
+
+    /**
+     * 
+     * @param type $params
+     * @param type $limit
+     * @return type
+     */
+    public function cmsSearchHome($params, $limit = null)
+    {
+
+        if (\Yii::$app->user->isGuest) {
+            $dataProvider = $this->search($params, 'all', $limit, false);
+        } else {
+            $dataProvider = $this->search($params, 'own-interest', $limit, true);
+        }
+        return $dataProvider;
     }
 }

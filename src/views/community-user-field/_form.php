@@ -45,7 +45,8 @@ use open20\amos\community\AmosCommunity;
     <?php // $form->errorSummary($model, ['class' => 'alert-danger alert fade in']); ?>
 
     <div class="row">
-        <div class="col-xs-12"><h2 class="subtitle-form">Settings</h2>
+        <div class="col-xs-12">
+            <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_contents_title'), ['class' => 'subtitle-form']) ?>
             <div class="col-md-8 col xs-12">
                 <?php if(!empty($model->community_id)) { ?>
                         <p><strong><?= AmosCommunity::t('amoscommunity', 'Community') ?></strong>: <?= $community->name?></p>

@@ -468,28 +468,39 @@ COMMUNITY PUBLISHED CONTENTS WIDGET
 show contents count in community view
  */
 .community-content-count-section {
-  border-bottom: 2px solid @brand-primary-color;
   padding: @padding-large @padding-large 35px @padding-large;
   margin-bottom: @margin-large;
   display: inline-flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-start;
   text-align: center;
   flex-wrap: wrap;
 
   .content-widget-item {
     .flexbox;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-start;
+    
+    @media(min-width:768px){
+      width: 50%;
+    }
+    @media(min-width:992px){
+      width: 25%;
+    }
 
     .dash,
     .am,
     .ic {
-      font-size: 3em;
+      font-size: 2em;
+      border: 1px solid @black-color;
+      padding: @padding-medium;
     }
 
     .counter {
       font-weight: bold;
-      margin: @margin-default 0;
+      margin: @margin-default;
       font-size: 2em;
     }
 
@@ -907,29 +918,29 @@ show contents count in community view
       div[data-code] {
         position: relative;
 
-        &:nth-child(1) {
-          background-color: @widget-background-color-default;
-        }
+        // &:nth-child(1) {
+        //   background-color: @widget-background-color-default;
+        // }
 
-        &:nth-child(2) {
-          background-color: darken(@widget-background-color-default, 10%);
-        }
+        // &:nth-child(2) {
+        //   background-color: darken(@widget-background-color-default, 10%);
+        // }
 
-        &:nth-child(3) {
-          background-color: darken(@widget-background-color-default, 20%);
-        }
+        // &:nth-child(3) {
+        //   background-color: darken(@widget-background-color-default, 20%);
+        // }
 
-        &:nth-child(4) {
-          background-color: darken(@widget-background-color-default, 30%);
-        }
+        // &:nth-child(4) {
+        //   background-color: darken(@widget-background-color-default, 30%);
+        // }
 
-        &:nth-child(5) {
-          background-color: darken(@widget-background-color-default, 40%);
-        }
+        // &:nth-child(5) {
+        //   background-color: darken(@widget-background-color-default, 40%);
+        // }
 
-        &:nth-child(6) {
-          background-color: darken(@widget-background-color-default, 50%);
-        }
+        // &:nth-child(6) {
+        //   background-color: darken(@widget-background-color-default, 50%);
+        // }
 
         &:nth-child(odd) {
           .box-widget-header {
@@ -1006,7 +1017,7 @@ show contents count in community view
           }
 
           section {
-            background-color: #f6f6f6;
+            //background-color: #f6f6f6;
 
             .wrap-item-box:after {
               border-color: #d6d6d6;

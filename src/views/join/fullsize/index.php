@@ -25,10 +25,16 @@ $this->params['checkedByDefault'] = false;
 //if (!is_null($model->parent_id)) {
 //    $this->title = AmosCommunity::t('amoscommunity', '#welcome_to_subcommunity');
 //}
+
+$module = AmosCommunity::instance();
 ?>
 <div class="actions-dashboard-container community-dashboard-container">
+    <?php 
+        if( !$module->showIconsPluginOnlyAdmin || ($module->showIconsPluginOnlyAdmin && (Yii::$app->user->can('ADMIN') || CommunityUtil::isManagerUser($model,'id')))){
+
+    ?>
     <nav>
-        <div class="container-custom">
+        <div class="container nop">
             <div class="wrap-plugins row">
                 <div id="widgets-icon" class="widgets-icon col-xs-12" role="menu">
                     <?php if ($model->hide_participants == 0 && $model->showParticipantWidget()) { ?>
@@ -63,8 +69,7 @@ $this->params['checkedByDefault'] = false;
                                     <div class="square-content item-widget plugin-partecipants">
                                         <a class="dashboard-menu-item" href="<?= $urlDisplayParticipantsMm ?>"
                                            title=<?= AmosCommunity::t('amoscommunity', "#platform_user_list") ?> role="menuitem"
-                                           class="sortableOpt1">
-                                            <span class="badge"></span>
+                                           class="sortableOpt1">                                            
                                             <span class="">
                                                 <?=
                                                 AmosIcons::show('user', [], AmosIcons::IC)
@@ -106,7 +111,9 @@ $this->params['checkedByDefault'] = false;
             </div>
         </div>
     </nav>
-
+    <?php
+        }
+    ?>
     <?php
     echo \open20\amos\dashboard\widgets\SubDashboardFullsizeWidget::widget([
         'model' => $model,

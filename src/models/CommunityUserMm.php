@@ -41,5 +41,5 @@ class CommunityUserMm extends \open20\amos\community\models\base\CommunityUserMm
         $emailArray = $queryManagers->column();
         return $emailArray;
     }
-
+    
 }

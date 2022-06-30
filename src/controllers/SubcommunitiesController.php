@@ -14,8 +14,12 @@ namespace open20\amos\community\controllers;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
 use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\community\widgets\icons\WidgetIconAdminAllCommunity;
+use open20\amos\community\widgets\icons\WidgetIconToValidateCommunities;
 use Yii;
 use yii\helpers\Url;
+use open20\amos\core\helpers\Html;
+
 
 /**
  * Class SubcommunitiesController
@@ -31,7 +35,7 @@ class SubcommunitiesController extends CommunityController
         parent::init();
         $this->setModelSearch(new CommunitySearch(['subcommunityMode' => true]));
     }
-    
+
     /**
      * Base operations in order to render different list views
      * @return string
@@ -48,7 +52,7 @@ class SubcommunitiesController extends CommunityController
                 $parentId = $scope['community'];
             }
         }
-        if(is_null($parentId)){
+        if (is_null($parentId)) {
             $parentId = Yii::$app->request->getQueryParam('id');
         }
         $parent = Community::findOne($parentId);
@@ -59,11 +63,25 @@ class SubcommunitiesController extends CommunityController
             $urlCreation = ['/community/community/create', 'parentId' => $parentId];
         }
         Yii::$app->view->params['createNewBtnParams'] = [
-            'createNewBtnLabel' => AmosCommunity::tHtml('amoscommunity', '#btn_new_subcommunity'),
+            'createNewBtnLabel' => AmosCommunity::tHtml('amoscommunity', 'Nuova'),
             'urlCreateNew' => $urlCreation
         ];
-        if(!$can) {
+        // Yii::$app->view->params['titleSection'] = AmosCommunity::tHtml('amoscommunity', 'Sottocommunity');
+        // Yii::$app->view->params['urlLinkAll'] = '';
+        // Yii::$app->view->params['subTitleSection'] = Html::tag(
+        //     'p',
+        //     AmosCommunity::t(
+        //         'amoscommunity',
+        //         '#here_you_can_find_the',
+        //         ['parent_community' => $parent->name]
+        //     )
+        // );
+
+        if (!$can) {
             Yii::$app->view->params['createNewBtnParams']['checkPermWithNewMethod'] = true;
+            Yii::$app->view->params['canCreate'] = false;
+            Yii::$app->view->params['titleScopePreventCreate'] = AmosCommunity::t('amoscommunity', "Non hai il permesso per creare sottocommunity");
+
         }
         Yii::$app->session->set(AmosCommunity::beginCreateNewSessionKey(), Url::previous());
         $this->setUpLayout('list');
@@ -79,7 +97,7 @@ class SubcommunitiesController extends CommunityController
             'parametro' => ($this->parametro) ? $this->parametro : null
         ]);
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -102,4 +120,51 @@ class SubcommunitiesController extends CommunityController
             ['label' => $translatedTitle],
         ];
     }
+
+    /**
+     *
+     * @return array
+     */
+    public static function getManageLinks()
+    {
+
+        if (get_class(Yii::$app->controller) != 'open20\amos\community\controllers\CommunityController') {
+            $links[] = [
+                'title' => AmosCommunity::t('amoscommunity', 'Visualizza tutte le community'),
+                'label' => AmosCommunity::t('amoscommunity', 'Tutte'),
+                'url' => '/community/subcommunities/index'
+            ];
+        }
+
+        $links[] = [
+            'title' => AmosCommunity::t('amoscommunity', 'Visualizza le community create da me'),
+            'label' => AmosCommunity::t('amoscommunity', 'Create da me'),
+            'url' => '/community/subcommunities/created-by-communities'
+        ];
+
+        $links[] = [
+            'title' => AmosCommunity::t('amoscommunity', 'Le mie community'),
+            'label' => AmosCommunity::t('amoscommunity', 'Le mie community'),
+            'url' => '/community/subcommunities/my-communities'
+        ];
+
+        if (\Yii::$app->user->can(WidgetIconToValidateCommunities::class)) {
+            $links[] = [
+                'title' => AmosCommunity::t('amoscommunity', 'Visualizza community da validare'),
+                'label' => AmosCommunity::t('amoscommunity', 'Da validare'),
+                'url' => '/community/subcommunities/to-validate-communities'
+            ];
+        }
+
+        if (\Yii::$app->user->can(WidgetIconAdminAllCommunity::class)) {
+            $links[] = [
+                'title' => AmosCommunity::t('amoscommunity', 'Amministra tutte le community'),
+                'label' => AmosCommunity::t('amoscommunity', 'Amministra'),
+                'url' => '/community/subcommunities/admin-all-communities'
+            ];
+        }
+
+        return $links;
+    }
+
 }

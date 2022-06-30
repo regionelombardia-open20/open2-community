@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -45,18 +44,20 @@ class CommunityUserMm extends Record
     /**
      * constants for role and status of community members
      */
-    const ROLE_COMMUNITY_MANAGER = 'COMMUNITY_MANAGER';
-    const ROLE_PARTICIPANT = 'PARTICIPANT';
-    const ROLE_READER = 'READER';
-    const ROLE_AUTHOR = 'AUTHOR';
-    const ROLE_EDITOR = 'EDITOR';
-    const STATUS_ACTIVE = 'ACTIVE';
-    const STATUS_REJECTED = 'REJECTED';
+    const ROLE_COMMUNITY_MANAGER              = 'COMMUNITY_MANAGER';
+    const ROLE_PARTICIPANT                    = 'PARTICIPANT';
+    const ROLE_READER                         = 'READER';
+    const ROLE_AUTHOR                         = 'AUTHOR';
+    const ROLE_EDITOR                         = 'EDITOR';
+    const ROLE_GUEST                          = 'GUEST';
+    const STATUS_GUEST                        = 'GUEST';
+    const STATUS_ACTIVE                       = 'ACTIVE';
+    const STATUS_REJECTED                     = 'REJECTED';
     const STATUS_WAITING_OK_COMMUNITY_MANAGER = 'REQUEST_SENT';
-    const STATUS_WAITING_OK_USER = 'INVITED';
-    const STATUS_INVITE_IN_PROGRESS = 'INVITING';
-    const STATUS_MANAGER_TO_CONFIRM = 'MANAGER_TO_CONFIRM';
-    
+    const STATUS_WAITING_OK_USER              = 'INVITED';
+    const STATUS_INVITE_IN_PROGRESS           = 'INVITING';
+    const STATUS_MANAGER_TO_CONFIRM           = 'MANAGER_TO_CONFIRM';
+
     /**
      * @inheritdoc
      */
@@ -64,7 +65,7 @@ class CommunityUserMm extends Record
     {
         return 'community_user_mm';
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -75,12 +76,15 @@ class CommunityUserMm extends Record
             [['community_id', 'user_id', 'invitation_partner_of', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [['status', 'role'], 'string'],
             [['created_at', 'updated_at', 'deleted_at', 'invited_at', 'invitation_accepted_at'], 'safe'],
-            [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\community\models\Community::className(), 'targetAttribute' => ['community_id' => 'id']],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\core\user\User::className(), 'targetAttribute' => ['user_id' => 'id']],
-            [['invitation_partner_of'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\core\user\User::className(), 'targetAttribute' => ['invitation_partner_of' => 'id']],
+            [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\community\models\Community::className(),
+                'targetAttribute' => ['community_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\core\user\User::className(),
+                'targetAttribute' => ['user_id' => 'id']],
+            [['invitation_partner_of'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\core\user\User::className(),
+                'targetAttribute' => ['invitation_partner_of' => 'id']],
         ];
-    }
-    
+    } 
+
     /**
      * @inheritdoc
      */
@@ -103,7 +107,7 @@ class CommunityUserMm extends Record
             'deleted_by' => AmosCommunity::t('amoscommunity', 'Deleted by'),
         ];
     }
-    
+
     /**
      * Return all states
      * @return array States of the community user
@@ -111,6 +115,7 @@ class CommunityUserMm extends Record
     public static function getUserStates()
     {
         return [
+            self::STATUS_GUEST,
             self::STATUS_ACTIVE,
             self::STATUS_REJECTED,
             self::STATUS_WAITING_OK_COMMUNITY_MANAGER,
@@ -119,7 +124,7 @@ class CommunityUserMm extends Record
             self::STATUS_MANAGER_TO_CONFIRM
         ];
     }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -127,7 +132,7 @@ class CommunityUserMm extends Record
     {
         return $this->hasOne(\open20\amos\community\models\Community::className(), ['id' => 'community_id']);
     }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -135,7 +140,7 @@ class CommunityUserMm extends Record
     {
         return $this->hasOne(\open20\amos\core\user\User::className(), ['id' => 'user_id']);
     }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */

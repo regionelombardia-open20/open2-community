@@ -73,64 +73,58 @@ $isLoggedUserParticipant = $model->isNetworkUser();
 
 <div class="community-view">
 
-    <?php if (Yii::$app->user->can('ADMIN') && Yii::$app->getModule('community') && Yii::$app->getModule('community')->enableUserJoinedReportDownload) { ?>
-        <div class="community-description">
-            <div class="container-custom">
-                <div class="community-download-report col-xs-12 nop text-right">
-                    <?= Html::a(AmosIcons::show('download') . ' ' . AmosCommunity::t('amoscommunity', '#download_user_joined_report'), ['user-joined-report-download', 'communityId' => $model->id], ['class' => 'btn btn-primary']); ?>
+    <div class="container">
+        <?php if (Yii::$app->user->can('ADMIN') && Yii::$app->getModule('community') && Yii::$app->getModule('community')->enableUserJoinedReportDownload) { ?>
+            <div class="community-description">
+                <div class="container-custom">
+                    <div class="community-download-report col-xs-12 nop text-right">
+                        <?= Html::a(AmosIcons::show('download') . ' ' . AmosCommunity::t('amoscommunity', '#download_user_joined_report'), ['user-joined-report-download', 'communityId' => $model->id], ['class' => 'btn btn-primary']); ?>
+                    </div>
                 </div>
             </div>
-        </div>
-    <?php } ?>
- 
+        <?php } ?>
 
-    <div id="bk-pluginGrafici" class="sub-dashboard-graphics wrap-graphic-widget">
-        <div id="widgets-graphic" class="community-view-content">
-
-            <div class="box-widget box-widget-column">
-                <section class="col-xs-12">
-                    <h2 class="title-text"><?= AmosCommunity::t('amoscommunity', '#view_title_plugins') ?></h2>
-
-                    <div class="col-xs-12 community-content-count-section">
-                        <?php
-                        if (!empty($modelsEnabled)) :
-                            foreach ($modelsEnabled as $modelEnabled) :
-                                // Exclusion difined in configuration array
-                                if (!in_array($modelEnabled, $hideContentsModels)) : ?>
-                                    <?php
-                                    try {
-                                        echo CommunityPublishedContentsWidget::widget([
-                                            'modelContent' => $modelEnabled,
-                                            'modelCommunity' => $model
-                                        ]);
-                                    } catch (Exception $e) {
-                                        Yii::getLogger()->log($e->getMessage(), Logger::LEVEL_ERROR);
-                                    }
-                                    ?>
-                            <?php
-                                endif;
-                            endforeach;
-                            ?>
-                            <div class="content-widget-item">
-                                <?= AmosIcons::show('user', [], AmosIcons::IC) ?>
-                                <span class="counter">
-                                    <?= $model->getCommunityUsers()->count() ?>
-                                </span>
-                                <span class="model-label">
-                                    <?= AmosCommunity::t('amoscommunity', 'Participants') ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </section>
+        <section class="row">
+            <div class="col-xs-12">
+                <h4 class="title-text"><?= AmosCommunity::t('amoscommunity', '#view_title_plugins') ?></h4>
             </div>
 
-            <div class="box-widget box-widget-column">
+            <div class="col-xs-12 community-content-count-section">
+                <div class="content-widget-item">
+                    <?= AmosIcons::show('user', [], AmosIcons::IC) ?>
+                    <span class="counter">
+                        <?= $model->getCommunityUsers()->count() ?>
+                    </span>
+                    <span class="model-label">
+                        <?= AmosCommunity::t('amoscommunity', 'Participants') ?>
+                    </span>
+                </div>
+                <?php if (!empty($modelsEnabled)) : ?>
+                    <?php foreach ($modelsEnabled as $modelEnabled) : ?>
+                        <?php if (!in_array($modelEnabled, $hideContentsModels)) : ?>
+                            <?php
+                            // Exclusion difined in configuration array
+                            try {
+                                echo CommunityPublishedContentsWidget::widget([
+                                    'modelContent' => $modelEnabled,
+                                    'modelCommunity' => $model
+                                ]);
+                            } catch (Exception $e) {
+                                Yii::getLogger()->log($e->getMessage(), Logger::LEVEL_ERROR);
+                            }
+                            ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <!-- <div class="box-widget box-widget-column">
                 <section class="col-xs-12">
-                    <?php if (!empty(\Yii::$app->getModule('tag'))) { ?>
+                    < ?php if (!empty(\Yii::$app->getModule('tag'))) { ?>
                         <div class="new-graphic community-tags" id="section-tags">
-                            <h2 class="title-text"><?= AmosCommunity::t('amoscommunity', '#view_title_tags') ?></h2>
-                            <?= ListTagsWidget::widget([
+                            <h2 class="title-text">< ?= AmosCommunity::t('amoscommunity', '#view_title_tags') ?></h2>
+                            < ?= ListTagsWidget::widget([
                                 'userProfile' => $model->id,
                                 'className' => $model->className(),
                                 'viewFilesCounter' => true,
@@ -138,12 +132,8 @@ $isLoggedUserParticipant = $model->isNetworkUser();
                                 'layout' => '@vendor/open20/amos-core/forms/views/widgets/widget_list_tags_fullsize.php',
                             ]); ?>
                         </div>
-                    <?php } ?>
+                    < ?php } ?>
                 </section>
-                </section>
-            </div>
-
-        </div>
+            </div> -->
     </div>
-
 </div>

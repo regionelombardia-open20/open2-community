@@ -34,7 +34,7 @@ class ReadCommunityRule extends \open20\amos\core\rules\BasicContentRule
         /** @var Community $model */
         if($model->community_type_id == CommunityType::COMMUNITY_TYPE_OPEN || $model->community_type_id == CommunityType::COMMUNITY_TYPE_PRIVATE){
             return true;
-        } elseif($model->community_type_id == CommunityType::COMMUNITY_TYPE_CLOSED){
+        } else if($model->community_type_id == CommunityType::COMMUNITY_TYPE_CLOSED){
             $communityUserMm = CommunityUserMm::find()->andWhere(['community_id' => $model->id])->andWhere(['user_id' => $user])->one();
             if(!empty($communityUserMm)) {
                 return true;

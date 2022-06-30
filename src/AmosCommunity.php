@@ -31,6 +31,7 @@ use open20\amos\core\module\ModuleInterface;
 use open20\amos\core\record\Record;
 use open20\amos\core\user\User;
 use yii\db\ActiveQuery;
+use yii\helpers\ArrayHelper;
 use yii\log\Logger;
 
 /**
@@ -75,6 +76,13 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
     public $bypassWorkflow = false;
     
     /**
+     * This param enables the search by tags
+     * @var bool $searchByTags
+     */
+    
+    public $searchByTags = false;
+    
+    /**
      * @var bool|true $enableWizard - if wizard for community creation is enabled
      */
     public $enableWizard = false;
@@ -110,6 +118,7 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      */
     public $disableCommunityAssociationUserProfile = false;
     
+
     /**
      * @var array $communityRequiredFields - mandatory fields in community form
      */
@@ -164,6 +173,11 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      * @var bool $forceDefaultViewType
      */
     public $forceDefaultViewType = false;
+
+    /**
+     * @var bool $enableOpenJoin
+     */
+    public $enableOpenJoin = false;
     
     /**
      * @var bool $enableUserJoinedReportDownload Enable to display the "download user joined report" button
@@ -214,6 +228,22 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
 
     public $enableAutoLinkLanding = false;
 
+    /**
+     * Time interval (in seconds) to update the Widget content
+     * @var integer $refreshWidgetGraphicsComments
+     */
+    public $refreshWidgetGraphicsComments = 30;
+
+    /**
+     * Number of comments to show
+     * @var integer $numberToViewWidgetGraphicsComments
+     */
+    public $numberToViewWidgetGraphicsComments = 5;
+    
+    
+    public $showIconsPluginOnlyAdmin = false;
+    
+
     public $disableEmailCommunityDeleted = false;
 
     /**
@@ -232,7 +262,10 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
         parent::init();
         \Yii::setAlias('@open20/amos/' . static::getModuleName() . '/controllers', __DIR__ . '/controllers/');
         // initialize the module with the configuration loaded from config.php
-        \Yii::configure($this, require(__DIR__ . DIRECTORY_SEPARATOR . self::$CONFIG_FOLDER . DIRECTORY_SEPARATOR . 'config.php'));
+        //\Yii::configure($this, require(__DIR__ . DIRECTORY_SEPARATOR . self::$CONFIG_FOLDER . DIRECTORY_SEPARATOR . 'config.php'));
+        $config = require(__DIR__.DIRECTORY_SEPARATOR.self::$CONFIG_FOLDER.DIRECTORY_SEPARATOR.'config.php');
+        \Yii::configure($this, ArrayHelper::merge($config, $this));
+        
         $this->autoCommunityManagerRoles = array_unique($this->autoCommunityManagerRoles);
         if (empty($this->communityContextsToSearch)) {
             $this->communityContextsToSearch = [$this->model('Community')];
@@ -366,6 +399,10 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
                 $ok = $userCommunityMm->save(false);
                 $community = Community::findOne($idCommunity);
                 $community->setCwhAuthAssignments($userCommunityMm);
+            } else if($searchUser->role == CommunityUserMm::ROLE_GUEST){
+                $searchUser->role = $userRole;
+                $searchUser->status = $userStatus;
+                $ok = $searchUser->save(false);
             }
         } catch (\Exception $exception) {
             \Yii::getLogger()->log($exception->getMessage(), Logger::LEVEL_ERROR);
@@ -388,10 +425,14 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
         $community = Community::findOne($communityId);
         if ($community) {
             $communityUserMmRow = CommunityUserMm::findOne(['community_id' => $communityId, 'user_id' => $userId]);
-            //remove all cwh permissions for domain = community
-            $community->setCwhAuthAssignments($communityUserMmRow, true);
-            $communityUserMmRow->delete();
-            return true;
+            if (!empty($communityUserMmRow)){
+                //remove all cwh permissions for domain = community
+                $community->setCwhAuthAssignments($communityUserMmRow, true);
+                $communityUserMmRow->delete();
+                return true;
+            } else {
+                return false;
+            }
         }
         return false;
     }
@@ -507,7 +548,7 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
         return 'groups';
     }
     
-    /* 
+    /*
      * CmsModuleInterface
      */
 
@@ -535,5 +576,22 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
             CommunityUserMm::STATUS_ACTIVE,
             CommunityUserMm::ROLE_PARTICIPANT,
             $userId);
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getFrontEndMenu($dept = 1)
+    {
+        $menu = parent::getFrontEndMenu($dept);
+        $app  = \Yii::$app;
+        if (\open20\amos\core\utilities\CurrentUser::isPlatformGuest()) {
+            $menu .= $this->addFrontEndMenu(AmosCommunity::t('amoscommunity','#menu_front_community'), AmosCommunity::toUrlModule('/community/index'));
+        }else{
+            //$menu .= $this->addFrontEndMenu(AmosCommunity::t('amoscommunity','#menu_front_community'), AmosCommunity::toUrlModule('/community/my-communities'));
+            $menu .= $this->addFrontEndMenu(AmosCommunity::t('amoscommunity','#menu_front_community'), AmosCommunity::toUrlModule('/community/index'));
+        }
+        return $menu;
     }
 }

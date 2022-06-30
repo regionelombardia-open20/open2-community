@@ -142,17 +142,18 @@ $form = ActiveForm::begin([
     'viewWidgetOnNewRecord' => false
 ]); ?>
 
-<div class="community-form col-xs-12 nop">
+<div class="community-form">
+    
     <div class="row">
-        <div class="col-xs-12">
-            <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_general_title') .
+
+        <div class="col-sm-8 section-form">
+            <?= Html::tag('h2', AmosCommunity::t('amoscommunity', 'Informazioni di base') .
                 CreatedUpdatedWidget::widget(['model' => $model, 'isTooltip' => true]) .
                 ReportFlagWidget::widget([
                     'model' => $model,
                 ]), ['class' => 'subtitle-form']) ?>
-        </div>
-        <div class="col-md-8 col-xs-12">
-            <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => AmosCommunity::t('amoscommunity', '#title_field_plceholder')])->hint(AmosCommunity::t('amoscommunity', '#title_field_hint')) ?>
+
+            <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => AmosCommunity::t('amoscommunity', '#title_field_plceholder')])->label(AmosCommunity::t('amoscommunity', '#community_name'))->hint(AmosCommunity::t('amoscommunity', '#title_field_hint')) ?>
             <?= $form->field($model, 'description')->widget(TextEditorWidget::className(), [
                 'options' => [
                     'id' => 'description' . $model->id,
@@ -164,117 +165,80 @@ $form = ActiveForm::begin([
                 ],
             ])->label($model->getAttributeLabel('description'), ['for' => 'description' . $model->id]);
             ?>
-            <?php if (!$fixedCommunityType || ($showSubcommunityField && $showSubcommunities)): ?>
-                <div class="col-md-6 col-xs-12">
-                    <?php if (!$fixedCommunityType): ?>
-                        <?= $form->field($model, 'community_type_id')->widget(Select2::className(), [
-                            'data' => CommunityUtil::getCommunityTypeReadyForSelect(),
-                            'language' => substr(Yii::$app->language, 0, 2),
-                            'options' => ['multiple' => false,
-                                'id' => 'communityType' . $model->id,
-                                'placeholder' => AmosCommunity::t('amoscommunity', 'Select') . '...',
-                                'class' => 'dynamicCreation',
-                                'data-model' => 'community-type',
-                                'data-field' => 'id',
-                                'data-module' => 'community',
-                                'data-entity' => 'community-type',
-                                'data-toggle' => 'tooltip',
-                                'disabled' => (!$model->isNewRecord) && ($model->community_type_id != null)
-                            ],
-                            'pluginOptions' => [
-                                'allowClear' => $model->isNewRecord
-                            ],
-                            'pluginEvents' => [
-                                "select2:open" => "dynamicInsertOpening"
-                            ]
-                        ])->label($model->getAttributeLabel('communityType'), ['for' => 'communityType' . $model->id]) ?>
-                    <?php endif; ?>
-                </div>
-                <div class="col-md-6 col-xs-12">
-                    <?php if ($showSubcommunityField && $showSubcommunities): ?>
-                        <?php if (!empty($model->parent_id)) {
-                            $communityParent = Community::findOne($model->parent_id); ?>
-                            <?= $form->field($model, 'parent_id')->hiddenInput()->label(false); ?>
-                            <p>
-                                <strong><?= AmosCommunity::t('amoscommunity', "#parent_id_form_label") ?>
-                                    : </strong><?= $communityParent->name ?>
-                            </p>
-                        <?php } else { ?>
-                            <?= $form->field($model, 'parent_id')->widget(Select2::className(), [
-                                'data' => $communities,
+            <?php if (!$fixedCommunityType || ($showSubcommunityField && $showSubcommunities)) : ?>
+                <div class="row">
+
+                    <div class="col-md-5">
+                        <?php if (!$fixedCommunityType) : ?>
+                            <?= $form->field($model, 'community_type_id')->widget(Select2::className(), [
+                                'data' => CommunityUtil::getCommunityTypeReadyForSelect(),
+                                'language' => substr(Yii::$app->language, 0, 2),
                                 'options' => [
                                     'multiple' => false,
-                                    'id' => 'parent_id',
+                                    'id' => 'communityType' . $model->id,
                                     'placeholder' => AmosCommunity::t('amoscommunity', 'Select') . '...',
                                     'class' => 'dynamicCreation',
+                                    'data-model' => 'community-type',
                                     'data-field' => 'id',
-                                    'disabled' => !$model->isNewRecord
+                                    'data-module' => 'community',
+                                    'data-entity' => 'community-type',
+                                    'data-toggle' => 'tooltip'
+                                  //  'disabled' => (!$model->isNewRecord) && ($model->community_type_id != null)
                                 ],
                                 'pluginOptions' => [
-                                    'allowClear' => $model->isNewRecord && Yii::$app->user->can('COMMUNITY_CREATOR')
+                                    'allowClear' => $model->isNewRecord
                                 ],
-                            ])->label(AmosCommunity::t('amoscommunity', "#parent_id_form_label")) ?>
-                        <?php } ?>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-    
-            <?php if ($moduleCommunity->forceWorkflowSingleCommunity) : ?>
-                <div class="col-xs-12">
-                    <?php
-                    if ($model->isNewRecord) {
-                        $model->force_workflow = 1;
-                    }
-                    echo Html::tag('div',
-                        $form->field($model, 'force_workflow')->inline()->radioList(
-                            [
-                                '1' => AmosCommunity::t('amoscommunity', '#force_ok'),
-                                '0' => AmosCommunity::t('amoscommunity', '#force_ko')
-                            ], ['class' => 'comment-choice'])->label(AmosCommunity::t('amoscommunity', '#force_workflow')
-                            , ['class' => 'col-md-8 col-xs-12']));
-                    ?>
-
-                </div>
-            <?php endif; ?>
-
-            <?php
-
-            $showReceiverSection = false;
-
-            $moduleCwh = \Yii::$app->getModule('cwh');
-            isset($moduleCwh) ? $showReceiverSection = true : null;
-
-            $moduleTag = \Yii::$app->getModule('tag');
-            isset($moduleTag) ? $showReceiverSection = true : null;
-
-            if ($showReceiverSection) : ?>
-                <div class="col-xs-12">
-                    <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_receiver_title'), ['class' => 'subtitle-form']) ?>
-                    <div class="col-xs-12 receiver-section">
-                        <?php
-                        $config = [
-                            'model' => $model
-                        ];
-                        $tmp = new DestinatariPlusTagWidget();
-
-                        if ($tmp->hasProperty('moduleCwh')) {
-                            $config['moduleCwh'] = $moduleCwh;
-                        }
-                        ?>
-                        <?= DestinatariPlusTagWidget::widget($config); ?>
+                                'pluginEvents' => [
+                                    "select2:open" => "dynamicInsertOpening"
+                                ]
+                            ])->label($model->getAttributeLabel('communityType'), ['for' => 'communityType' . $model->id]) ?>
+                        <?php endif; ?>
+                    </div>
+                    <div class="col-md-7">
+                        <?php if ($showSubcommunityField && $showSubcommunities) : ?>
+                            <?php if (!empty($model->parent_id)) {
+                                $communityParent = Community::findOne($model->parent_id); ?>
+                                <?= $form->field($model, 'parent_id')->hiddenInput()->label(false); ?>
+                                <p class="m-b-0">
+                                <strong><?= AmosCommunity::t('amoscommunity', "#parent_id_form_label") ?>: 
+                                </p>
+                                <p class="m-t-0">
+                                    </strong><?= $communityParent->name ?>
+                                </p>
+                            <?php } else { ?>
+                                <?= $form->field($model, 'parent_id')->widget(Select2::className(), [
+                                    'data' => $communities,
+                                    'options' => [
+                                        'multiple' => false,
+                                        'id' => 'parent_id',
+                                        'placeholder' => AmosCommunity::t('amoscommunity', 'Select') . '...',
+                                        'class' => 'dynamicCreation',
+                                        'data-field' => 'id',
+                                        'disabled' => !$model->isNewRecord
+                                    ],
+                                    'pluginOptions' => [
+                                        'allowClear' => $model->isNewRecord && Yii::$app->user->can('COMMUNITY_CREATOR')
+                                    ],
+                                ])->label(AmosCommunity::t('amoscommunity', "#parent_id_form_label")) ?>
+                            <?php } ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endif; ?>
-
         </div>
-        <div class="col-md-4 col-xs-12">
-            <div class="col-xs-12 nop">
+        <div class="col-sm-4 section-form">
+        <h2 class="subtitle-form"><?= AmosCommunity::t('amoscommunity', 'Immagine principale') ?></h2>
+            <div>
                 <?= $form->field($model, 'communityLogo')->widget(CropInput::classname(), [
                     'jcropOptions' => ['aspectRatio' => '1.7']
                 ])->label(AmosCommunity::t('amoscommunity', '#image_field'))->hint(AmosCommunity::t('amoscommunity', '#image_field_hint')) ?>
             </div>
-            <div class="col-xs-12 member-section nop">
-                <div class="col-xs-12">
+
+        </div>                            
+
+        <div class="col-xs-12 section-form">
+            <div class="member-section">
+                <div>
                     <?= CommunityMembersMiniWidget::widget([
                         'model' => $model,
                         'targetUrlParams' => [
@@ -283,172 +247,243 @@ $form = ActiveForm::begin([
                     ]); ?>
                 </div>
             </div>
-            <div class="col-xs-12 subcommunity-section nop">
-                <div class="col-xs-12">
+            <div class="subcommunity-section">
+                <div>
                     <?= SubcommunitiesMiniWidget::widget([
                         'model' => $model,
                         'isUpdate' => true
                     ]); ?>
                 </div>
             </div>
+        </div>
+        <div class="col-xs-12 section-form">
+            <div class="section-modalita-pubblicazione">
+                
+
+                <?php
+
+                $showReceiverSection = false;
+
+                $moduleCwh = \Yii::$app->getModule('cwh');
+                isset($moduleCwh) ? $showReceiverSection = true : null;
+
+                $moduleTag = \Yii::$app->getModule('tag');
+                isset($moduleTag) ? $showReceiverSection = true : null;
+
+                if ($showReceiverSection) : ?>
+                    <div>
+                        <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_receiver_title'), ['class' => 'subtitle-form']) ?>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="content-mod-pubb">
+                                    <?php
+                                    $config = [
+                                        'model' => $model
+                                    ];
+                                    $tmp = new DestinatariPlusTagWidget();
+
+                                    if ($tmp->hasProperty('moduleCwh')) {
+                                        $config['moduleCwh'] = $moduleCwh;
+                                    }
+                                    ?>
+                                    <?= DestinatariPlusTagWidget::widget($config); ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    </div>
+            </div>
 
         </div>
-    </div>
 
-    <?php if($enableConfigureCommunityDashboard) {?>
-    <div class="row">
-        <div class="col-xs-12 community-accordion-plus">
-            <?=
-            AccordionWidget::widget([
-                'items' => [
-                    [
-                        'header' => AmosCommunity::t('amoscommunity', '#settings_optional'),
-                        'content' => \open20\amos\community\widgets\ConfigureDashboardCommunityWidget::widget(['model' => $model]),
+        <?php if ($enableConfigureCommunityDashboard) { ?>
+            <div class="row">
+                <div class="col-xs-12 community-accordion-plus">
+                    <?=
+                    AccordionWidget::widget([
+                        'items' => [
+                            [
+                                'header' => AmosCommunity::t('amoscommunity', '#settings_optional'),
+                                'content' => \open20\amos\community\widgets\ConfigureDashboardCommunityWidget::widget(['model' => $model]),
+                            ]
+                        ],
+                        'headerOptions' => ['tag' => 'h2'],
+                        'clientOptions' => [
+                            'collapsible' => true,
+                            'active' => 'false',
+                            'icons' => [
+                                'header' => 'ui-icon-amos am am-plus-square',
+                                'activeHeader' => 'ui-icon-amos am am-minus-square',
+                            ]
+                        ],
+                    ]);
+                    ?>
+                </div>
+            </div>
+        <?php } ?>
+
+            <?php if ($moduleCommunity->forceWorkflowSingleCommunity) : ?>
+            <div class="col-xs-12">
+                <div>
+                    <?php
+                    if ($model->isNewRecord) {
+                        $model->force_workflow = 1;
+                    }
+                    echo Html::tag(
+                        'div',
+                        $form->field($model, 'force_workflow')->inline()->radioList(
+                            [
+                                '1' => AmosCommunity::t('amoscommunity', '#force_ok'),
+                                '0' => AmosCommunity::t('amoscommunity', '#force_ko')
+                            ],
+                            ['class' => 'comment-choice']
+                        )->label(
+                            AmosCommunity::t('amoscommunity', '#force_workflow'),
+                            ['class' => 'col-md-8 col-xs-12']
+                        )
+                    );
+                    ?>
+
+                </div>
+            </div>
+            <?php endif; ?>
+        
+            <div class="col-xs-12">
+                <?php
+                $moduleSeo = \Yii::$app->getModule('seo');
+                if (isset($moduleSeo)) : ?>
+                    <?= AccordionWidget::widget([
+                        'items' => [
+                            [
+                                'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
+                                'content' => \open20\amos\seo\widgets\SeoWidget::widget([
+                                    'contentModel' => $model,
+                                ]),
+                            ]
+                        ],
+                        'headerOptions' => ['tag' => 'h2'],
+                        'clientOptions' => [
+                            'collapsible' => true,
+                            'active' => 'false',
+                            'icons' => [
+                                'header' => 'ui-icon-amos am am-plus-square',
+                                'activeHeader' => 'ui-icon-amos am am-minus-square',
+                            ]
+                        ],
+                    ]);
+                    ?>
+                <?php endif; ?>
+            </div>
+       
+
+
+        
+            <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>
+            <?= $form->field($model, 'visible_on_edit')->hiddenInput()->label(false) ?>
+        
+        <div class="m-t-20 col-xs-12"><?= RequiredFieldsTipWidget::widget() ?></div>
+
+        <?php
+
+        Modal::begin(['id' => 'visibleOnEditPopup-' . $model->id]);
+        echo Html::tag('div', AmosCommunity::t(
+            'amoscommunity',
+            "Community status will be set to editing in progress. Keep the community visible while editing it?"
+        ));
+        echo Html::tag(
+            'div',
+            Html::submitButton(
+                AmosCommunity::t('amoscommunity', 'Yes'),
+                ['class' => 'btn btn-navigation-primary', 'id' => 'visibleYes']
+            )
+                . Html::submitButton(AmosCommunity::t('amoscommunity', 'No'), ['class' => 'btn btn-secondary', 'id' => 'visibleNot'])
+                . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
+            ['class' => 'pull-right m-15-0']
+        );
+        Modal::end();
+
+        Modal::begin(['id' => 'warningPopup']);
+        echo Html::tag('div', AmosCommunity::t(
+            'amoscommunity',
+            "Attenzione, quando si modifica la descrizione di una community è necessario procedere alla richiesta di validazione.
+                La community non risulterà visibile agli utenti fino a quando non sarà nuovamente validata."
+        ));
+        echo Html::tag(
+            'div',
+            Html::a(AmosCommunity::t('amoscommunity', 'Ok'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary', 'id' => 'ok-warning'])
+                . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
+            ['class' => 'pull-right m-15-0']
+        );
+        Modal::end();
+
+        ?>
+
+        <?php
+        $statusToRender = [
+            Community::COMMUNITY_WORKFLOW_STATUS_DRAFT => AmosCommunity::t('amoscommunity', 'Modifica in corso'),
+        ];
+        if (Yii::$app->user->can('COMMUNITY_VALIDATE', ['model' => $model]) || Yii::$app->user->can('ADMIN')) {
+            $statusToRender = ArrayHelper::merge(
+                $statusToRender,
+                [Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED => AmosCommunity::t('amoscommunity', 'Pubblicata')]
+            );
+            $hideDraftStatuses = false;
+            $hideDraftStatus = [];
+        } else {
+            $statusToRender = ArrayHelper::merge($statusToRender, [
+                Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE => AmosCommunity::t('amoscommunity', 'Richiesta pubblicazione'),
+            ]);
+            $hideDraftStatuses = true;
+            $hideDraftStatus = [];
+        }
+
+        ?>
+        <div class="wrapper-workflow-community">
+            <?= WorkflowTransitionButtonsWidget::widget([
+                // parametri ereditati da verioni precedenti del widget WorkflowTransition
+                'form' => $form,
+                'model' => $model,
+                'workflowId' => Community::COMMUNITY_WORKFLOW,
+                'viewWidgetOnNewRecord' => true,
+
+                'closeButton' => \open20\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
+
+                // fisso lo stato iniziale per generazione pulsanti e comportamenti
+                // "fake" in fase di creazione (il record non e' ancora inserito nel db)
+                'initialStatusName' => explode('/', $model->getWorkflowSource()->getWorkflow(Community::COMMUNITY_WORKFLOW)->getInitialStatusId())[1],
+                'initialStatus' => $model->getWorkflowSource()->getWorkflow(Community::COMMUNITY_WORKFLOW)->getInitialStatusId(),
+                // Stati da renderizzare obbligatoriamente in fase di creazione (quando il record non e' ancora inserito nel db)
+                'statusToRender' => $statusToRender,
+
+                'hideSaveDraftStatus' => $hideDraftStatus,
+
+                'draftButtons' => [
+                    Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE => [
+                        'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva'), ['class' => 'btn btn-workflow']),
+                        'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni la community in "richiesta di pubblicazione"'),
+                    ],
+                    Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED => [
+                        'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva'), [
+                            'class' => 'btn btn-workflow',
+                            //                    'id' => 'saveBtn',
+                            //                    'data-target' => (!$bypassWorkflow && ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) && !$model->isNewRecord ? '#visibleOnEditPopup-' . $model->id : ''),
+                            //                    'data-toggle' => 'modal'
+                        ]),
+                        'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni la community "pubblicata"'),
+                    ],
+                    'default' => [
+                        'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva in bozza'), [
+                            'class' => 'btn btn-workflow',
+                        ]),
+                        'description' => AmosCommunity::t('amoscommunity', 'potrai richiedere la pubblicazione in seguito'),
                     ]
-                ],
-                'headerOptions' => ['tag' => 'h2'],
-                'clientOptions' => [
-                    'collapsible' => true,
-                    'active' => 'false',
-                    'icons' => [
-                        'header' => 'ui-icon-amos am am-plus-square',
-                        'activeHeader' => 'ui-icon-amos am am-minus-square',
-                    ]
-                ],
+                ]
             ]);
             ?>
         </div>
+
     </div>
-    <?php }?>
-
-
-    <div class="row">
-        <div class="col-xs-12">
-            <?php
-            $moduleSeo = \Yii::$app->getModule('seo');
-            if (isset($moduleSeo)) : ?>
-                <?= AccordionWidget::widget([
-                    'items' => [
-                        [
-                            'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
-                            'content' => \open20\amos\seo\widgets\SeoWidget::widget([
-                                'contentModel' => $model,
-                            ]),
-                        ]
-                    ],
-                    'headerOptions' => ['tag' => 'h2'],
-                    'clientOptions' => [
-                        'collapsible' => true,
-                        'active' => 'false',
-                        'icons' => [
-                            'header' => 'ui-icon-amos am am-plus-square',
-                            'activeHeader' => 'ui-icon-amos am am-minus-square',
-                        ]
-                    ],
-                ]);
-                ?>
-            <?php endif; ?>
-        </div>
-    </div>
-
-
-    <div class="row hidden">
-        <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>
-        <?= $form->field($model, 'visible_on_edit')->hiddenInput()->label(false) ?>
-    </div>
-    <div class="col-xs-12 m-t-20 nop"><?= RequiredFieldsTipWidget::widget() ?></div>
 
     <?php
-
-    Modal::begin(['id' => 'visibleOnEditPopup-' . $model->id]);
-    echo Html::tag('div', AmosCommunity::t('amoscommunity',
-        "Community status will be set to editing in progress. Keep the community visible while editing it?"));
-    echo Html::tag('div',
-        Html::submitButton(AmosCommunity::t('amoscommunity', 'Yes'),
-            ['class' => 'btn btn-navigation-primary', 'id' => 'visibleYes'])
-        . Html::submitButton(AmosCommunity::t('amoscommunity', 'No'), ['class' => 'btn btn-secondary', 'id' => 'visibleNot'])
-        . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
-        ['class' => 'pull-right m-15-0']
-    );
-    Modal::end();
-
-    Modal::begin(['id' => 'warningPopup']);
-    echo Html::tag('div', AmosCommunity::t('amoscommunity',
-        "Attenzione, quando si modifica la descrizione di una community è necessario procedere alla richiesta di validazione.
-                La community non risulterà visibile agli utenti fino a quando non sarà nuovamente validata."));
-    echo Html::tag('div',
-        Html::a(AmosCommunity::t('amoscommunity', 'Ok'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary', 'id' => 'ok-warning'])
-        . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
-        ['class' => 'pull-right m-15-0']
-    );
-    Modal::end();
-
+    ActiveForm::end();
     ?>
-
-    <?php
-    $statusToRender = [
-        Community::COMMUNITY_WORKFLOW_STATUS_DRAFT => AmosCommunity::t('amoscommunity', 'Modifica in corso'),
-    ];
-    if (Yii::$app->user->can('COMMUNITY_VALIDATE', ['model' => $model]) || Yii::$app->user->can('ADMIN')) {
-        $statusToRender = ArrayHelper::merge($statusToRender,
-            [Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED => AmosCommunity::t('amoscommunity', 'Pubblicata')]);
-        $hideDraftStatuses = false;
-        $hideDraftStatus = [];
-    } else {
-        $statusToRender = ArrayHelper::merge($statusToRender, [
-            Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE => AmosCommunity::t('amoscommunity', 'Richiesta pubblicazione'),
-        ]);
-        $hideDraftStatuses = true;
-        $hideDraftStatus = [];
-    }
-
-    ?>
-    <div class="wrapper-workflow-community">
-        <?= WorkflowTransitionButtonsWidget::widget([
-            // parametri ereditati da verioni precedenti del widget WorkflowTransition
-            'form' => $form,
-            'model' => $model,
-            'workflowId' => Community::COMMUNITY_WORKFLOW,
-            'viewWidgetOnNewRecord' => true,
-
-            'closeButton' => \open20\amos\core\helpers\Html::a(Yii::t('amoscommunity', 'Annulla'), Yii::$app->session->get('previousUrl'), ['class' => 'btn btn-secondary']),
-
-            // fisso lo stato iniziale per generazione pulsanti e comportamenti
-            // "fake" in fase di creazione (il record non e' ancora inserito nel db)
-            'initialStatusName' => explode('/', $model->getWorkflowSource()->getWorkflow(Community::COMMUNITY_WORKFLOW)->getInitialStatusId())[1],
-            'initialStatus' => $model->getWorkflowSource()->getWorkflow(Community::COMMUNITY_WORKFLOW)->getInitialStatusId(),
-            // Stati da renderizzare obbligatoriamente in fase di creazione (quando il record non e' ancora inserito nel db)
-            'statusToRender' => $statusToRender,
-
-            'hideSaveDraftStatus' => $hideDraftStatus,
-
-            'draftButtons' => [
-                Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE => [
-                    'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva'), ['class' => 'btn btn-workflow']),
-                    'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni la community in "richiesta di pubblicazione"'),
-                ],
-                Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED => [
-                    'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva'), [
-                        'class' => 'btn btn-workflow',
-//                    'id' => 'saveBtn',
-//                    'data-target' => (!$bypassWorkflow && ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) && !$model->isNewRecord ? '#visibleOnEditPopup-' . $model->id : ''),
-//                    'data-toggle' => 'modal'
-                    ]),
-                    'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni la community "pubblicata"'),
-                ],
-                'default' => [
-                    'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva in bozza'), [
-                        'class' => 'btn btn-workflow',
-                    ]),
-                    'description' => AmosCommunity::t('amoscommunity', 'potrai richiedere la pubblicazione in seguito'),
-                ]
-            ]
-        ]);
-        ?>
-    </div>
-
-</div>
-
-<?php
-ActiveForm::end();
-?>

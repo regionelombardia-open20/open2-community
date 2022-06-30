@@ -19,6 +19,7 @@ use open20\amos\core\helpers\Html;
         'enableReplaceState' => false,
         'clientOptions' => ['data-pjax-container' => 'grid-view-all-members', 'method' => 'POST' ]
     ]);
+
     echo \open20\amos\core\views\AmosGridView::widget([
         'dataProvider' => $dataProvider,
         'id' => 'grid-view-all-members',
@@ -48,7 +49,8 @@ use open20\amos\core\helpers\Html;
                     'headers' => AmosCommunity::t('amoscommunity', 'name'),
                 ],
                 'value' => function($model){
-                    return Html::a($model->user->userProfile->surnameName, ['/admin/user-profile/view', 'id' => $model->user->userProfile->id ], [
+                    $adminModuleName = \open20\amos\admin\AmosAdmin::getModuleName();
+                    return Html::a($model->user->userProfile->surnameName, ['/'.$adminModuleName.'/user-profile/view', 'id' => $model->user->userProfile->id ], [
                         'title' => AmosCommunity::t('amoscommunity', 'Apri il profilo di {nome_profilo}', ['nome_profilo' => $model->user->userProfile->surnameName])
                     ]);
                 },
