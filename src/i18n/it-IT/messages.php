@@ -483,8 +483,6 @@ return [
     'Welcome to community' => 'Benvenuto nella community',
     '#welcome_to_subcommunity' => 'Benvenuto nella sottocommunity!',
     'Welcome to the community!' => 'Benvenuto nella community!',
-    '#widget_icon_community_dashboard_description' => 'Modulo Community',
-    '#widget_icon_community_dashboard_label' => 'Community',
     '#widget_subcommunities_description' => 'Sottocommunity',
     '#widget_subcommunities_title' => 'Sottocommunity',
     '#working_in_subcommunity' => 'Stai lavorando nella sottocommunity:',

@@ -20,7 +20,6 @@ use open20\amos\community\widgets\icons\WidgetIconAccademyDocument;
 //if (!is_null($model->parent_id)) {
 //    $this->title = AmosCommunity::t('amoscommunity', '#welcome_to_subcommunity');
 //}
-$this->title = $model->getTitle();
 ?>
 
 <div class="actions-dashboard-container community-dashboard-container">

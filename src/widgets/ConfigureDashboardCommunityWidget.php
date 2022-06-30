@@ -37,6 +37,7 @@ class ConfigureDashboardCommunityWidget extends Widget
      * @var Community $model
      */
     public $model;
+    public $hideParticipants = false;
 
 
     /**
@@ -57,7 +58,7 @@ class ConfigureDashboardCommunityWidget extends Widget
      */
     public function run()
     {
-        $params = self::getDashBoardWidgets($this->model);
+        $params = self::getDashBoardWidgets($this->model, $this->hideParticipants);
         return $this->render('configure_dashboard_community', $params);
     }
 
@@ -68,13 +69,13 @@ class ConfigureDashboardCommunityWidget extends Widget
      * @throws ForbiddenHttpException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getDashBoardWidgets($model){
+    public static function getDashBoardWidgets($model, $hideParticipants = false){
         $canPersonalize = \Yii::$app->user->can('COMMUNITY_WIDGETS_ADMIN_PERSONALIZE');
         $util = new CommunityUtil();
-        if(!($util->isManagerLoggedUser($model) || \Yii::$app->user->can('ADMIN') || $model->isNewRecord)){
-            throw new ForbiddenHttpException('Accesso negato');
-        }
-
+        //non serve, il controllo del permesso viene fatto nell'action
+//        if(!($util->isManagerLoggedUser($model) || \Yii::$app->user->can('ADMIN') || $model->isNewRecord)){
+//            throw new ForbiddenHttpException('Accesso negato');
+//        }
 
         $widgetSelected       = [];
         $widgetIconsSelected = $model->amosWidgetsIcons;
@@ -94,8 +95,11 @@ class ConfigureDashboardCommunityWidget extends Widget
             $widgetIconSelectable = AmosWidgetsSearch::selectableIcon(1, 'community', true, true)->all();
         }
         //remove widget not visible
-        $widgetPartecipanti = AmosWidgets::findOne(['classname' => 'open20\amos\admin\widgets\icons\WidgetIconUserProfile']);
-        $widgetIconsSelectableCopy = [$widgetPartecipanti];
+        $widgetIconsSelectableCopy = [];
+        if(!$hideParticipants) {
+            $widgetPartecipanti = AmosWidgets::findOne(['classname' => 'open20\amos\admin\widgets\icons\WidgetIconUserProfile']);
+            $widgetIconsSelectableCopy = [$widgetPartecipanti];
+        }
         foreach ($widgetIconSelectable as $key => $iconSelectable){
             $obj = Yii::createObject($iconSelectable->classname);
             if($obj->isVisible()){

@@ -25,7 +25,6 @@ $this->params['checkedByDefault'] = false;
 //if (!is_null($model->parent_id)) {
 //    $this->title = AmosCommunity::t('amoscommunity', '#welcome_to_subcommunity');
 //}
-$this->title = $model->getTitle();
 ?>
 <div class="actions-dashboard-container community-dashboard-container">
     <nav>
@@ -51,7 +50,7 @@ $this->title = $model->getTitle();
                         } else {
                             $urlDisplayParticipantsMm = "/community/community/participants?communityId={$model->id}";
                         }
-                        if (($showBox) && (!($model->context == 'open20\amos\moodle\models\MoodleCourse')))  :
+                        if ($showBox) :
                             ?>
 
                             <?php
