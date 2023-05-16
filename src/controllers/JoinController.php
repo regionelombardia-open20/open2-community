@@ -178,11 +178,24 @@ class JoinController extends CrudController
         if (!empty(Yii::$app->user->id)) {
             $nu   = new NotifyUtility();
             $user = User::findOne(Yii::$app->user->id);
-            if (!empty($user) && !empty($id)) {
-                $nu->saveNetworkNotification(Yii::$app->user->id,
+            
+            $module = \Yii::$app->getModule('community');
+            if($module && $module->hasProperty(setDefaultCommunityNotification)){
+                $notification = $module->setDefaultCommunityNotification;
+                if (!empty($user) && !empty($id)) {
+                    $nu->saveNetworkNotification(Yii::$app->user->id,
                     [
-                    'notifyCommunity' => [$id => NotificationsConfOpt::EMAIL_IMMEDIATE]
-                ]);
+                        'notifyCommunity' => [$id => $notification]
+                    ]);
+                }
+            }else{
+            
+                if (!empty($user) && !empty($id)) {
+                    $nu->saveNetworkNotification(Yii::$app->user->id,
+                        [
+                        'notifyCommunity' => [$id => NotificationsConfOpt::EMAIL_IMMEDIATE]
+                    ]);
+                }                
             }
 
             // invio email
@@ -266,6 +279,7 @@ class JoinController extends CrudController
                 $userCommunity = CommunityUserMm::findOne(['user_id' => Yii::$app->user->id, 'community_id' => $id]);
             }
         }
+        
         if (empty($userCommunity)) {
             if ($model->community_type_id == 1) {
                 if ($module) {
@@ -278,7 +292,9 @@ class JoinController extends CrudController
                         $nu   = new NotifyUtility();
                         $user = User::findOne(Yii::$app->user->id);
                         $notification = NotificationsConfOpt::EMAIL_OFF;
-                        if($module->hasProperty(setDefaultCommunityNotificationImmediate) && $module->setDefaultCommunityNotificationImmediate){
+                        if($module->hasProperty(setDefaultCommunityNotification)){
+                            $notification = $module->setDefaultCommunityNotification;
+                        }elseif($module->hasProperty(setDefaultCommunityNotificationImmediate) && $module->setDefaultCommunityNotificationImmediate){
                             $notification = NotificationsConfOpt::EMAIL_IMMEDIATE;
                         }
                         if (!empty($user) && !empty($id)) {
@@ -368,7 +384,7 @@ class JoinController extends CrudController
         } else {
             Yii::$app->view->params['breadcrumbs'][] = [
                 'label' => AmosCommunity::t('amoscommunity', 'Community'),
-                'url' => \yii\helpers\Url::to('/community'),
+                'url' => \yii\helpers\Url::to('/community/community/index'),
                 'remove_action' => '/community/join/remove'
             ];
         }

@@ -54,9 +54,11 @@ class WidgetGraphicsMyCommunities extends WidgetGraphic
         $moduleCommunity = \Yii::$app->getModule('community');
         $showSubscommunities = $moduleCommunity->showSubcommunities;
         $linkToSubcommunities = false;
+        $titleSection =  AmosCommunity::t('amoscommunity', 'Le mie community');
         /** @var \open20\amos\cwh\AmosCwh $moduleCwh */
         if ($showSubscommunities) {
             $moduleCwh = \Yii::$app->getModule('cwh');
+            $titleSection = AmosCommunity::t('amoscommunity', 'Le mie sottocomunity');
             if (!is_null($moduleCwh)) {
                 $scope = $moduleCwh->getCwhScope();
                 if (!empty($scope) && isset($scope['community'])) {
@@ -74,7 +76,8 @@ class WidgetGraphicsMyCommunities extends WidgetGraphic
                 'communitiesList' => $communitiesList,
                 'widget' => $this,
                 'toRefreshSectionId' => 'widgetGraphicMyCommunities',
-                'linkToSubcommunities' => $linkToSubcommunities
+                'linkToSubcommunities' => $linkToSubcommunities,
+                'titleSection' => $titleSection
             ]
         );
     }

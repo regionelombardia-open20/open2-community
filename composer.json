@@ -19,7 +19,7 @@
         "open20/amos-cwh": "^2.1.5",
         "open20/amos-dashboard": "^1.8.16",
         "open20/amos-layout": "^1.0.33",
-        "open20/amos-notify": "^1.4.13",
+        "open20/amos-notify": "^1.15.0",
         "open20/amos-seo": "^1.0",
         "yiidoc/yii2-redactor": "*",
         "moonlandsoft/yii2-phpexcel": "*"

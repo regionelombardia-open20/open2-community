@@ -32,6 +32,7 @@ use open20\amos\notificationmanager\models\NotificationsConfOpt;
 use open20\amos\notificationmanager\utility\NotifyUtility;
 use open20\amos\core\record\Record;
 use open20\amos\core\user\User;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use yii\log\Logger;
@@ -45,7 +46,15 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
 {
     
     public static $CONFIG_FOLDER = 'config';
-    
+
+    public $viewPathEmailSummary = [
+        'open20\amos\community\models\Bookmarks' => '@vendor/open20/amos-community/src/views/email/notify_summary'
+    ];
+
+    public $viewPathEmailSummaryNetwork = [
+        'open20\amos\community\models\Bookmarks' => '@vendor/open20/amos-community/src/views/email/notify_summary_network'
+    ];
+
     /**
      * @var string|boolean the layout that should be applied for views within this module. This refers to a view name
      * relative to [[layoutPath]]. If this is not set, it means the layout value of the [[module|parent module]]
@@ -106,6 +115,11 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      */
     public $setDefaultCommunityNotificationImmediate = false;
 
+    /**
+     * @var int|null $setDefaultCommunityNotification - set the notification to default, $setDefaultCommunityNotificationImmediate not more necessary
+     */
+    public $setDefaultCommunityNotification = NotificationsConfOpt::EMAIL_DAY;
+    
     /**
      * @var true|false $communityType - if true hide the rendering of label (community type) in card view
      */
@@ -260,12 +274,76 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
 
     public $disableEmailCommunityDeleted = false;
 
+    /**
+     * @var null
+     */
+    public $defaultUserMemberStatus = null;
+
 
     /**
      * @var array
      *  ['open20/amos/models/ModelName1', 'open20/amos/models/ModelName2']
      */
     public $disableFirstLevelAssociaCommunityOnContext = [];
+
+
+    /**
+     * @var array
+     *  ['open20/amos/models/ModelName1', 'open20/amos/models/ModelName2']
+     */
+    public $enableCwhAuthAssignmentContext = [];
+
+    /**
+     * Enable chat widget
+     * @var bool $activateChat
+     */
+    public $activateChat = false;
+
+    /**
+     * @var array $chatOptions Configuration array for chat. Enabled only if $activateChat param is set to true
+     * @var bool $showEnableDisableInForm - if true show the switch input to enable/disable the chat in the community form
+     * @var bool $defaultValueOnCreate - if true the chat is enabled by default when a community is created
+     * @var array $listCommunityEnabled - if empty, all communities have chat visible, otherwise only community IDs in the array see it
+     */
+    public $chatOptions = [
+        'showEnableDisableInForm' => true,
+        'defaultValueOnCreate' => true,
+        'listCommunityEnabled' => []
+    ];
+
+    /**
+     * Enable bookmarks widget
+     * @var bool $activateLinks
+     */
+    public $activateLinks = false;
+
+    /**
+     * @var array $linksOptions Configuration array for bookmarks. Enabled only if $activateLinks param is set to true
+     * @var bool $showEnableDisableInForm - if true show the switch input to enable/disable the bookmarks in the community form
+     * @var bool $defaultValueOnCreate - if true the bookmarks are enabled by default when a community is created
+     * @var array $listCommunityEnabled - if empty, all communities have bookmarks visible, otherwise only community IDs in the array see it
+     */
+    public $linksOptions = [
+        'showEnableDisableInForm' => true,
+        'defaultValueOnCreate' => true,
+        'listCommunityEnabled' => []
+    ];
+
+    /**
+     * @var array $listCommunityLinksEnabled if empty then all communities have links visible, otherwise only community ids in the array see their links.
+     */
+    public $listCommunityLinksEnabled = [];
+    
+    /**
+     * hide block on _form relative to seo module even if it is present
+     * @var bool $hideSeoModule
+     */
+    public $hideSeoModule = false;
+    
+    /**
+     * @var bool $disableBefeControllerRules Enable this property to disable the BEFE rules in controller behaviors.
+     */
+    public $disableBefeControllerRules = false;
 
     /**
      * @inheritdoc
@@ -291,6 +369,38 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
         if (empty($this->communityContextsToSearch)) {
             $this->communityContextsToSearch = [$this->model('Community')];
         }
+    }
+
+    /**
+     * @param $model Community
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function canChat($model)
+    {
+        if($this->activateChat
+            && (empty($this->chatOptions['listCommunityEnabled']) || in_array($model->id, $this->chatOptions['listCommunityEnabled']))
+            && CommunityUtil::userIsCommunityMemberActive($model->id)
+            && $model->enable_chat) {
+                return true;
+            }
+        return false;
+    }
+
+    /**
+     * @param $model Community
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function canLinks($model)
+    {
+        if($this->activateLinks
+            && (empty($this->linksOptions['listCommunityEnabled']) || in_array($model->id, $this->linksOptions['listCommunityEnabled']))
+            && CommunityUtil::userIsCommunityMemberActive($model->id)
+            && $model->enable_bookmarks) {
+                return true;
+            }
+        return false;
     }
     
     /**

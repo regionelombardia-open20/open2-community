@@ -33,17 +33,17 @@ class ReportsUtility extends BaseObject
      * @var null|\amos\statistics\Module $statisticsModule
      */
     private $statisticsModule;
-    
+
     /**
      * @var null|\open20\amos\cwh\AmosCwh $cwhModule
      */
     private $cwhModule;
-    
+
     /**
      * @var null|\open20\amos\documenti\AmosDocumenti $documentsModule
      */
     private $documentsModule;
-    
+
     /**
      * This method checks if there is the minimum modules used in some reports.
      * Fore each one of the modules there is a class private variable that contains the module object.
@@ -56,18 +56,18 @@ class ReportsUtility extends BaseObject
         if (is_null($this->statisticsModule)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'statistics module not found'));
         }
-        
+
         $this->cwhModule = \Yii::$app->getModule('cwh');
         if (is_null($this->cwhModule)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CWH module not found'));
         }
-        
+
         $this->documentsModule = \Yii::$app->getModule('documenti');
         if (is_null($this->documentsModule)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'documenti module not found'));
         }
     }
-    
+
     /**
      * @param Community $community
      * @return string
@@ -76,17 +76,17 @@ class ReportsUtility extends BaseObject
     public function uploadedFileSizesByCommunity($community)
     {
         $this->fileSizeAndTypesModulesChecks();
-        
+
         $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
-        
+
         $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
-        
+
         $statType = \amos\statistics\statistics\attachments\AttachmentsStatsOpt::ATTACHMENTS_STAT_TYPE_FILE_SIZE;
         $communityAndSubcommunitiesIds = $this->getCommunityAndSubcommunitiesIds($community);
         $cwhConfigContentIds = [$cwhConfigContentDocuments->id];
@@ -99,10 +99,10 @@ class ReportsUtility extends BaseObject
             $cwhConfigContentIds,
             $excelColumns
         );
-        
+
         return $excel;
     }
-    
+
     /**
      * @return string
      * @throws CommunityException
@@ -110,22 +110,22 @@ class ReportsUtility extends BaseObject
     public function uploadedFileSizes()
     {
         $this->fileSizeAndTypesModulesChecks();
-        
+
         $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
-        
+
         $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
-        
+
         $statType = \amos\statistics\statistics\attachments\AttachmentsStatsOpt::ATTACHMENTS_STAT_TYPE_FILE_SIZE;
         $cwhConfigContentIds = [$cwhConfigContentDocuments->id];
         $excelColumns = $this->getCommunityAndSubcommunitiesDocSizeColumns();
         $allCommunities = CommunityUtil::getAllValidatedCommunity();
-        
+
         $models = [];
         foreach ($allCommunities as $community) {
             $communityAndSubcommunitiesIds = $this->getCommunityAndSubcommunitiesIds($community);
@@ -139,12 +139,12 @@ class ReportsUtility extends BaseObject
             );
             $models = ArrayHelper::merge($models, $modelsPartial);
         }
-        
+
         $excel = $this->makeExcel($models, $excelColumns);
-        
+
         return $excel;
     }
-    
+
     /**
      * @param Community $community
      * @return string
@@ -153,22 +153,22 @@ class ReportsUtility extends BaseObject
     public function uploadedFileTypesByCommunity($community)
     {
         $this->fileSizeAndTypesModulesChecks();
-        
+
         $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
-        
+
         $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
-        
+
         $statType = \amos\statistics\statistics\attachments\AttachmentsStatsOpt::ATTACHMENTS_STAT_TYPE_FILE_TYPES;
         $communityAndSubcommunitiesIds = $this->getCommunityAndSubcommunitiesIds($community);
         $cwhConfigContentIds = [$cwhConfigContentDocuments->id];
         $excelColumns = $this->getCommunityAndSubcommunitiesDocTypesColumns();
-        
+
         $excel = $this->statisticsModule->makeAttachmentsStatisticsExcel(
             $statType,
             Community::getCwhConfigId(),
@@ -177,10 +177,10 @@ class ReportsUtility extends BaseObject
             $cwhConfigContentIds,
             $excelColumns
         );
-        
+
         return $excel;
     }
-    
+
     /**
      * @return string
      * @throws CommunityException
@@ -188,22 +188,22 @@ class ReportsUtility extends BaseObject
     public function uploadedFileTypes()
     {
         $this->fileSizeAndTypesModulesChecks();
-        
+
         $documentsClassName = \open20\amos\documenti\models\Documenti::className();
         if (!in_array($documentsClassName, $this->cwhModule->modelsEnabled)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', '{className} classname not enabled in CWH module', ['className' => $documentsClassName]));
         }
-        
+
         $cwhConfigContentDocuments = \open20\amos\cwh\models\CwhConfigContents::findOne(['classname' => $documentsClassName]);
         if (is_null($cwhConfigContentDocuments)) {
             throw new CommunityException(AmosCommunity::t('amoscommunity', 'CwhConfigContents not found by classname {className}', ['className' => $documentsClassName]));
         }
-        
+
         $statType = \amos\statistics\statistics\attachments\AttachmentsStatsOpt::ATTACHMENTS_STAT_TYPE_FILE_TYPES;
         $cwhConfigContentIds = [$cwhConfigContentDocuments->id];
         $excelColumns = $this->getCommunityAndSubcommunitiesDocSizeColumns();
         $allCommunities = CommunityUtil::getAllValidatedCommunity();
-        
+
         $models = [];
         foreach ($allCommunities as $community) {
             $communityAndSubcommunitiesIds = $this->getCommunityAndSubcommunitiesIds($community);
@@ -217,12 +217,12 @@ class ReportsUtility extends BaseObject
             );
             $models = ArrayHelper::merge($models, $modelsPartial);
         }
-        
+
         $excel = $this->makeExcel($models, $excelColumns);
-        
+
         return $excel;
     }
-    
+
     /**
      * @param Model[] $models
      * @param array $columns
@@ -235,7 +235,7 @@ class ReportsUtility extends BaseObject
             'columns' => $columns
         ]);
     }
-    
+
     /**
      * @return Community[]
      */
@@ -243,7 +243,7 @@ class ReportsUtility extends BaseObject
     {
         return Community::find()->andWhere(['parent_id' => null])->andWhere(['context' => Community::className()])->all();
     }
-    
+
     /**
      * @param Community $community
      * @return int[]
@@ -252,7 +252,7 @@ class ReportsUtility extends BaseObject
     {
         return array_unique($this->getCommunityAndSubcommunitiesIdsRecursive($community));
     }
-    
+
     /**
      * @param Community $community
      * @return int[]
@@ -261,7 +261,7 @@ class ReportsUtility extends BaseObject
     {
         $subCommunities = $community->subcommunities;
         $communityIds = [$community->id];
-        
+
         if (!empty($subCommunities)) {
             foreach ($subCommunities as $subCommunity) {
                 $communityIds[] = $subCommunity->id;
@@ -270,7 +270,7 @@ class ReportsUtility extends BaseObject
                 $communityIds = ArrayHelper::merge($communityIds, $this->getCommunityAndSubcommunitiesIdsRecursive($subCommunity));
             }
         }
-        
+
         return $communityIds;
     }
 
@@ -342,7 +342,7 @@ class ReportsUtility extends BaseObject
 //        $roundedSize = round($sizeConverted, 2);
 //        return $roundedSize . ' ' . $unit . 'B';
 //    }
-    
+
     /**
      * @return array
      */
@@ -359,7 +359,7 @@ class ReportsUtility extends BaseObject
             ]
         ];
     }
-    
+
     /**
      * @return array
      */
@@ -376,7 +376,7 @@ class ReportsUtility extends BaseObject
             ]
         ];
     }
-    
+
     /**
      * @param Community $community
      * @return array
@@ -395,7 +395,7 @@ class ReportsUtility extends BaseObject
         $users = $query->all();
         return $users;
     }
-    
+
     /**
      * @return array|\yii\db\ActiveRecord[]
      */
@@ -414,7 +414,7 @@ class ReportsUtility extends BaseObject
         $users = $query->all();
         return $users;
     }
-    
+
     /**
      * @param Community $community
      * @return mixed
@@ -428,16 +428,16 @@ class ReportsUtility extends BaseObject
             $users[$user->id] = $user;
         }
         $subCommunities = $community->subcommunities;
-        
+
         if (!empty($subCommunities)) {
             foreach ($subCommunities as $subCommunity) {
                 $users = ArrayHelper::merge($users, $this->getCommunityAndSubcommunitiesUsersDataRecursive($subCommunity));
             }
         }
-        
+
         return $users;
     }
-    
+
     /**
      * @return array
      */
@@ -458,7 +458,7 @@ class ReportsUtility extends BaseObject
             ]
         ];
     }
-    
+
     /**
      * @param Community $community
      * @return mixed
@@ -473,7 +473,7 @@ class ReportsUtility extends BaseObject
         $models[] = $reportModel;
         return $models;
     }
-    
+
     /**
      * @return array
      */
@@ -491,7 +491,7 @@ class ReportsUtility extends BaseObject
         }
         return $models;
     }
-    
+
     /**
      * @return array
      */

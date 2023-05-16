@@ -8,7 +8,6 @@
  * @package    open20\amos\community
  * @category   CategoryName
  */
-
 namespace open20\amos\community\controllers;
 
 use open20\amos\admin\models\UserProfile;
@@ -55,8 +54,9 @@ use open20\amos\admin\AmosAdmin;
 /**
  * Class CommunityController
  * This is the class for controller "CommunityController".
- * @package open20\amos\community\controllers
  *
+ * @package open20\amos\community\controllers
+ *         
  * @property Community $model
  */
 class CommunityController extends BaseCommunityController
@@ -66,12 +66,15 @@ class CommunityController extends BaseCommunityController
      * M2MWidgetControllerTrait
      */
     use M2MWidgetControllerTrait;
+
     /**
+     *
      * @var string $layout
      */
     public $layout = 'list';
 
     /**
+     *
      * @throws NotFoundHttpException
      * @throws \yii\base\InvalidConfigException
      */
@@ -85,7 +88,9 @@ class CommunityController extends BaseCommunityController
         $this->setTargetObjClassName(User::className());
         $this->setMmTargetKey('user_id');
         $this->setRedirectAction('update');
-        $this->setOptions(['tabActive' => 'tab-participants']);
+        $this->setOptions([
+            'tabActive' => 'tab-participants'
+        ]);
         if (AmosCommunity::instance()->customInvitationForm) {
             $this->setTargetUrl('insass-m2m');
         } else {
@@ -100,8 +105,8 @@ class CommunityController extends BaseCommunityController
         $this->setM2mAttributesManageViewPath('manage-m2m-attributes');
         $this->setCustomQuery(true);
 
-        if(\Yii::$app->request->get('id')) {
-           $this->setDefaultRoleContextCommunity();
+        if (\Yii::$app->request->get('id') && \Yii::$app->requestedRoute != 'community/community/associate-community-m2m') {
+            $this->setDefaultRoleContextCommunity();
         } else {
             $this->setMmTableAttributesDefault([
                 'status' => CommunityUserMm::STATUS_INVITE_IN_PROGRESS,
@@ -110,158 +115,210 @@ class CommunityController extends BaseCommunityController
         }
         $this->setUpLayout('main');
         $this->setModuleClassName(AmosCommunity::className());
-        $this->on(M2MEventsEnum::EVENT_BEFORE_ASSOCIATE_M2M, [$this, 'beforeAssociateM2m']);
-        $this->on(M2MEventsEnum::EVENT_BEFORE_CANCEL_ASSOCIATE_M2M, [$this, 'beforeCancelAssociateM2m']);
-        $this->on(M2MEventsEnum::EVENT_AFTER_ASSOCIATE_M2M, [$this, 'afterAssociateM2m']);
-        $this->on(M2MEventsEnum::EVENT_BEFORE_DELETE_M2M, [$this, 'beforeDeleteM2m']);
-        $this->on(M2MEventsEnum::EVENT_AFTER_DELETE_M2M, [$this, 'afterDeleteM2m']);
-        $this->on(M2MEventsEnum::EVENT_AFTER_MANAGE_ATTRIBUTES_M2M, [$this, 'afterManageAttributesM2m']);
+        $this->on(M2MEventsEnum::EVENT_BEFORE_ASSOCIATE_M2M, [
+            $this,
+            'beforeAssociateM2m'
+        ]);
+        $this->on(M2MEventsEnum::EVENT_BEFORE_CANCEL_ASSOCIATE_M2M, [
+            $this,
+            'beforeCancelAssociateM2m'
+        ]);
+        $this->on(M2MEventsEnum::EVENT_AFTER_ASSOCIATE_M2M, [
+            $this,
+            'afterAssociateM2m'
+        ]);
+        $this->on(M2MEventsEnum::EVENT_BEFORE_DELETE_M2M, [
+            $this,
+            'beforeDeleteM2m'
+        ]);
+        $this->on(M2MEventsEnum::EVENT_AFTER_DELETE_M2M, [
+            $this,
+            'afterDeleteM2m'
+        ]);
+        $this->on(M2MEventsEnum::EVENT_AFTER_MANAGE_ATTRIBUTES_M2M, [
+            $this,
+            'afterManageAttributesM2m'
+        ]);
     }
 
     /**
+     *
      * @inheritdoc
      */
     public function behaviors()
     {
-        $behaviors = ArrayHelper::merge(
-            parent::behaviors(),
+        $rules = [
             [
-                'access' => [
-                    'class' => AccessControl::className(),
-                    'rules' => [
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                'associate-community-m2m',
-                            ],
-                            'roles' => [UpdateOwnCommunityProfile::className()]
-                        ],
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                'my-communities',
-                                'own-interest-communities',
-                                'join-community',
-                                'index',
-                                'user-network',
-                                'community-members',
-                                'community-members-min',
-                                'increment-community-hits',
-                                'participants'
-                            ],
-                            'roles' => ['COMMUNITY_READER', 'COMMUNITY_MEMBER', 'AMMINISTRATORE_COMMUNITY', 'BASIC_USER']
-                        ],
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                'created-by-communities',
-                                'closing',
-                                'accept-user',
-                                'reject-user',
-                                'change-user-role',
-                                'associa-m2m',
-                                'insass-m2m',
-                                'additional-associate-m2m',
-                                'annulla-m2m',
-                                'elimina-m2m',
-                                'manage-m2m-attributes'
-                            ],
-                            'roles' => ['AMMINISTRATORE_COMMUNITY', 'COMMUNITY_CREATOR', 'COMMUNITY_MEMBER']
-                        ],
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                'to-validate-communities',
-                                'publish',
-                                'reject'
-                            ],
-                            'roles' => ['COMMUNITY_VALIDATOR', 'COMMUNITY_CREATOR', 'COMMUNITY_UPDATE']
-                        ],
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                'admin-all-communities',
-                                'transform-to-community-parent',
-                                'move'
-                            ],
-                            'roles' => ['AMMINISTRATORE_COMMUNITY']
-                        ],
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                'confirm-manager',
-                                'deleted-community'
-                            ],
-                            'roles' => ['@']
-                        ],
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                'user-joined-report-download'
-                            ],
-                            'roles' => ['ADMIN']
-                        ],
-                        [
-                            'allow' => true,
-                            'actions' => [
-                                ((!empty(\Yii::$app->params['befe']) && \Yii::$app->params['befe'] == true) ? 'index' : 'nothing'),
-                                //((!empty(\Yii::$app->params['befe']) && \Yii::$app->params['befe'] == true) ? 'view' : 'nothingread')
-                            ],
-                            'matchCallback' => function ($rule, $action) {
-                                if ($action->id == 'index') return true;
-                                //                                if ($action->id != 'view') return false;
-                                //                                $id = (!empty(\Yii::$app->request->get()['id']) ? Yii::$app->request->get()['id'] : null);
-                                //                                if (!empty($id)) {
-                                //                                    $model = Community::findOne($id);
-                                //
-                                //                                    if (!empty($model) && $model->community_type_id != 3) {
-                                //                                        return true;
-                                //                                    }
-                                //                                }
-                                return false;
-                            }
-                        ],
-                    ]
+                'allow' => true,
+                'actions' => [
+                    'associate-community-m2m'
                 ],
-                'verbs' => [
-                    'class' => VerbFilter::className(),
-                    'actions' => [
-                        'delete' => ['post', 'get']
+                'roles' => [
+                    UpdateOwnCommunityProfile::className()
+                ]
+            ],
+            [
+                'allow' => true,
+                'actions' => [
+                    'my-communities',
+                    'own-interest-communities',
+                    'join-community',
+                    'index',
+                    'user-network',
+                    'community-members',
+                    'community-members-min',
+                    'increment-community-hits',
+                    'participants'
+                ],
+                'roles' => [
+                    'COMMUNITY_READER',
+                    'COMMUNITY_MEMBER',
+                    'AMMINISTRATORE_COMMUNITY',
+                    'BASIC_USER'
+                ]
+            ],
+            [
+                'allow' => true,
+                'actions' => [
+                    'created-by-communities',
+                    'closing',
+                    'accept-user',
+                    'reject-user',
+                    'change-user-role',
+                    'associa-m2m',
+                    'insass-m2m',
+                    'additional-associate-m2m',
+                    'annulla-m2m',
+                    'elimina-m2m',
+                    'manage-m2m-attributes'
+                ],
+                'roles' => [
+                    'AMMINISTRATORE_COMMUNITY',
+                    'COMMUNITY_CREATOR',
+                    'COMMUNITY_MEMBER'
+                ]
+            ],
+            [
+                'allow' => true,
+                'actions' => [
+                    'to-validate-communities',
+                    'publish',
+                    'reject'
+                ],
+                'roles' => [
+                    'COMMUNITY_VALIDATOR',
+                    'COMMUNITY_CREATOR',
+                    'COMMUNITY_UPDATE'
+                ]
+            ],
+            [
+                'allow' => true,
+                'actions' => [
+                    'admin-all-communities',
+                    'transform-to-community-parent',
+                    'move'
+                ],
+                'roles' => [
+                    'AMMINISTRATORE_COMMUNITY'
+                ]
+            ],
+            [
+                'allow' => true,
+                'actions' => [
+                    'confirm-manager',
+                    'deleted-community'
+                ],
+                'roles' => [
+                    '@'
+                ]
+            ],
+            [
+                'allow' => true,
+                'actions' => [
+                    'user-joined-report-download'
+                ],
+                'roles' => [
+                    'ADMIN'
+                ]
+            ]
+        ];
+        if (! $this->communityModule->disableBefeControllerRules) {
+            $rules[] = [
+                'allow' => true,
+                'actions' => [
+                    ((! empty(\Yii::$app->params['befe']) && \Yii::$app->params['befe'] == true) ? 'index' : 'nothing')
+                    // ((!empty(\Yii::$app->params['befe']) && \Yii::$app->params['befe'] == true) ? 'view' : 'nothingread')
+                ],
+                'matchCallback' => function ($rule, $action) {
+                    if ($action->id == 'index')
+                        return true;
+                    // if ($action->id != 'view') return false;
+                    // $id = (!empty(\Yii::$app->request->get()['id']) ? Yii::$app->request->get()['id'] : null);
+                    // if (!empty($id)) {
+                    // $model = Community::findOne($id);
+                    //
+                    // if (!empty($model) && $model->community_type_id != 3) {
+                    // return true;
+                    // }
+                    // }
+                    return false;
+                }
+            ];
+        }
+        $behaviors = ArrayHelper::merge(parent::behaviors(), [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => $rules
+            ],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => [
+                        'post',
+                        'get'
                     ]
                 ]
             ]
-        );
-
+        ]);
         return $behaviors;
     }
 
     /**
+     *
      * @throws NotFoundHttpException
      * @throws \yii\base\InvalidConfigException
      */
-    public function setDefaultRoleContextCommunity(){
+    public function setDefaultRoleContextCommunity()
+    {
         /** @var Community $community */
         $community = $this->findModel(\Yii::$app->request->get('id'));
         $role = $community->getRoleContextCommunity(CommunityUserMm::ROLE_PARTICIPANT);
         $communityModelClassName = $this->communityModule->model('Community');
         if ($community->context != $communityModelClassName) {
-            if (!empty($community->parent_id)) {
-                $this->setMmTableAttributesDefault([
-                    'status' => CommunityUserMm::STATUS_INVITE_IN_PROGRESS,
-                    'role' => $role
-                ]);
-            }
+            // if (!empty($community->parent_id)) {
+            $this->setMmTableAttributesDefault([
+                'status' => CommunityUserMm::STATUS_INVITE_IN_PROGRESS,
+                'role' => $role
+            ]);
+            // }
+        } else {
+            $this->setMmTableAttributesDefault([
+                'status' => CommunityUserMm::STATUS_INVITE_IN_PROGRESS,
+                'role' => CommunityUserMm::ROLE_PARTICIPANT
+            ]);
         }
     }
 
     /**
-     * @param $event
+     *
+     * @param
+     *            $event
      */
     public function beforeAssociateM2m($event)
     {
         $urlPrevious = Url::previous();
         $moduleCommunity = Yii::$app->getModule('community');
-        if (!strstr($urlPrevious, 'associate-community-m2m')) {
+        if (! strstr($urlPrevious, 'associate-community-m2m')) {
             $inviteUserOfcommunityParent = $moduleCommunity->inviteUserOfcommunityParent;
             if ($inviteUserOfcommunityParent) {
                 $id = Yii::$app->request->get('id');
@@ -274,14 +331,26 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
-     * @param $event
+     *
+     * @param
+     *            $event
      */
     public function afterAssociateM2m($event)
     {
         $urlPrevious = Url::previous();
-        if (!strstr($urlPrevious, 'associate-community-m2m')) {
+        $module = \Yii::$app->getModule('community');
+        $userStatus = null;
+        if (! strstr($urlPrevious, 'associate-community-m2m')) {
             $communityId = Yii::$app->request->get('id');
-            $userStatus = Yii::$app->request->get('userStatus');
+
+            if (! empty($module) && $module->defaultUserMemberStatus) {
+                $userStatus = $module->defaultUserMemberStatus;
+            }
+
+            $getUserStatus = Yii::$app->request->get('userStatus');
+            if (! empty($getUserStatus)) {
+                $userStatus = Yii::$app->request->get('userStatus');
+            }
             /** @var Community $community */
             $community = Community::findOne($communityId);
             $callingModel = Yii::createObject($community->context);
@@ -297,38 +366,35 @@ class CommunityController extends BaseCommunityController
             ])->all();
             foreach ($userCommunityRows as $userCommunity) {
                 /** @var CommunityUserMm $userCommunity */
-                $userCommunity->status = (!is_null($userStatus) ? $userStatus : CommunityUserMm::STATUS_WAITING_OK_USER);
+                $userCommunity->status = (! is_null($userStatus) ? $userStatus : CommunityUserMm::STATUS_WAITING_OK_USER);
                 $userCommunity->role = $callingModel->getBaseRole();
                 $userCommunity->save(false);
+
+                $emailType = EmailUtil::INVITATION;
+                if ($userCommunity->status == CommunityUserMm::STATUS_ACTIVE) {
+                    $emailType = EmailUtil::WELCOME;
+                }
 
                 /** @var User $userToInvite */
                 $userToInvite = User::findOne($userCommunity->user_id);
                 /** @var UserProfile $userToInviteProfile */
                 $userToInviteProfile = $userToInvite->getProfile();
-                $emailUtil = new EmailUtil(
-                    EmailUtil::INVITATION,
-                    $userCommunity->role,
-                    $community,
-                    $userToInviteProfile->nomeCognome,
-                    $loggedUserProfile->getNomeCognome(),
-                    null,
-                    $userToInviteProfile->user_id
-                );
+                $emailUtil = new EmailUtil($emailType, $userCommunity->role, $community, $userToInviteProfile->nomeCognome, $loggedUserProfile->getNomeCognome(), null, $userToInviteProfile->user_id);
                 $subject = $emailUtil->getSubject();
                 $text = $emailUtil->getText();
-                $this->sendMail(null, $userToInvite->email, $subject, $text, [], []);
+                $ok = $this->sendMail(null, $userToInvite->email, $subject, $text, [], []);
             }
-
             $this->setRedirectArray($redirectUrl . '#tab-participants');
         }
     }
 
     /**
-     * @param $event
+     *
+     * @param
+     *            $event
      */
     public function afterManageAttributesM2m($event)
     {
-
         $userCommunityId = Yii::$app->request->get('targetId');
         $userCommunity = CommunityUserMm::findOne($userCommunityId);
 
@@ -337,32 +403,22 @@ class CommunityController extends BaseCommunityController
         $callingModel = Yii::createObject($community->context);
         $redirectUrl = $this->getRedirectUrl($callingModel, $communityId);
 
-        if (!is_null($userCommunity)) {
+        if (! is_null($userCommunity)) {
             $nomeCognome = "";
             $communityName = '';
 
             /** @var UserProfile $userProfile */
             $user = User::findOne($userCommunity->user_id);
             $userProfile = $user->getProfile();
-            if (!is_null($userProfile)) {
+            if (! is_null($userProfile)) {
                 $nomeCognome = "'" . $userProfile->nomeCognome . "'";
             }
-            if (!is_null($community)) {
+            if (! is_null($community)) {
                 $communityName = " '" . $community->name . "'";
             }
-            $message = $nomeCognome . " " . AmosCommunity::t('amoscommunity', "is now") .
-                " '" . AmosCommunity::t('amoscommunity', $userCommunity->role) . "' " .
-                AmosCommunity::t('amoscommunity', "of") . $communityName;
+            $message = $nomeCognome . " " . AmosCommunity::t('amoscommunity', "is now") . " '" . AmosCommunity::t('amoscommunity', $userCommunity->role) . "' " . AmosCommunity::t('amoscommunity', "of") . $communityName;
             $community->setCwhAuthAssignments($userCommunity);
-            $emailUtil = new EmailUtil(
-                EmailUtil::CHANGE_ROLE,
-                $userCommunity->role,
-                $community,
-                $userProfile->nomeCognome,
-                '',
-                null,
-                $userProfile->user_id
-            );
+            $emailUtil = new EmailUtil(EmailUtil::CHANGE_ROLE, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
             $subject = $emailUtil->getSubject();
             $text = $emailUtil->getText();
             $this->sendMail(null, $user->email, $subject, $text, [], []);
@@ -372,7 +428,9 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
-     * @param $event
+     *
+     * @param
+     *            $event
      */
     public function beforeDeleteM2m($event)
     {
@@ -380,13 +438,18 @@ class CommunityController extends BaseCommunityController
         $userId = Yii::$app->request->get('targetId');
         /** @var Community $community */
         $community = Community::findOne($communityId);
-        $communityUserMmRow = CommunityUserMm::findOne(['community_id' => $communityId, 'user_id' => $userId]);
-        //remove all cwh permissions for domain = community
+        $communityUserMmRow = CommunityUserMm::findOne([
+            'community_id' => $communityId,
+            'user_id' => $userId
+        ]);
+        // remove all cwh permissions for domain = community
         $community->setCwhAuthAssignments($communityUserMmRow, true);
     }
 
     /**
-     * @param $event
+     *
+     * @param
+     *            $event
      */
     public function afterDeleteM2m($event)
     {
@@ -395,10 +458,13 @@ class CommunityController extends BaseCommunityController
         $message = AmosCommunity::t('amoscommunity', '#canceled') . ' ‘' . $community->name . '’.';
         $this->addFlash('success', $message);
         $urlPrevious = str_replace('/it/', '/', Url::previous());
-        $this->setRedirectArray([$urlPrevious]);
+        $this->setRedirectArray([
+            $urlPrevious
+        ]);
     }
 
     /**
+     *
      * @return mixed
      */
     public function actionAssociateCommunityM2m()
@@ -419,13 +485,15 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
-     * @param $event
+     *
+     * @param
+     *            $event
      */
     public function beforeCancelAssociateM2m($event)
     {
         $urlPrevious = Url::previous();
         $id = Yii::$app->request->get('id');
-        if (!strstr($urlPrevious, 'associate-community-m2m')) {
+        if (! strstr($urlPrevious, 'associate-community-m2m')) {
             /** @var Community $community */
             $community = Community::findOne($id);
             $callingModel = Yii::createObject($community->context);
@@ -438,21 +506,26 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
-     * @param $callingModel
-     * @param $communityId
+     *
+     * @param
+     *            $callingModel
+     * @param
+     *            $communityId
      * @return string $redirectUrl
      */
     private function getRedirectUrl($callingModel, $communityId)
     {
         $redirectId = $communityId;
-        if (!is_a($callingModel, Community::className())) {
+        if (! is_a($callingModel, Community::className())) {
             $this->setOptions(null);
-            $callee = $callingModel->findOne(['community_id' => $communityId]);
+            $callee = $callingModel->findOne([
+                'community_id' => $communityId
+            ]);
             $redirectId = $callee->id;
         }
         $createRedirectUrlParams = [
             '/' . $callingModel->getPluginModule() . '/' . $callingModel->getPluginController() . '/' . $callingModel->getRedirectAction(),
-            'id' => $redirectId,
+            'id' => $redirectId
         ];
         $redirectUrl = Yii::$app->urlManager->createUrl($createRedirectUrlParams);
 
@@ -471,17 +544,13 @@ class CommunityController extends BaseCommunityController
             $urlLinkAll = '';
 
             $labelSigninOrSignup = AmosCommunity::t('amoscommunity', '#beforeActionCtaLoginRegister');
-            $titleSigninOrSignup = AmosCommunity::t(
-                'amoscommunity',
-                '#beforeActionCtaLoginRegisterTitle',
-                ['platformName' => \Yii::$app->name]
-            );
+            $titleSigninOrSignup = AmosCommunity::t('amoscommunity', '#beforeActionCtaLoginRegisterTitle', [
+                'platformName' => \Yii::$app->name
+            ]);
             $labelSignin = AmosCommunity::t('amoscommunity', '#beforeActionCtaLogin');
-            $titleSignin = AmosCommunity::t(
-                'amoscommunity',
-                '#beforeActionCtaLoginTitle',
-                ['platformName' => \Yii::$app->name]
-            );
+            $titleSignin = AmosCommunity::t('amoscommunity', '#beforeActionCtaLoginTitle', [
+                'platformName' => \Yii::$app->name
+            ]);
 
             $labelLink = $labelSigninOrSignup;
             $titleLink = $titleSigninOrSignup;
@@ -491,22 +560,13 @@ class CommunityController extends BaseCommunityController
                 $titleLink = $titleSignin;
             }
 
-            $ctaLoginRegister = Html::a(
-                $labelLink,
-                isset(\Yii::$app->params['linkConfigurations']['loginLinkCommon']) ? \Yii::$app->params['linkConfigurations']['loginLinkCommon']
-                    : \Yii::$app->params['platform']['backendUrl'] . '/' . AmosAdmin::getModuleName() . '/security/login',
-                [
-                    'title' => $titleLink
-                ]
-            );
-            $subTitleSection  = Html::tag(
-                'p',
-                AmosCommunity::t(
-                    'amoscommunity',
-                    '#beforeActionSubtitleSectionGuest',
-                    ['platformName' => \Yii::$app->name, 'ctaLoginRegister' => $ctaLoginRegister]
-                )
-            );
+            $ctaLoginRegister = Html::a($labelLink, isset(\Yii::$app->params['linkConfigurations']['loginLinkCommon']) ? \Yii::$app->params['linkConfigurations']['loginLinkCommon'] : \Yii::$app->params['platform']['backendUrl'] . '/' . AmosAdmin::getModuleName() . '/security/login', [
+                'title' => $titleLink
+            ]);
+            $subTitleSection = Html::tag('p', AmosCommunity::t('amoscommunity', '#beforeActionSubtitleSectionGuest', [
+                'platformName' => \Yii::$app->name,
+                'ctaLoginRegister' => $ctaLoginRegister
+            ]));
         } else {
             $titleSection = AmosCommunity::t('amoscommunity', 'Community');
             $labelLinkAll = AmosCommunity::t('amoscommunity', 'Tutte le community');
@@ -515,26 +575,21 @@ class CommunityController extends BaseCommunityController
 
             $parentId = null;
             $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+            if (isset($moduleCwh) && ! empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
                     $parentId = $scope['community'];
                 }
             }
-            if (!empty($parentId)) {
+            if (! empty($parentId)) {
                 $labelLinkAll = AmosCommunity::t('amoscommunity', 'Tutte le sottocommunity');
                 $urlLinkAll = '/community/subcommunities/index';
                 $titleLinkAll = AmosCommunity::t('amoscommunity', 'Visualizza la lista delle sottocommunity');
             }
 
-            $subTitleSection = Html::tag(
-                'p',
-                AmosCommunity::t(
-                    'amoscommunity',
-                    '#beforeActionSubtitleSectionLogged',
-                    ['platformName' => \Yii::$app->name]
-                )
-            );
+            $subTitleSection = Html::tag('p', AmosCommunity::t('amoscommunity', '#beforeActionSubtitleSectionLogged', [
+                'platformName' => \Yii::$app->name
+            ]));
 
             // if the called action is elimina-m2m i disable csrf check
             // th post in this action is not evaluated. Data confirm send this link in post mode... this is not correct
@@ -563,10 +618,10 @@ class CommunityController extends BaseCommunityController
             'labelManage' => $labelManage,
             'titleManage' => $titleManage,
             'urlCreate' => $urlCreate,
-            'urlManage' => $urlManage,
+            'urlManage' => $urlManage
         ];
 
-        if (!parent::beforeAction($action)) {
+        if (! parent::beforeAction($action)) {
             return false;
         }
 
@@ -582,51 +637,40 @@ class CommunityController extends BaseCommunityController
      */
     public function actionIndex($layout = null)
     {
-
         Url::remember();
         Yii::$app->session->set('previousUrl', Url::previous());
 
-        if (!\Yii::$app->user->isGuest) {
+        if (! \Yii::$app->user->isGuest) {
             $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Tutte le community');
             $this->view->params['labelLinkAll'] = AmosCommunity::t('amoscommunity', 'Le mie community');
-            $this->view->params['urlLinkAll'] = AmosCommunity::t(
-                'amoscommunity',
-                '/community/community/my-communities'
-            );
-            $this->view->params['titleLinkAll'] = AmosCommunity::t(
-                'amoscommunity',
-                'Visualizza la lista delle community a cui partecipi'
-            );
+            $this->view->params['urlLinkAll'] = AmosCommunity::t('amoscommunity', '/community/community/my-communities');
+            $this->view->params['titleLinkAll'] = AmosCommunity::t('amoscommunity', 'Visualizza la lista delle community a cui partecipi');
 
             $parentId = null;
             $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+            if (isset($moduleCwh) && ! empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
                     $parentId = $scope['community'];
                 }
             }
 
-            if (!empty($parentId) && \Yii::$app->controller->id == 'subcommunities') {
+            if (! empty($parentId) && \Yii::$app->controller->id == 'subcommunities') {
                 $parent = Community::findOne($parentId);
                 $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Tutte le sottocommunity');
-                if (!empty($parent)) {
-                    $urlLinkAll = '/community/subcommunities/my-communities?id='.$parentId;
+                if (! empty($parent)) {
+                    $urlLinkAll = '/community/subcommunities/my-communities?id=' . $parentId;
                     $this->view->params['urlLinkAll'] = $urlLinkAll;
                     $this->view->params['labelLinkAll'] = AmosCommunity::t('amoscommunity', 'Le mie sottocommunity');
-                    $this->view->params['subTitleSection'] = Html::tag(
-                        'p',
-                        AmosCommunity::t(
-                            'amoscommunity',
-                            'Qui troverai tutte le sottocommunity della community "{parent_community}".',
-                            ['parent_community' => $parent->name]
-                        )
-                    );
+                    $this->view->params['subTitleSection'] = Html::tag('p', AmosCommunity::t('amoscommunity', 'Qui troverai tutte le sottocommunity della community "{parent_community}".', [
+                        'parent_community' => $parent->name
+                    ]));
                 }
             }
         }
 
-        $this->setDataProvider($this->getModelSearch()->searchAll(Yii::$app->request->getQueryParams()));
+        $this->setDataProvider($this->getModelSearch()
+            ->searchAll(Yii::$app->request->getQueryParams()));
         return $this->baseListsAction(WidgetIconCommunity::widgetLabel());
     }
 
@@ -643,19 +687,22 @@ class CommunityController extends BaseCommunityController
         Yii::$app->view->params['textHelp']['filename'] = 'community_dashboard_description';
         $dataProvider = $this->getDataProvider();
 
-        $urlCreation = ['/community/community/create'];
+        $urlCreation = [
+            '/community/community/create'
+        ];
 
-        if (!empty(Yii::$app->getModule('community')->enableWizard) && Yii::$app->getModule('community')->enableWizard == true) {
-            $urlCreation = ['/community/community-wizard/introduction'];
+        if (! empty(Yii::$app->getModule('community')->enableWizard) && Yii::$app->getModule('community')->enableWizard == true) {
+            $urlCreation = [
+                '/community/community-wizard/introduction'
+            ];
         }
         // Yii::$app->view->params['createNewBtnParams'] = [
-        //     'createNewBtnLabel' => AmosCommunity::tHtml('amoscommunity', 'Add new Community'),
-        //     'urlCreateNew' => $urlCreation
+        // 'createNewBtnLabel' => AmosCommunity::tHtml('amoscommunity', 'Add new Community'),
+        // 'urlCreateNew' => $urlCreation
         // ];
 
-
         // if the visualization is a table show the community tree, else show all community fathers without subcommunities
-        if (!empty($this->getCurrentView()['name']) && $this->getCurrentView()['name'] == 'grid') {
+        if (! empty($this->getCurrentView()['name']) && $this->getCurrentView()['name'] == 'grid') {
 
             $modelsearch = new CommunitySearch();
             if (empty(\Yii::$app->request->get()['CommunitySearch']['name'])) {
@@ -670,49 +717,52 @@ class CommunityController extends BaseCommunityController
         } else {
             $moduleCommunity = \Yii::$app->getModule('community');
             $showSubscommunities = $moduleCommunity->showSubcommunities;
-            if (!$showSubscommunities) {
-                $dataProvider->query->andWhere(['IS', 'parent_id', null]);
+            if (! $showSubscommunities) {
+                $dataProvider->query->andWhere([
+                    'IS',
+                    'parent_id',
+                    null
+                ]);
             }
         }
-
 
         Yii::$app->session->set(AmosCommunity::beginCreateNewSessionKey(), Url::previous());
         $this->setUpLayout('list');
         $this->view->params['currentDashboard'] = $this->getCurrentDashboard();
         $this->setListsBreadcrumbs($pageTitle);
 
-        return $this->render(
-            'index',
-            [
-                'dataProvider' => $dataProvider,
-                'model' => $this->getModelSearch(),
-                'currentView' => $this->getCurrentView(),
-                'availableViews' => $this->getAvailableViews(),
-                'url' => ($this->url) ? $this->url : null,
-                'parametro' => ($this->parametro) ? $this->parametro : null,
-                'enabledHierarchy' => $enabledHierarchy
-            ]
-        );
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+            'model' => $this->getModelSearch(),
+            'currentView' => $this->getCurrentView(),
+            'availableViews' => $this->getAvailableViews(),
+            'url' => ($this->url) ? $this->url : null,
+            'parametro' => ($this->parametro) ? $this->parametro : null,
+            'enabledHierarchy' => $enabledHierarchy
+        ]);
     }
 
     /**
      * Used to set page title and breadcrumbs.
      *
-     * @param string $pageTitle Page title (ie. Created by, ...)
+     * @param string $pageTitle
+     *            Page title (ie. Created by, ...)
      */
     protected function setListsBreadcrumbs($pageTitle)
     {
         $translatedTitle = AmosCommunity::t('amoscommunity', $pageTitle);
         $moduleCwh = \Yii::$app->getModule('cwh');
-        if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+        if (isset($moduleCwh) && ! empty($moduleCwh->getCwhScope())) {
             $scope = $moduleCwh->getCwhScope();
             if (isset($scope['community'])) {
-                //                $moduleCwh->resetCwhScopeInSession();
+                // $moduleCwh->resetCwhScopeInSession();
             }
         }
-        //Yii::$app->view->title                 = $translatedTitle;
+        // Yii::$app->view->title = $translatedTitle;
         Yii::$app->view->params['breadcrumbs'] = [
-            ['label' => $translatedTitle],
+            [
+                'label' => $translatedTitle
+            ]
         ];
     }
 
@@ -726,57 +776,44 @@ class CommunityController extends BaseCommunityController
         Url::remember();
         Yii::$app->view->params['textHelp']['filename'] = 'community_dashboard_description';
         Yii::$app->session->set('previousUrl', Url::previous());
-        if (!is_null($id)) {
+        if (! is_null($id)) {
             $url = $this->setCommunityById($id);
-            if (!is_null($url)) {
+            if (! is_null($url)) {
                 return ($url);
             }
         }
 
-        if (!\Yii::$app->user->isGuest) {
+        if (! \Yii::$app->user->isGuest) {
             $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Le mie community');
-            $this->view->params['subTitleSection'] = Html::tag(
-                'p',
-                AmosCommunity::t(
-                    'amoscommunity',
-                    'Qui troverai le community della piattaforma {platformName} a cui sei iscritto.',
-                    ['platformName' => \Yii::$app->name]
-                )
-            );
+            $this->view->params['subTitleSection'] = Html::tag('p', AmosCommunity::t('amoscommunity', 'Qui troverai le community della piattaforma {platformName} a cui sei iscritto.', [
+                'platformName' => \Yii::$app->name
+            ]));
 
             $parentId = null;
             $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+            if (isset($moduleCwh) && ! empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
                     $parentId = $scope['community'];
                 }
             }
-            if (!empty($parentId)) {
+            if (! empty($parentId)) {
                 $parent = Community::findOne($parentId);
-                $urlLinkAll = '/community/subcommunities/index?id='.$parentId;
+                $urlLinkAll = '/community/subcommunities/index?id=' . $parentId;
 
                 $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Le mie sottocommunity');
                 $this->view->params['urlLinkAll'] = $urlLinkAll;
 
-                if (!empty($parent)) {
-                    $this->view->params['subTitleSection'] = Html::tag(
-                        'p',
-                        AmosCommunity::t(
-                            'amoscommunity',
-                            'Qui troverai le sottocommunity a cui sei iscritto, della community "{parent_community}".',
-                            ['parent_community' => $parent->name]
-                        )
-                    );
+                if (! empty($parent)) {
+                    $this->view->params['subTitleSection'] = Html::tag('p', AmosCommunity::t('amoscommunity', 'Qui troverai le sottocommunity a cui sei iscritto, della community "{parent_community}".', [
+                        'parent_community' => $parent->name
+                    ]));
                 }
             }
         }
 
-        $this->setDataProvider($this->getModelSearch()->searchMyCommunities(
-            Yii::$app->request->getQueryParams(),
-            null,
-            false
-        ));
+        $this->setDataProvider($this->getModelSearch()
+            ->searchMyCommunities(Yii::$app->request->getQueryParams(), null, false));
         return $this->baseListsAction(WidgetIconMyCommunities::widgetLabel());
     }
 
@@ -790,52 +827,51 @@ class CommunityController extends BaseCommunityController
         Url::remember();
         Yii::$app->view->params['textHelp']['filename'] = 'community_dashboard_description';
         Yii::$app->session->set('previousUrl', Url::previous());
-        if (!is_null($id)) {
+        if (! is_null($id)) {
             $url = $this->setCommunityById($id);
-            if (!is_null($url)) {
+            if (! is_null($url)) {
                 return ($url);
             }
         }
 
-        $this->setDataProvider($this->getModelSearch()->searchMyCommunitiesWithTags(Yii::$app->request->getQueryParams()));
+        $this->setDataProvider($this->getModelSearch()
+            ->searchMyCommunitiesWithTags(Yii::$app->request->getQueryParams()));
         return $this->baseListsAction(WidgetIconMyCommunitiesWithTags::widgetLabel());
     }
 
     /**
      *
-     * @param $id
+     * @param
+     *            $id
      * @return
      */
     public function setCommunityById($id)
     {
         $model = $this->findModel($id);
 
-        $userCommunity = CommunityUserMm::findOne(['user_id' => Yii::$app->user->id, 'community_id' => $id]);
+        $userCommunity = CommunityUserMm::findOne([
+            'user_id' => Yii::$app->user->id,
+            'community_id' => $id
+        ]);
 
         /**
          * If The User is not subscribed to community
          */
         if (empty($userCommunity)) {
-            $this->addFlash(
-                'danger',
-                AmosCommunity::t('amosadmin', 'You Can\'t access a community you are not a member of')
-            );
+            $this->addFlash('danger', AmosCommunity::t('amosadmin', 'You Can\'t access a community you are not a member of'));
             return $this->redirect(Url::previous());
         }
 
         if ($model != null) {
             $moduleCwh = \Yii::$app->getModule('cwh');
             if (isset($moduleCwh)) {
-                $moduleCwh->setCwhScopeInSession(
-                    [
-                        'community' => $id,
-                    ],
-                    [
-                        'mm_name' => 'community_user_mm',
-                        'entity_id_field' => 'community_id',
-                        'entity_id' => $id
-                    ]
-                );
+                $moduleCwh->setCwhScopeInSession([
+                    'community' => $id
+                ], [
+                    'mm_name' => 'community_user_mm',
+                    'entity_id_field' => 'community_id',
+                    'entity_id' => $id
+                ]);
             }
         }
 
@@ -855,44 +891,39 @@ class CommunityController extends BaseCommunityController
         Url::remember();
         Yii::$app->session->set('previousUrl', Url::previous());
 
-        $this->setDataProvider($this->getModelSearch()->searchCreatedByCommunities(Yii::$app->request->getQueryParams()));
+        $this->setDataProvider($this->getModelSearch()
+            ->searchCreatedByCommunities(Yii::$app->request->getQueryParams()));
         $this->setAvailableViews([
             'grid' => [
                 'name' => 'grid',
                 'label' => AmosIcons::show('view-list-alt') . Html::tag('p', AmosCommunity::t('amoscommunity', 'Table')),
                 'url' => '?currentView=grid'
-            ],
+            ]
         ]);
         $this->setCurrentView($this->getAvailableView('grid'));
         $this->setUpLayout('list');
 
-
-        if (!\Yii::$app->user->isGuest) {
+        if (! \Yii::$app->user->isGuest) {
             $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Community create da me');
 
             $parentId = null;
             $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+            if (isset($moduleCwh) && ! empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
                     $parentId = $scope['community'];
                 }
             }
-            if (!empty($parentId)) {
+            if (! empty($parentId)) {
 
                 $parent = Community::findOne($parentId);
 
                 $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Sottocommunity create da me');
 
-                if (!empty($parent)) {
-                    $this->view->params['subTitleSection'] = Html::tag(
-                        'p',
-                        AmosCommunity::t(
-                            'amoscommunity',
-                            'Qui troverai le sottocommunity che hai creato nella community "{parent_community}".',
-                            ['parent_community' => $parent->name]
-                        )
-                    );
+                if (! empty($parent)) {
+                    $this->view->params['subTitleSection'] = Html::tag('p', AmosCommunity::t('amoscommunity', 'Qui troverai le sottocommunity che hai creato nella community "{parent_community}".', [
+                        'parent_community' => $parent->name
+                    ]));
                 }
             }
         }
@@ -901,6 +932,7 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
+     *
      * @return string
      */
     public function actionAdminAllCommunities()
@@ -908,44 +940,40 @@ class CommunityController extends BaseCommunityController
         Url::remember();
         Yii::$app->session->set('previousUrl', Url::previous());
 
-        $this->setDataProvider($this->getModelSearch()->searchAdminAllCommunities(Yii::$app->request->getQueryParams()));
+        $this->setDataProvider($this->getModelSearch()
+            ->searchAdminAllCommunities(Yii::$app->request->getQueryParams()));
         $this->setAvailableViews([
             'grid' => [
                 'name' => 'grid',
                 'label' => AmosIcons::show('view-list-alt') . Html::tag('p', AmosCommunity::t('amoscommunity', 'Table')),
                 'url' => '?currentView=grid'
-            ],
+            ]
         ]);
         $this->setCurrentView($this->getAvailableView('grid'));
 
         $this->setUpLayout('list');
 
-        if (!\Yii::$app->user->isGuest) {
+        if (! \Yii::$app->user->isGuest) {
             $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Amministra community');
 
             $parentId = null;
             $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+            if (isset($moduleCwh) && ! empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
                     $parentId = $scope['community'];
                 }
             }
-            if (!empty($parentId)) {
+            if (! empty($parentId)) {
 
                 $parent = Community::findOne($parentId);
 
                 $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Amministra sottocommunity');
 
-                if (!empty($parent)) {
-                    $this->view->params['subTitleSection'] = Html::tag(
-                        'p',
-                        AmosCommunity::t(
-                            'amoscommunity',
-                            'Qui troverai le sottocommunity della community "{parent_community}".',
-                            ['parent_community' => $parent->name]
-                        )
-                    );
+                if (! empty($parent)) {
+                    $this->view->params['subTitleSection'] = Html::tag('p', AmosCommunity::t('amoscommunity', 'Qui troverai le sottocommunity della community "{parent_community}".', [
+                        'parent_community' => $parent->name
+                    ]));
                 }
             }
         }
@@ -963,42 +991,38 @@ class CommunityController extends BaseCommunityController
         Url::remember();
         Yii::$app->session->set('previousUrl', Url::previous());
 
-        $this->setDataProvider($this->getModelSearch()->searchToValidateCommunities(Yii::$app->request->getQueryParams()));
+        $this->setDataProvider($this->getModelSearch()
+            ->searchToValidateCommunities(Yii::$app->request->getQueryParams()));
         $this->setAvailableViews([
             'grid' => [
                 'name' => 'grid',
                 'label' => AmosIcons::show('view-list-alt') . Html::tag('p', AmosCommunity::t('amoscommunity', 'Table')),
                 'url' => '?currentView=grid'
-            ],
+            ]
         ]);
         $this->setCurrentView($this->getAvailableView('grid'));
 
-        if (!\Yii::$app->user->isGuest) {
+        if (! \Yii::$app->user->isGuest) {
             $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Community da validare');
 
             $parentId = null;
             $moduleCwh = \Yii::$app->getModule('cwh');
-            if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+            if (isset($moduleCwh) && ! empty($moduleCwh->getCwhScope())) {
                 $scope = $moduleCwh->getCwhScope();
                 if (isset($scope['community'])) {
                     $parentId = $scope['community'];
                 }
             }
-            if (!empty($parentId)) {
+            if (! empty($parentId)) {
 
                 $parent = Community::findOne($parentId);
 
                 $this->view->params['titleSection'] = AmosCommunity::t('amoscommunity', 'Sottocommunity da validare');
 
-                if (!empty($parent)) {
-                    $this->view->params['subTitleSection'] = Html::tag(
-                        'p',
-                        AmosCommunity::t(
-                            'amoscommunity',
-                            'Qui troverai le sottocommunity da validare della community "{parent_community}".',
-                            ['parent_community' => $parent->name]
-                        )
-                    );
+                if (! empty($parent)) {
+                    $this->view->params['subTitleSection'] = Html::tag('p', AmosCommunity::t('amoscommunity', 'Qui troverai le sottocommunity da validare della community "{parent_community}".', [
+                        'parent_community' => $parent->name
+                    ]));
                 }
             }
         }
@@ -1017,21 +1041,15 @@ class CommunityController extends BaseCommunityController
      */
     public function actionJoinCommunity($communityId, $accept = false, $redirectAction = null)
     {
-		$module = \Yii::$app->getModule('community');
+        $module = \Yii::$app->getModule('community');
         $defaultAction = 'index';
 
         if (empty($redirectAction)) {
             $urlPrevious = Url::previous();
             $redirectAction = $urlPrevious;
         }
-        if (!$communityId) {
-            $this->addFlash(
-                'danger',
-                AmosCommunity::tHtml(
-                    'amoscommunity',
-                    "It is not possible to subscribe the user. Missing parameter community."
-                )
-            );
+        if (! $communityId) {
+            $this->addFlash('danger', AmosCommunity::tHtml('amoscommunity', "It is not possible to subscribe the user. Missing parameter community."));
             return $this->redirect($defaultAction);
         }
 
@@ -1044,12 +1062,12 @@ class CommunityController extends BaseCommunityController
         $user = User::findOne($userId);
         /** @var UserProfile $userProfile */
         $userProfile = $user->getProfile();
-        if (!is_null($userProfile)) {
+        if (! is_null($userProfile)) {
             $nomeCognome = " '" . $userProfile->nomeCognome . "' ";
         }
 
         $community = Community::findOne($communityId);
-        if (!is_null($community)) {
+        if (! is_null($community)) {
             $communityName = " '" . $community->name . "'";
             $communityType = $community->community_type_id;
         }
@@ -1058,41 +1076,27 @@ class CommunityController extends BaseCommunityController
             $defaultAction = Url::previous();
         }
 
-        $userCommunity = CommunityUserMm::findOne(['community_id' => $communityId, 'user_id' => $userId]);
+        $userCommunity = CommunityUserMm::findOne([
+            'community_id' => $communityId,
+            'user_id' => $userId
+        ]);
 
         // Verify if user already in community user relation table
-        if (!is_null($userCommunity)) {
-            if ($userCommunity->status == CommunityUserMm::STATUS_WAITING_OK_USER) { //user has been invited and decide to accept or reject
-                $invitedByUser = User::findOne(['id' => $userCommunity->created_by]);
+        if (! is_null($userCommunity)) {
+            if ($userCommunity->status == CommunityUserMm::STATUS_WAITING_OK_USER) { // user has been invited and decide to accept or reject
+                $invitedByUser = User::findOne([
+                    'id' => $userCommunity->created_by
+                ]);
                 if ($accept) {
-                    //                    $communityManagerEmailArray = $userCommunity->getCommunityManagerMailList($communityId);
+                    // $communityManagerEmailArray = $userCommunity->getCommunityManagerMailList($communityId);
                     $userCommunity->status = CommunityUserMm::STATUS_ACTIVE;
                     $community->setCwhAuthAssignments($userCommunity);
-                    $message = AmosCommunity::tHtml(
-                        'amoscommunity',
-                        "You are now a member of the community"
-                    ) . $communityName;
+                    $message = AmosCommunity::tHtml('amoscommunity', "You are now a member of the community") . $communityName;
                     $ok = $userCommunity->save(false);
                     $emailTypeToManager = EmailUtil::ACCEPT_INVITATION;
                     $emailTypeToUser = EmailUtil::WELCOME;
-                    $emailUtilToManager = new EmailUtil(
-                        $emailTypeToManager,
-                        $userCommunity->role,
-                        $community,
-                        $userProfile->nomeCognome,
-                        '',
-                        null,
-                        $userProfile->user_id
-                    );
-                    $emailUtilToUser = new EmailUtil(
-                        $emailTypeToUser,
-                        $userCommunity->role,
-                        $community,
-                        $userProfile->nomeCognome,
-                        '',
-                        null,
-                        $userProfile->user_id
-                    );
+                    $emailUtilToManager = new EmailUtil($emailTypeToManager, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
+                    $emailUtilToUser = new EmailUtil($emailTypeToUser, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
                     $subjectToManager = $emailUtilToManager->getSubject();
                     $textToManager = $emailUtilToManager->getText();
                     $subjectToUser = $emailUtilToUser->getSubject();
@@ -1100,36 +1104,38 @@ class CommunityController extends BaseCommunityController
 
                     $this->sendMail(null, $invitedByUser->email, $subjectToManager, $textToManager, [], []);
                     $this->sendMail(null, $user->email, $subjectToUser, $textToUser, [], []);
-                    $nu   = new NotifyUtility();
-                    if($this->communityModule->setDefaultCommunityNotificationImmediate){
-                        if (!empty($user) && !empty($communityId)) {
-                            $nu->saveNetworkNotification(Yii::$app->user->id,
-                                [
-                                'notifyCommunity' => [$communityId => NotificationsConfOpt::EMAIL_IMMEDIATE]
+                    $nu = new NotifyUtility();
+
+                    if ($module && $module->hasProperty(setDefaultCommunityNotification)) {
+                        $notification = $module->setDefaultCommunityNotification;
+                        if (! empty($user) && ! empty($communityId)) {
+                            $nu->saveNetworkNotification(Yii::$app->user->id, [
+                                'notifyCommunity' => [
+                                    $communityId => $notification
+                                ]
                             ]);
                         }
-					}
+                    } else {
 
+                        if ($this->communityModule->setDefaultCommunityNotificationImmediate) {
+                            if (! empty($user) && ! empty($communityId)) {
+                                $nu->saveNetworkNotification(Yii::$app->user->id, [
+                                    'notifyCommunity' => [
+                                        $communityId => NotificationsConfOpt::EMAIL_IMMEDIATE
+                                    ]
+                                ]);
+                            }
+                        }
+                    }
                 } else {
 
-                    $message = AmosCommunity::tHtml('amoscommunity', "Invitation to") . $communityName . ' ' . AmosCommunity::tHtml(
-                        'amoscommunity',
-                        "rejected successfully"
-                    );
+                    $message = AmosCommunity::tHtml('amoscommunity', "Invitation to") . $communityName . ' ' . AmosCommunity::tHtml('amoscommunity', "rejected successfully");
                     $emailType = EmailUtil::REJECT_INVITATION;
-                    $emailUtil = new EmailUtil(
-                        $emailType,
-                        $userCommunity->role,
-                        $community,
-                        $userProfile->nomeCognome,
-                        '',
-                        null,
-                        $userProfile->user_id
-                    );
+                    $emailUtil = new EmailUtil($emailType, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
                     $subject = $emailUtil->getSubject();
                     $text = $emailUtil->getText();
                     $userCommunity->delete();
-                    $ok = !$userCommunity->getErrors();
+                    $ok = ! $userCommunity->getErrors();
                     $this->sendMail(null, $invitedByUser->email, $subject, $text, [], []);
                 }
             } else if ($userCommunity->status == CommunityUserMm::STATUS_GUEST) {
@@ -1137,44 +1143,40 @@ class CommunityController extends BaseCommunityController
                 $userCommunity->role = $callingModel->getBaseRole();
                 $userCommunity->status = CommunityUserMm::STATUS_ACTIVE;
                 $ok = $userCommunity->save(false);
-                //add cwh auth-assignment permission for community/user if role is participant and status is active
+                // add cwh auth-assignment permission for community/user if role is participant and status is active
                 $communityManagerEmailArray = $userCommunity->getCommunityManagerMailList($communityId);
                 $community->setCwhAuthAssignments($userCommunity);
-                $message = AmosCommunity::tHtml('amoscommunity', "You are now") . " " .
-                    AmosCommunity::tHtml('amoscommunity', $userCommunity->role) . " " .
-                    AmosCommunity::tHtml('amoscommunity', "of") . $communityName;
+                $message = AmosCommunity::tHtml('amoscommunity', "You are now") . " " . AmosCommunity::tHtml('amoscommunity', $userCommunity->role) . " " . AmosCommunity::tHtml('amoscommunity', "of") . $communityName;
                 $emailTypeToManager = EmailUtil::REGISTRATION_NOTIFICATION;
                 $emailTypeToUser = EmailUtil::WELCOME;
-                $emailUtilToManager = new EmailUtil(
-                    $emailTypeToManager,
-                    $userCommunity->role,
-                    $community,
-                    $userProfile->nomeCognome,
-                    '',
-                    null,
-                    $userProfile->user_id
-                );
-                $emailUtilToUser = new EmailUtil(
-                    $emailTypeToUser,
-                    $userCommunity->role,
-                    $community,
-                    $userProfile->nomeCognome,
-                    '',
-                    null,
-                    $userProfile->user_id
-                );
+                $emailUtilToManager = new EmailUtil($emailTypeToManager, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
+                $emailUtilToUser = new EmailUtil($emailTypeToUser, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
                 $subjectToManager = $emailUtilToManager->getSubject();
                 $textToManager = $emailUtilToManager->getText();
                 $subjectToUser = $emailUtilToUser->getSubject();
                 $textToUser = $emailUtilToUser->getText();
-                $nu   = new NotifyUtility();
-                if($this->communityModule->setDefaultCommunityNotificationImmediate){
-                        if (!empty($user) && !empty($communityId)) {
-                                $nu->saveNetworkNotification(Yii::$app->user->id,
-                                        [
-                                        'notifyCommunity' => [$communityId => NotificationsConfOpt::EMAIL_IMMEDIATE]
-                                ]);
+                $nu = new NotifyUtility();
+
+                if ($module && $module->hasProperty(setDefaultCommunityNotification)) {
+                    $notification = $module->setDefaultCommunityNotification;
+                    if (! empty($user) && ! empty($communityId)) {
+                        $nu->saveNetworkNotification(Yii::$app->user->id, [
+                            'notifyCommunity' => [
+                                $communityId => $notification
+                            ]
+                        ]);
+                    }
+                } else {
+
+                    if ($this->communityModule->setDefaultCommunityNotificationImmediate) {
+                        if (! empty($user) && ! empty($communityId)) {
+                            $nu->saveNetworkNotification(Yii::$app->user->id, [
+                                'notifyCommunity' => [
+                                    $communityId => NotificationsConfOpt::EMAIL_IMMEDIATE
+                                ]
+                            ]);
                         }
+                    }
                 }
 
                 foreach ($communityManagerEmailArray as $to) {
@@ -1187,13 +1189,7 @@ class CommunityController extends BaseCommunityController
                     return $this->redirect($defaultAction);
                 }
             } else {
-                $this->addFlash(
-                    'info',
-                    AmosCommunity::tHtml('amoscommunity', "User") . $nomeCognome . AmosCommunity::tHtml(
-                        'amoscommunity',
-                        "already joined this community"
-                    ) . $communityName
-                );
+                $this->addFlash('info', AmosCommunity::tHtml('amoscommunity', "User") . $nomeCognome . AmosCommunity::tHtml('amoscommunity', "already joined this community") . $communityName);
                 return $this->redirect($defaultAction);
             }
         } else {
@@ -1202,13 +1198,7 @@ class CommunityController extends BaseCommunityController
              * If The User is not validated once - not possible to subscribe
              */
             if ($userProfile->validato_almeno_una_volta == 0 && $community->for_all_user == 0) {
-                $this->addFlash(
-                    'danger',
-                    AmosCommunity::t(
-                        'amoscommunity',
-                        'You Can\'t Join Communities, your profile has never been validated'
-                    )
-                );
+                $this->addFlash('danger', AmosCommunity::t('amoscommunity', 'You Can\'t Join Communities, your profile has never been validated'));
 
                 return $this->redirect(Url::previous());
             }
@@ -1219,35 +1209,17 @@ class CommunityController extends BaseCommunityController
             $userCommunity->user_id = $userId;
             $callingModel = Yii::createObject($community->context);
             $userCommunity->role = $callingModel->getBaseRole();
-            //mamagement status of new member and email sending depend on community type
+            // mamagement status of new member and email sending depend on community type
             if ($communityType == CommunityType::COMMUNITY_TYPE_OPEN) {
                 $userCommunity->status = CommunityUserMm::STATUS_ACTIVE;
-                //add cwh auth-assignment permission for community/user if role is participant and status is active
+                // add cwh auth-assignment permission for community/user if role is participant and status is active
                 $communityManagerEmailArray = $userCommunity->getCommunityManagerMailList($communityId);
                 $community->setCwhAuthAssignments($userCommunity);
-                $message = AmosCommunity::tHtml('amoscommunity', "You are now") . " " .
-                    AmosCommunity::tHtml('amoscommunity', $userCommunity->role) . " " .
-                    AmosCommunity::tHtml('amoscommunity', "of") . $communityName;
+                $message = AmosCommunity::tHtml('amoscommunity', "You are now") . " " . AmosCommunity::tHtml('amoscommunity', $userCommunity->role) . " " . AmosCommunity::tHtml('amoscommunity', "of") . $communityName;
                 $emailTypeToManager = EmailUtil::REGISTRATION_NOTIFICATION;
                 $emailTypeToUser = EmailUtil::WELCOME;
-                $emailUtilToManager = new EmailUtil(
-                    $emailTypeToManager,
-                    $userCommunity->role,
-                    $community,
-                    $userProfile->nomeCognome,
-                    '',
-                    null,
-                    $userProfile->user_id
-                );
-                $emailUtilToUser = new EmailUtil(
-                    $emailTypeToUser,
-                    $userCommunity->role,
-                    $community,
-                    $userProfile->nomeCognome,
-                    '',
-                    null,
-                    $userProfile->user_id
-                );
+                $emailUtilToManager = new EmailUtil($emailTypeToManager, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
+                $emailUtilToUser = new EmailUtil($emailTypeToUser, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
                 $subjectToManager = $emailUtilToManager->getSubject();
                 $textToManager = $emailUtilToManager->getText();
                 $subjectToUser = $emailUtilToUser->getSubject();
@@ -1260,24 +1232,12 @@ class CommunityController extends BaseCommunityController
             } elseif ($communityType == CommunityType::COMMUNITY_TYPE_CLOSED) {
                 $this->addFlash('danger', AmosCommunity::tHtml('amoscommunity', "Can't Join Restricted Communities"));
                 return $this->redirect($defaultAction);
-            } else { //community is private type (not closed, if community is closed it will be not visible - only invite)
+            } else { // community is private type (not closed, if community is closed it will be not visible - only invite)
                 $userCommunity->status = CommunityUserMm::STATUS_WAITING_OK_COMMUNITY_MANAGER;
                 $communityManagerEmailArray = $userCommunity->getCommunityManagerMailList($communityId);
-                $message = AmosCommunity::tHtml(
-                    'amoscommunity',
-                    "Your request has been forwarded to managers of"
-                ) .
-                    $communityName . " " . AmosCommunity::tHtml('amoscommunity', "for approval");
+                $message = AmosCommunity::tHtml('amoscommunity', "Your request has been forwarded to managers of") . $communityName . " " . AmosCommunity::tHtml('amoscommunity', "for approval");
                 $emailType = EmailUtil::REGISTRATION_REQUEST;
-                $emailUtil = new EmailUtil(
-                    $emailType,
-                    $userCommunity->role,
-                    $community,
-                    $userProfile->nomeCognome,
-                    '',
-                    null,
-                    $userProfile->user_id
-                );
+                $emailUtil = new EmailUtil($emailType, $userCommunity->role, $community, $userProfile->nomeCognome, '', null, $userProfile->user_id);
                 $subject = $emailUtil->getSubject();
                 $text = $emailUtil->getText();
                 foreach ($communityManagerEmailArray as $to) {
@@ -1289,15 +1249,29 @@ class CommunityController extends BaseCommunityController
         }
 
         if ($ok) {
-            $nu   = new NotifyUtility();
-            if($this->communityModule->setDefaultCommunityNotificationImmediate){
-                    if (!empty($user) && !empty($communityId)) {
-                            $nu->saveNetworkNotification(Yii::$app->user->id,
-                                    [
-                                    'notifyCommunity' => [$communityId => NotificationsConfOpt::EMAIL_IMMEDIATE]
-                            ]);
+            $nu = new NotifyUtility();
+            if ($module && $module->hasProperty(setDefaultCommunityNotification)) {
+                $notification = $module->setDefaultCommunityNotification;
+                if (! empty($user) && ! empty($communityId)) {
+                    $nu->saveNetworkNotification(Yii::$app->user->id, [
+                        'notifyCommunity' => [
+                            $communityId => $notification
+                        ]
+                    ]);
+                }
+            } else {
+
+                if ($this->communityModule->setDefaultCommunityNotificationImmediate) {
+                    if (! empty($user) && ! empty($communityId)) {
+                        $nu->saveNetworkNotification(Yii::$app->user->id, [
+                            'notifyCommunity' => [
+                                $communityId => NotificationsConfOpt::EMAIL_IMMEDIATE
+                            ]
+                        ]);
                     }
+                }
             }
+
             $this->addFlash('success', $message);
             if (isset($redirectAction)) {
                 return $this->redirect($redirectAction);
@@ -1305,13 +1279,7 @@ class CommunityController extends BaseCommunityController
                 return $this->redirect($defaultAction);
             }
         } else {
-            $this->addFlash(
-                'danger',
-                AmosCommunity::tHtml('amoscommunity', "Error occured while subscribing the user") . $nomeCognome . AmosCommunity::tHtml(
-                    'amoscommunity',
-                    "to community"
-                ) . $communityName
-            );
+            $this->addFlash('danger', AmosCommunity::tHtml('amoscommunity', "Error occured while subscribing the user") . $nomeCognome . AmosCommunity::tHtml('amoscommunity', "to community") . $communityName);
             return $this->redirect($defaultAction);
         }
     }
@@ -1319,8 +1287,10 @@ class CommunityController extends BaseCommunityController
     /**
      * Community manager accepts the user registration request to a community
      *
-     * @param $communityId
-     * @param $userId
+     * @param
+     *            $communityId
+     * @param
+     *            $userId
      * @return Response
      */
     public function actionAcceptUser($communityId, $userId)
@@ -1341,20 +1311,25 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
+     *
      * @param int $communityId
      * @param int $userId
-     * @param bool $acccept - true if User registration request has been accepted by community manager, false if rejected
+     * @param bool $acccept
+     *            - true if User registration request has been accepted by community manager, false if rejected
      * @return string $redirectUrl
      */
     private function acceptOrRejectUser($communityId, $userId, $acccept)
     {
-        $userCommunity = CommunityUserMm::findOne(['community_id' => $communityId, 'user_id' => $userId]);
+        $userCommunity = CommunityUserMm::findOne([
+            'community_id' => $communityId,
+            'user_id' => $userId
+        ]);
 
         $status = $acccept ? CommunityUserMm::STATUS_ACTIVE : CommunityUserMm::STATUS_REJECTED;
         $emailType = $acccept ? EmailUtil::WELCOME : EmailUtil::REGISTRATION_REJECTED;
         $redirectUrl = "";
         $managerName = "";
-        if (!is_null($userCommunity)) {
+        if (! is_null($userCommunity)) {
             $userCommunity->status = $status;
             $nomeCognome = " ";
             $communityName = '';
@@ -1362,11 +1337,11 @@ class CommunityController extends BaseCommunityController
             /** @var UserProfile $userProfile */
             $user = User::findOne($userId);
             $userProfile = $user->getProfile();
-            if (!is_null($userProfile)) {
+            if (! is_null($userProfile)) {
                 $nomeCognome = " '" . $userProfile->nomeCognome . "' ";
             }
             $community = Community::findOne($communityId);
-            if (!is_null($community)) {
+            if (! is_null($community)) {
                 $communityName = " '" . $community->name . "'";
             }
             $callingModel = Yii::createObject($community->context);
@@ -1375,33 +1350,21 @@ class CommunityController extends BaseCommunityController
             if ($acccept) {
                 $userCommunity->save(false);
                 $community->setCwhAuthAssignments($userCommunity);
-                $message = $nomeCognome . AmosCommunity::tHtml('amoscommunity', "is now") .
-                    " " . AmosCommunity::tHtml('amoscommunity', $userCommunity->role) . " " .
-                    AmosCommunity::tHtml('amoscommunity', "of") . $communityName;
+                $message = $nomeCognome . AmosCommunity::tHtml('amoscommunity', "is now") . " " . AmosCommunity::tHtml('amoscommunity', $userCommunity->role) . " " . AmosCommunity::tHtml('amoscommunity', "of") . $communityName;
             } else {
                 $loggedUser = User::findOne(Yii::$app->getUser()->id);
                 /** @var UserProfile $loggedUserProfile */
                 $loggedUserProfile = $loggedUser->getProfile();
                 $managerName = $loggedUserProfile->getNomeCognome();
-                $message = AmosCommunity::tHtml('amoscommunity', "Registration request to") .
-                    $communityName . " " . AmosCommunity::tHtml('amoscommunity', "sent by") .
-                    $nomeCognome . AmosCommunity::tHtml('amoscommunity', "has been rejected successfully");
+                $message = AmosCommunity::tHtml('amoscommunity', "Registration request to") . $communityName . " " . AmosCommunity::tHtml('amoscommunity', "sent by") . $nomeCognome . AmosCommunity::tHtml('amoscommunity', "has been rejected successfully");
             }
-            $emailUtil = new EmailUtil(
-                $emailType,
-                $userCommunity->role,
-                $community,
-                $userProfile->nomeCognome,
-                $managerName,
-                null,
-                $userProfile->user_id
-            );
+            $emailUtil = new EmailUtil($emailType, $userCommunity->role, $community, $userProfile->nomeCognome, $managerName, null, $userProfile->user_id);
             $subject = $emailUtil->getSubject();
             $text = $emailUtil->getText();
             $this->sendMail(null, $user->email, $subject, $text, [], []);
             $this->addFlash('success', $message);
 
-            if (!$acccept) {
+            if (! $acccept) {
                 $userCommunity->delete();
             }
         }
@@ -1410,6 +1373,7 @@ class CommunityController extends BaseCommunityController
 
     /**
      * Action used to confirm a community manager.
+     *
      * @param int $communityId
      * @param int $userId
      * @param string $managerRole
@@ -1419,24 +1383,19 @@ class CommunityController extends BaseCommunityController
     {
         $ok = CommunityUtil::confirmCommunityManager($communityId, $userId, $managerRole);
         if ($ok) {
-            $userProfile = UserProfile::findOne(['user_id' => $userId]);
-            $this->addFlash(
-                'success',
-                AmosCommunity::t('amoscommunity', "The manager '" . $userProfile->getNomeCognome() . "' is now active")
-            );
+            $userProfile = UserProfile::findOne([
+                'user_id' => $userId
+            ]);
+            $this->addFlash('success', AmosCommunity::t('amoscommunity', "The manager '" . $userProfile->getNomeCognome() . "' is now active"));
         } else {
-            $userProfile = UserProfile::findOne(['user_id' => $userId]);
-            $this->addFlash(
-                'danger',
-                AmosCommunity::t(
-                    'amoscommunity',
-                    "Error while confirming the manager '" . $userProfile->getNomeCognome() . "'"
-                )
-            );
+            $userProfile = UserProfile::findOne([
+                'user_id' => $userId
+            ]);
+            $this->addFlash('danger', AmosCommunity::t('amoscommunity', "Error while confirming the manager '" . $userProfile->getNomeCognome() . "'"));
         }
         $redirectUrl = '';
         $community = Community::findOne($communityId);
-        if (!is_null($community)) {
+        if (! is_null($community)) {
             $callingModel = Yii::createObject($community->context);
             $redirectUrl = $this->getRedirectUrl($callingModel, $communityId);
         }
@@ -1444,13 +1403,18 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
-     * @param $communityId
-     * @param $userId
+     *
+     * @param
+     *            $communityId
+     * @param
+     *            $userId
      */
     public function actionChangeUserRole($communityId, $userId)
     {
-
-        $userCommunity = CommunityUserMm::findOne(['community_id' => $communityId, 'user_id' => $userId]);
+        $userCommunity = CommunityUserMm::findOne([
+            'community_id' => $communityId,
+            'user_id' => $userId
+        ]);
         $this->model = $this->findModel($communityId);
 
         if ($this->model->isCommunityManager(Yii::$app->user->id) || Yii::$app->user->can('ADMIN')) {
@@ -1459,7 +1423,7 @@ class CommunityController extends BaseCommunityController
                 if (Yii::$app->request->isPost) {
                     \Yii::$app->response->format = Response::FORMAT_JSON;
                     $post = Yii::$app->request->post();
-                    if (!is_null($userCommunity) && isset($post['role'])) {
+                    if (! is_null($userCommunity) && isset($post['role'])) {
                         $nomeCognome = "";
                         $communityName = '';
                         $userCommunity->role = $post['role'];
@@ -1475,24 +1439,14 @@ class CommunityController extends BaseCommunityController
                             /** @var UserProfile $userProfile */
                             $user = User::findOne($userId);
                             $userProfile = $user->getProfile();
-                            if (!is_null($userProfile)) {
+                            if (! is_null($userProfile)) {
                                 $nomeCognome = "'" . $userProfile->nomeCognome . "'";
                             }
-                            if (!is_null($this->model)) {
+                            if (! is_null($this->model)) {
                                 $communityName = " '" . $this->model->name . "'";
                             }
-                            $message = $nomeCognome . " " . AmosCommunity::t('amoscommunity', "is now") .
-                                " '" . AmosCommunity::t('amoscommunity', $userCommunity->role) . "' " .
-                                AmosCommunity::t('amoscommunity', "of") . $communityName;
-                            $emailUtil = new EmailUtil(
-                                EmailUtil::CHANGE_ROLE,
-                                $userCommunity->role,
-                                $this->model,
-                                $userProfile->nomeCognome,
-                                '',
-                                null,
-                                $userProfile->user_id
-                            );
+                            $message = $nomeCognome . " " . AmosCommunity::t('amoscommunity', "is now") . " '" . AmosCommunity::t('amoscommunity', $userCommunity->role) . "' " . AmosCommunity::t('amoscommunity', "of") . $communityName;
+                            $emailUtil = new EmailUtil(EmailUtil::CHANGE_ROLE, $userCommunity->role, $this->model, $userProfile->nomeCognome, '', null, $userProfile->user_id);
                             $subject = $emailUtil->getSubject();
                             $text = $emailUtil->getText();
                             $this->sendMail(null, $user->email, $subject, $text, [], []);
@@ -1510,22 +1464,20 @@ class CommunityController extends BaseCommunityController
     /**
      * Publish a community
      *
-     * @param $id
-     * @param bool $redirectWizard true if publishing at the end of creation creation wizard, false otherwise
+     * @param
+     *            $id
+     * @param bool $redirectWizard
+     *            true if publishing at the end of creation creation wizard, false otherwise
      * @return string
      */
     public function actionPublish($id, $redirectWizard = true)
     {
-
         $this->model = $this->findModel($id);
 
         $published = false;
-        $message = AmosCommunity::t('amoscommunity', "#community_published") . " '" . $this->model->name . "' " . AmosCommunity::t(
-            'amoscommunity',
-            "has been published succesfully"
-        );
+        $message = AmosCommunity::t('amoscommunity', "#community_published") . " '" . $this->model->name . "' " . AmosCommunity::t('amoscommunity', "has been published succesfully");
 
-        //if community is already in validated status (maybe bypass workflow is active)
+        // if community is already in validated status (maybe bypass workflow is active)
         if ($this->model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) {
             $published = true;
         } else {
@@ -1536,28 +1488,27 @@ class CommunityController extends BaseCommunityController
             $isChild = false;
             if ($this->model->parent_id != null) {
                 $isChild = true;
-                $canValidateSubdomain = $user->can('COMMUNITY_VALIDATE', ['model' => $this->model]);
+                $canValidateSubdomain = $user->can('COMMUNITY_VALIDATE', [
+                    'model' => $this->model
+                ]);
             }
-            //if community is child check for permission validate under parent community domain
-            //if community is not child check if user has validator role for community
-            if ($canValidateSubdomain || ($user->can('COMMUNITY_VALIDATOR') && !$isChild)) {
+            // if community is child check for permission validate under parent community domain
+            // if community is not child check if user has validator role for community
+            if ($canValidateSubdomain || ($user->can('COMMUNITY_VALIDATOR') && ! $isChild)) {
                 $status = Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED;
-                //set flag validated at least once to TRUE
+                // set flag validated at least once to TRUE
                 $this->model->validated_once = 1;
-                //reset visible on edit flag
+                // reset visible on edit flag
                 $this->model->visible_on_edit = null;
                 $published = true;
             } else {
                 $status = Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE;
-                $message = AmosCommunity::t('amoscommunity', "Publication request for community") . " '" . $this->model->name . "' " . AmosCommunity::t(
-                    'amoscommunity',
-                    "has been sent succesfully"
-                );
+                $message = AmosCommunity::t('amoscommunity', "Publication request for community") . " '" . $this->model->name . "' " . AmosCommunity::t('amoscommunity', "has been sent succesfully");
             }
             $this->model->status = $status;
 
             if ($this->model->save()) {
-                if (!$redirectWizard) {
+                if (! $redirectWizard) {
                     $this->addFlash('success', $message);
                 }
             } else {
@@ -1568,14 +1519,11 @@ class CommunityController extends BaseCommunityController
         }
 
         if ($redirectWizard) {
-            return $this->render(
-                'closing',
-                [
-                    'model' => $this->model,
-                    'published' => $published,
-                    'message' => $message
-                ]
-            );
+            return $this->render('closing', [
+                'model' => $this->model,
+                'published' => $published,
+                'message' => $message
+            ]);
         } else {
             return $this->redirect(Url::previous());
         }
@@ -1584,21 +1532,18 @@ class CommunityController extends BaseCommunityController
     /**
      * Reject publication of a community - status returns to draft
      *
-     * @param $id
+     * @param
+     *            $id
      * @return string
      */
     public function actionReject($id)
     {
-
         Url::remember();
 
         $this->model = $this->findModel($id);
         $status = null;
 
-        $message = AmosCommunity::t('amoscommunity', "Publication request for community") . " '" . $this->model->name . "' " . AmosCommunity::t(
-            'amoscommunity',
-            "has been rejected. Community status is back to 'Editing in progress'"
-        );
+        $message = AmosCommunity::t('amoscommunity', "Publication request for community") . " '" . $this->model->name . "' " . AmosCommunity::t('amoscommunity', "has been rejected. Community status is back to 'Editing in progress'");
         if (Yii::$app->getUser()->can('COMMUNITY_VALIDATOR')) {
             $this->model->status = Community::COMMUNITY_WORKFLOW_STATUS_DRAFT;
             $this->model->visible_on_edit = null;
@@ -1606,16 +1551,14 @@ class CommunityController extends BaseCommunityController
             if ($this->model->save()) {
                 $this->addFlash('success', $message);
             } else {
-                $this->addFlash(
-                    'error',
-                    AmosCommunity::t('amoscommunity', "Error occured while rejecting publication request of community") . " '" . $this->model->name . "' "
-                );
+                $this->addFlash('error', AmosCommunity::t('amoscommunity', "Error occured while rejecting publication request of community") . " '" . $this->model->name . "' ");
             }
         }
         return $this->redirect('to-validate-communities');
     }
 
     /**
+     *
      * @param string $from
      * @param string $to
      * @param string $subject
@@ -1631,37 +1574,37 @@ class CommunityController extends BaseCommunityController
         if (isset($mailModule)) {
             if (is_null($from)) {
                 if (isset(Yii::$app->params['email-assistenza'])) {
-                    //use default platform email assistance
+                    // use default platform email assistance
                     $from = Yii::$app->params['email-assistenza'];
                 } else {
                     $assistance = isset(Yii::$app->params['assistance']) ? Yii::$app->params['assistance'] : [];
                     $from = isset($assistance['email']) ? $assistance['email'] : '';
                 }
             }
-            $tos = [$to];
+            $tos = [
+                $to
+            ];
             Email::sendMail($from, $tos, $subject, $text, $files, $bcc, [], 0, false);
         }
     }
 
     /**
      * Section Community Network (in edit or view mode) on user profile tab network
-     * @param $userId
+     *
+     * @param
+     *            $userId
      * @param bool $isUpdate
      * @return string
      */
     public function actionUserNetwork($userId, $isUpdate = false)
     {
-
         if (\Yii::$app->request->isAjax) {
             $this->setUpLayout(false);
 
-            return $this->render(
-                'user-network',
-                [
-                    'userId' => $userId,
-                    'isUpdate' => $isUpdate
-                ]
-            );
+            return $this->render('user-network', [
+                'userId' => $userId,
+                'isUpdate' => $isUpdate
+            ]);
         }
         return null;
     }
@@ -1669,8 +1612,10 @@ class CommunityController extends BaseCommunityController
     /**
      * Participants to a community/workgroup m2m widget - Ajax call to redraw the widget
      *
-     * @param $id
-     * @param $classname
+     * @param
+     *            $id
+     * @param
+     *            $classname
      * @param array $params
      * @return string
      */
@@ -1695,28 +1640,25 @@ class CommunityController extends BaseCommunityController
             $targetUrlInvitation = $params['targetUrlInvitation'];
             $invitationModule = $params['invitationModule'];
 
-            return $this->render(
-                'community-members',
-                [
-                    'model' => $model,
-                    'showRoles' => isset($params['showRoles']) ? $params['showRoles'] : [],
-                    'showAdditionalAssociateButton' => $showAdditionalAssociateButton,
-                    'additionalColumns' => isset($params['additionalColumns']) ? $params['additionalColumns'] : [],
-                    'viewEmail' => $viewEmail,
-                    'checkManagerRole' => $checkManagerRole,
-                    'addPermission' => $addPermission,
-                    'manageAttributesPermission' => $manageAttributesPermission,
-                    'forceActionColumns' => $forceActionColumns,
-                    'actionColumnsTemplate' => $actionColumnsTemplate,
-                    'viewM2MWidgetGenericSearch' => $viewM2MWidgetGenericSearch,
-                    'targetUrlParams' => isset($params['targetUrlParams']) ? $params['targetUrlParams'] : [],
-                    'enableModal' => $enableModal,
-                    'gridId' => $gridId,
-                    'communityManagerRoleName' => $communityManagerRoleName,
-                    'targetUrlInvitation' => $targetUrlInvitation,
-                    'invitationModule' => $invitationModule,
-                ]
-            );
+            return $this->render('community-members', [
+                'model' => $model,
+                'showRoles' => isset($params['showRoles']) ? $params['showRoles'] : [],
+                'showAdditionalAssociateButton' => $showAdditionalAssociateButton,
+                'additionalColumns' => isset($params['additionalColumns']) ? $params['additionalColumns'] : [],
+                'viewEmail' => $viewEmail,
+                'checkManagerRole' => $checkManagerRole,
+                'addPermission' => $addPermission,
+                'manageAttributesPermission' => $manageAttributesPermission,
+                'forceActionColumns' => $forceActionColumns,
+                'actionColumnsTemplate' => $actionColumnsTemplate,
+                'viewM2MWidgetGenericSearch' => $viewM2MWidgetGenericSearch,
+                'targetUrlParams' => isset($params['targetUrlParams']) ? $params['targetUrlParams'] : [],
+                'enableModal' => $enableModal,
+                'gridId' => $gridId,
+                'communityManagerRoleName' => $communityManagerRoleName,
+                'targetUrlInvitation' => $targetUrlInvitation,
+                'invitationModule' => $invitationModule
+            ]);
         }
         return null;
     }
@@ -1724,8 +1666,10 @@ class CommunityController extends BaseCommunityController
     /**
      * Participants to a community/workgroup m2m widget - Ajax call to redraw the widget
      *
-     * @param $id
-     * @param $classname
+     * @param
+     *            $id
+     * @param
+     *            $classname
      * @param array $params
      * @return string
      */
@@ -1747,25 +1691,22 @@ class CommunityController extends BaseCommunityController
             $enableModal = $params['enableModal'];
             $isUpdate = $params['isUpdate'];
 
-            return $this->render(
-                'community-members-min',
-                [
-                    'model' => $model,
-                    'showRoles' => isset($params['showRoles']) ? $params['showRoles'] : [],
-                    'showAdditionalAssociateButton' => $showAdditionalAssociateButton,
-                    'additionalColumns' => isset($params['additionalColumns']) ? $params['additionalColumns'] : [],
-                    'viewEmail' => $viewEmail,
-                    'checkManagerRole' => $checkManagerRole,
-                    'addPermission' => $addPermission,
-                    'manageAttributesPermission' => $manageAttributesPermission,
-                    'forceActionColumns' => $forceActionColumns,
-                    'actionColumnsTemplate' => $actionColumnsTemplate,
-                    'viewM2MWidgetGenericSearch' => $viewM2MWidgetGenericSearch,
-                    'targetUrlParams' => isset($params['targetUrlParams']) ? $params['targetUrlParams'] : [],
-                    'enableModal' => $enableModal,
-                    'isUpdate' => $isUpdate
-                ]
-            );
+            return $this->render('community-members-min', [
+                'model' => $model,
+                'showRoles' => isset($params['showRoles']) ? $params['showRoles'] : [],
+                'showAdditionalAssociateButton' => $showAdditionalAssociateButton,
+                'additionalColumns' => isset($params['additionalColumns']) ? $params['additionalColumns'] : [],
+                'viewEmail' => $viewEmail,
+                'checkManagerRole' => $checkManagerRole,
+                'addPermission' => $addPermission,
+                'manageAttributesPermission' => $manageAttributesPermission,
+                'forceActionColumns' => $forceActionColumns,
+                'actionColumnsTemplate' => $actionColumnsTemplate,
+                'viewM2MWidgetGenericSearch' => $viewM2MWidgetGenericSearch,
+                'targetUrlParams' => isset($params['targetUrlParams']) ? $params['targetUrlParams'] : [],
+                'enableModal' => $enableModal,
+                'isUpdate' => $isUpdate
+            ]);
         }
         return null;
     }
@@ -1773,7 +1714,9 @@ class CommunityController extends BaseCommunityController
     /**
      * Associates user to a community if the user exists,
      * If the user does not exists, creates it, sends credential mail and associate it to the community.
-     * @param int $id - community id
+     *
+     * @param int $id
+     *            - community id
      * @return bool|string
      */
     public function actionInsassM2m($id)
@@ -1788,17 +1731,12 @@ class CommunityController extends BaseCommunityController
             if (Yii::$app->request->isPost) {
                 $post = Yii::$app->request->post();
                 if ($form->load($post) && $form->validate()) {
-                    $user = User::findOne(['email' => $form->email]);
-                    if (!$user) {
+                    $user = User::findOne([
+                        'email' => $form->email
+                    ]);
+                    if (! $user) {
                         $adminModule = Yii::$app->getModule('admin');
-                        $result = $adminModule->createNewAccount(
-                            $form->nome,
-                            $form->cognome,
-                            $form->email,
-                            0,
-                            true,
-                            $this->model
-                        );
+                        $result = $adminModule->createNewAccount($form->nome, $form->cognome, $form->email, 0, true, $this->model);
                         if (isset($result['user'])) {
                             $user = $result['user'];
                             $newUser = true;
@@ -1806,34 +1744,29 @@ class CommunityController extends BaseCommunityController
                     }
 
                     if (isset($user->id)) {
-                        if (is_null(CommunityUserMm::findOne(['user_id' => $user->id, 'community_id' => $id]))) {
-                            \Yii::$app->getModule('community')->createCommunityUser(
-                                $id,
-                                CommunityUserMm::STATUS_ACTIVE,
-                                $form->role,
-                                $user->id
-                            );
+                        if (is_null(CommunityUserMm::findOne([
+                            'user_id' => $user->id,
+                            'community_id' => $id
+                        ]))) {
+                            \Yii::$app->getModule('community')->createCommunityUser($id, CommunityUserMm::STATUS_ACTIVE, $form->role, $user->id);
                         }
 
-                        /** Send email of invitation to user if user exist already */
-                        if (!$newUser) {
+                        /**
+                         * Send email of invitation to user if user exist already
+                         */
+                        if (! $newUser) {
                             $loggedUser = User::findOne(Yii::$app->getUser()->id);
                             /** @var UserProfile $loggedUserProfile */
                             $loggedUserProfile = $loggedUser->getProfile();
                             /** @var User $userToInvite */
                             $userToInvite = $user;
-                            $userCommunity = CommunityUserMm::findOne(['user_id' => $user->id, 'community_id' => $id]);
+                            $userCommunity = CommunityUserMm::findOne([
+                                'user_id' => $user->id,
+                                'community_id' => $id
+                            ]);
                             /** @var UserProfile $userToInviteProfile */
                             $userToInviteProfile = $userToInvite->getProfile();
-                            $emailUtil = new EmailUtil(
-                                EmailUtil::INVITATION,
-                                $userCommunity->role,
-                                $userCommunity->community,
-                                $userToInviteProfile->nomeCognome,
-                                $loggedUserProfile->getNomeCognome(),
-                                null,
-                                $userToInviteProfile->user_id
-                            );
+                            $emailUtil = new EmailUtil(EmailUtil::INVITATION, $userCommunity->role, $userCommunity->community, $userToInviteProfile->nomeCognome, $loggedUserProfile->getNomeCognome(), null, $userToInviteProfile->user_id);
                             $subject = $emailUtil->getSubject();
                             $text = $emailUtil->getText();
                             $this->sendMail(null, $userToInvite->email, $subject, $text, [], []);
@@ -1843,23 +1776,28 @@ class CommunityController extends BaseCommunityController
                 }
             }
         }
-        return $this->renderAjax($view, ['model' => $form]);
+        return $this->renderAjax($view, [
+            'model' => $form
+        ]);
     }
 
     /**
      * This action increment the hits on a community.
+     *
      * @param int $id
      * @return string
      * @throws NotFoundHttpException
      */
     public function actionIncrementCommunityHits($id)
     {
-        $responseArray = ['success' => 1];
+        $responseArray = [
+            'success' => 1
+        ];
         /** @var Community $community */
         $community = $this->findModel($id);
-        $community->hits++;
+        $community->hits ++;
         $ok = $community->save(false);
-        if (!$ok) {
+        if (! $ok) {
             $responseArray['success'] = 0;
         }
         return json_encode($responseArray);
@@ -1871,19 +1809,18 @@ class CommunityController extends BaseCommunityController
         Url::remember();
         $model = $this->findModel($communityId);
 
-        return $this->render(
-            'participants',
-            [
-                'model' => $model,
-                'targetUrlInvitation' => $this->targetUrlInvitation,
-                'invitationModule' => $this->invitationModule
-            ]
-        );
+        return $this->render('participants', [
+            'model' => $model,
+            'targetUrlInvitation' => $this->targetUrlInvitation,
+            'invitationModule' => $this->invitationModule
+        ]);
     }
 
     /**
-     * In Icon view if we are in a network dashboard eg. community, projects, ..
+     * In Icon view if we are in a network dashboard eg.
+     * community, projects, ..
      * view additional information related to current scope
+     *
      * @param int $userId
      */
     public function setCwhScopeNetworkInfo($userId)
@@ -1894,30 +1831,32 @@ class CommunityController extends BaseCommunityController
         // see users filtered by entity-user association table
         if (isset($cwh)) {
             $cwh->setCwhScopeFromSession();
-            if (!empty($cwh->userEntityRelationTable)) {
+            if (! empty($cwh->userEntityRelationTable)) {
                 \Yii::$app->view->params['cwhScope'] = true;
                 $mmTable = $cwh->userEntityRelationTable['mm_name'];
                 $entityField = $cwh->userEntityRelationTable['entity_id_field'];
                 $entityId = $cwh->userEntityRelationTable['entity_id'];
                 $entity = key($cwh->scope);
-                $network = CwhConfig::findOne(['tablename' => $entity]);
-                if (!empty($network)) {
+                $network = CwhConfig::findOne([
+                    'tablename' => $entity
+                ]);
+                if (! empty($network)) {
                     $networkObj = Yii::createObject($network->classname);
                     if ($networkObj->hasMethod('getMmClassName')) {
                         $userField = $networkObj->getMmUserIdFieldName();
                         $className = ($networkObj->getMmClassName());
-                        $userEntityMm = $className::findOne([$entityField => $entityId, $userField => $userId]);
+                        $userEntityMm = $className::findOne([
+                            $entityField => $entityId,
+                            $userField => $userId
+                        ]);
                         $networkModel = $networkObj->findOne($entityId);
-                        if (!empty($networkModel) && !is_null($userEntityMm)) {
+                        if (! empty($networkModel) && ! is_null($userEntityMm)) {
                             if ($userEntityMm->hasProperty('role')) {
                                 $role = AmosCommunity::t('amos' . $entity, $userEntityMm->role);
                                 \Yii::$app->view->params['role'] = $role;
                             }
                             if ($userEntityMm->hasProperty('status')) {
-                                $status = AmosCommunity::t(
-                                    'amos' . $entity,
-                                    $userEntityMm->status
-                                );
+                                $status = AmosCommunity::t('amos' . $entity, $userEntityMm->status);
                                 \Yii::$app->view->params['status'] = $status;
                             }
                         }
@@ -1929,18 +1868,24 @@ class CommunityController extends BaseCommunityController
 
     /**
      * This action is called when a community is deleted.
+     *
      * @param int $id
      * @return string|Response
      * @throws NotFoundHttpException
      */
     public function actionDeletedCommunity($id)
     {
-        $community = Community::basicFind()->andWhere(['id' => $id])->one();
-        if (!is_null($community)) {
+        $community = Community::basicFind()->andWhere([
+            'id' => $id
+        ])->one();
+        if (! is_null($community)) {
             if (strlen($community->deleted_at) > 0) {
                 return $this->render('deleted_community');
             } else {
-                return $this->redirect(['view', 'id' => $id]);
+                return $this->redirect([
+                    'view',
+                    'id' => $id
+                ]);
             }
         }
         throw new NotFoundHttpException(AmosCommunity::t('amoscore', 'The requested page does not exist.'));
@@ -1953,28 +1898,35 @@ class CommunityController extends BaseCommunityController
 
     private function userJoinedReportDownload($communityId)
     {
-        $community = Community::findOne(['id' => $communityId]);
+        $community = Community::findOne([
+            'id' => $communityId
+        ]);
 
-        if (!empty($community)) {
-            $usersJoinedQuery = CommunityUserMm::find()
-                ->andWhere(['community_id' => $communityId])
-                ->andWhere(['!=', CommunityUserMm::tableName() . '.role', CommunityUserMm::ROLE_GUEST])
+        if (! empty($community)) {
+            $usersJoinedQuery = CommunityUserMm::find()->andWhere([
+                'community_id' => $communityId
+            ])
+                ->andWhere([
+                '!=',
+                CommunityUserMm::tableName() . '.role',
+                CommunityUserMm::ROLE_GUEST
+            ])
                 ->all();
 
-            if (!empty($usersJoinedQuery)) {
+            if (! empty($usersJoinedQuery)) {
 
                 // Creating csv to convert in a excel file
                 // This defines the header of the excel
                 $usersJoinedCsv = AmosCommunity::t('amoscommunity', 'Community') . ' "' . $community->name . "\"\n";
                 // e.g. "Partecipanti Community LaMiaCommunity, Ruolo\n"
-                $usersJoinedCsv .= AmosCommunity::t('amoscommunity', 'Partecipante') . ' ' .
-                    ',' . AmosCommunity::t('amoscommunity', 'Ruolo') . "\n";
+                $usersJoinedCsv .= AmosCommunity::t('amoscommunity', 'Partecipante') . ' ' . ',' . AmosCommunity::t('amoscommunity', 'Ruolo') . "\n";
 
                 // This defines the list of users that joined community
                 // e.g. "Amministratore Sistema, Community Manager\n"
                 foreach ($usersJoinedQuery as $communityUserMm) {
-                    $usersJoinedCsv .= UserProfile::findOne(['user_id' => $communityUserMm->user_id])->getNomeCognome() .
-                        "," . AmosCommunity::t('amoscommunity', $communityUserMm->role) . "\n";
+                    $usersJoinedCsv .= UserProfile::findOne([
+                        'user_id' => $communityUserMm->user_id
+                    ])->getNomeCognome() . "," . AmosCommunity::t('amoscommunity', $communityUserMm->role) . "\n";
                 }
 
                 // Saving the csv created above in a temp directory, then yii2tech/spreadsheet
@@ -2000,12 +1952,12 @@ class CommunityController extends BaseCommunityController
                         'bold' => true,
                         'color' => [
                             'rgb' => 'FFFFFF'
-                        ],
+                        ]
                     ],
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => '4C4C4C',
+                            'rgb' => '4C4C4C'
                         ]
                     ]
                 );
@@ -2016,14 +1968,16 @@ class CommunityController extends BaseCommunityController
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => 'DDDDDD',
+                            'rgb' => 'DDDDDD'
                         ]
                     ]
                 ];
 
                 // Applying styles to sheet
                 $sheet->getStyle('A1')->applyFromArray($styleArrayBgDarkGreyWhiteText);
-                $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
+                $sheet->getStyle('A1')
+                    ->getAlignment()
+                    ->setHorizontal('center');
                 $sheet->getStyle('A2')->applyFromArray($styleArrayBgGrey);
                 $sheet->getStyle('B2')->applyFromArray($styleArrayBgGrey);
                 foreach (range("A", "Z") as $colonna) {
@@ -2049,7 +2003,6 @@ class CommunityController extends BaseCommunityController
      */
     public static function getManageLinks()
     {
-
         if (get_class(Yii::$app->controller) != 'open20\amos\community\controllers\CommunityController') {
             $links[] = [
                 'title' => AmosCommunity::t('amoscommunity', 'Visualizza tutte le community'),
@@ -2092,7 +2045,9 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
-     * @param $id
+     *
+     * @param
+     *            $id
      */
     public function actionTransformToCommunityParent($id)
     {
@@ -2104,7 +2059,9 @@ class CommunityController extends BaseCommunityController
     }
 
     /**
-     * @param $id
+     *
+     * @param
+     *            $id
      * @param null $toId
      * @return string
      * @throws NotFoundHttpException
@@ -2112,8 +2069,9 @@ class CommunityController extends BaseCommunityController
     public function actionMove($id, $toId = null)
     {
         $this->model = $this->findModel($id);
-        $this->setDataProvider($this->getModelSearch()->searchAll(Yii::$app->request->getQueryParams()));
-        if (!empty($toId)) {
+        $this->setDataProvider($this->getModelSearch()
+            ->searchAll(Yii::$app->request->getQueryParams()));
+        if (! empty($toId)) {
             $communityDestination = Community::findOne($toId);
             $this->model->parent_id = $communityDestination->id;
             $this->model->save(false);
@@ -2126,7 +2084,6 @@ class CommunityController extends BaseCommunityController
 
         $modelsearch = new CommunitySearch();
         $modelsearch->load(\Yii::$app->request->get());
-
 
         $communitiesTree = $modelsearch->searchCommunityTreeOrder($this->dataProvider->query);
         $dataProvider = new ArrayDataProvider([

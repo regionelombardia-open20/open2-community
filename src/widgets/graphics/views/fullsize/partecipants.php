@@ -51,16 +51,18 @@ if (!\Yii::$app->user->isGuest && \Yii::$app->user->id != Yii::$app->params['pla
     <div class="page-header">
         <?=
         $this->render(
-            "@vendor/open20/amos-layout/src/views/layouts/fullsize/parts/bi-less-testata-cta-plugin",
+            "@vendor/open20/amos-layout/src/views/layouts/fullsize/parts/bi-less-plugin-header",
             [
 				'titleSection' => $titleSection,
 				'titleCreate' => $titleCreate,
                 'linkCta' => $linkCta,
                 'labelCreate' => $labelCreate,
+                'hideCreate' => true
             ]
         );
         ?>
     </div>
+
     <section>
         <?php
         $usersList = $dataProviderViewWidgetConf['dataProvider'];

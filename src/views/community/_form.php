@@ -26,6 +26,7 @@ use open20\amos\report\widgets\ReportFlagWidget;
 use open20\amos\workflow\widgets\WorkflowTransitionButtonsWidget;
 use open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget;
 use kartik\select2\Select2;
+use kartik\widgets\SwitchInput;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 
@@ -58,6 +59,10 @@ $bypassWorkflow = $moduleCommunity->forceWorkflow($model);
 $showSubcommunities = $moduleCommunity->showSubcommunities;
 $hideContentsModels = $moduleCommunity->hideContentsModels;
 $enableConfigureCommunityDashboard = $moduleCommunity->enableConfigureCommunityDashboard;
+$enableChatField = $moduleCommunity->activateChat && $moduleCommunity->chatOptions['showEnableDisableInForm'];
+$enableBookmarksField = $moduleCommunity->activateLinks && $moduleCommunity->linksOptions['showEnableDisableInForm'];
+
+$hideSeoModuleClass = $moduleCommunity->hideSeoModule ? ' hidden' : '';
 
 $currentStatus = $model->status;
 $draftStatus = $model->getDraftStatus();
@@ -143,7 +148,7 @@ $form = ActiveForm::begin([
 ]); ?>
 
 <div class="community-form">
-    
+
     <div class="row">
 
         <div class="col-sm-8 section-form">
@@ -183,7 +188,7 @@ $form = ActiveForm::begin([
                                     'data-module' => 'community',
                                     'data-entity' => 'community-type',
                                     'data-toggle' => 'tooltip'
-                                  //  'disabled' => (!$model->isNewRecord) && ($model->community_type_id != null)
+                                    //  'disabled' => (!$model->isNewRecord) && ($model->community_type_id != null)
                                 ],
                                 'pluginOptions' => [
                                     'allowClear' => $model->isNewRecord
@@ -200,7 +205,7 @@ $form = ActiveForm::begin([
                                 $communityParent = Community::findOne($model->parent_id); ?>
                                 <?= $form->field($model, 'parent_id')->hiddenInput()->label(false); ?>
                                 <p class="m-b-0">
-                                <strong><?= AmosCommunity::t('amoscommunity', "#parent_id_form_label") ?>: 
+                                    <strong><?= AmosCommunity::t('amoscommunity', "#parent_id_form_label") ?>:
                                 </p>
                                 <p class="m-t-0">
                                     </strong><?= $communityParent->name ?>
@@ -227,14 +232,14 @@ $form = ActiveForm::begin([
             <?php endif; ?>
         </div>
         <div class="col-sm-4 section-form">
-        <h2 class="subtitle-form"><?= AmosCommunity::t('amoscommunity', 'Immagine principale') ?></h2>
+            <h2 class="subtitle-form"><?= AmosCommunity::t('amoscommunity', 'Immagine principale') ?></h2>
             <div>
                 <?= $form->field($model, 'communityLogo')->widget(CropInput::classname(), [
                     'jcropOptions' => ['aspectRatio' => '1.7']
                 ])->label(AmosCommunity::t('amoscommunity', '#image_field'))->hint(AmosCommunity::t('amoscommunity', '#image_field_hint')) ?>
             </div>
 
-        </div>                            
+        </div>
 
         <div class="col-xs-12 section-form">
             <div class="member-section">
@@ -256,9 +261,10 @@ $form = ActiveForm::begin([
                 </div>
             </div>
         </div>
+
         <div class="col-xs-12 section-form">
             <div class="section-modalita-pubblicazione">
-                
+
 
                 <?php
 
@@ -289,13 +295,14 @@ $form = ActiveForm::begin([
                                     <?= DestinatariPlusTagWidget::widget($config); ?>
                                 </div>
                             </div>
+                            <div class="clearfix"></div>
                         </div>
                     <?php endif; ?>
                     </div>
             </div>
 
         </div>
-
+        <div class="clearfix"></div>
         <?php if ($enableConfigureCommunityDashboard) { ?>
             <div class="row">
                 <div class="col-xs-12 community-accordion-plus">
@@ -319,68 +326,146 @@ $form = ActiveForm::begin([
                     ]);
                     ?>
                 </div>
+                <div class="clearfix"></div>
             </div>
         <?php } ?>
 
-            <?php if ($moduleCommunity->forceWorkflowSingleCommunity) : ?>
-            <div class="col-xs-12">
-                <div>
-                    <?php
-                    if ($model->isNewRecord) {
-                        $model->force_workflow = 1;
-                    }
-                    echo Html::tag(
-                        'div',
-                        $form->field($model, 'force_workflow')->inline()->radioList(
-                            [
-                                '1' => AmosCommunity::t('amoscommunity', '#force_ok'),
-                                '0' => AmosCommunity::t('amoscommunity', '#force_ko')
-                            ],
-                            ['class' => 'comment-choice']
-                        )->label(
-                            AmosCommunity::t('amoscommunity', '#force_workflow'),
-                            ['class' => 'col-md-8 col-xs-12']
-                        )
-                    );
-                    ?>
+        <?php
+        $switchInputPluginOptions = [
+            //            'size' => 'small',
+            'onColor' => 'success',
+            //             'offColor' => 'danger',
+            'onText' => AmosCommunity::t('amoscommunity', 'Yes'),
+            'offText' => AmosCommunity::t('amoscommunity', 'No'),
+        ];
+        $divLabelCol = 'col-sm-9';
+        $divSwitchInputCol = 'col-sm-3';
+        $labelClass = 'control-label m-t-10';
+        if ($enableChatField || $enableBookmarksField) {
+            $divLabelCol = 'col-sm-9';
+            $divSwitchInputCol = 'col-sm-3';
+            $labelClass = 'control-label';
+        }
+        ?>
+        <?php if ($moduleCommunity->forceWorkflowSingleCommunity) : ?>
+            <!-- Flag moderazione -->
 
+            <div class="col-xs-12">
+                <div class="subcommunity-section m-b-30" style="padding:24px 24px 0 24px">
+                    <div class="row">
+                        <div class="<?= $divLabelCol ?> form-group m-b-0">
+                            <?= Html::label(
+                                AmosCommunity::t('amoscommunity', '#force_workflow'),
+                                'force_workflow-id',
+                                ['class' => $labelClass]
+                            ); ?>
+                        </div>
+                        <div class="<?= $divSwitchInputCol ?> text-right">
+                            <?php if ($model->isNewRecord) {
+                                $model->force_workflow = true;
+                            } ?>
+                            <?= $form->field($model, 'force_workflow')->widget(SwitchInput::classname(), [
+                                'pluginOptions' => $switchInputPluginOptions,
+                                'options' => ['id' => 'force_workflow-id']
+                            ])->label(false); ?>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
                 </div>
             </div>
-            <?php endif; ?>
-        
+        <?php endif; ?>
+
+        <?php if ($enableChatField) { ?>
+
+            <!-- Enable chat -->
             <div class="col-xs-12">
-                <?php
-                $moduleSeo = \Yii::$app->getModule('seo');
-                if (isset($moduleSeo)) : ?>
-                    <?= AccordionWidget::widget([
-                        'items' => [
-                            [
-                                'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
-                                'content' => \open20\amos\seo\widgets\SeoWidget::widget([
-                                    'contentModel' => $model,
-                                ]),
-                            ]
-                        ],
-                        'headerOptions' => ['tag' => 'h2'],
-                        'clientOptions' => [
-                            'collapsible' => true,
-                            'active' => 'false',
-                            'icons' => [
-                                'header' => 'ui-icon-amos am am-plus-square',
-                                'activeHeader' => 'ui-icon-amos am am-minus-square',
-                            ]
-                        ],
-                    ]);
-                    ?>
-                <?php endif; ?>
+                <div class="subcommunity-section m-b-30" style="padding:24px 24px 0 24px">
+                    <div class="row">
+                        <div class="col-sm-9 form-group m-b-0">
+                            <?= Html::label(
+                                $model->getAttributeLabel('enable_chat'),
+                                'enable_chat-id',
+                                ['class' => 'control-label m-t-15']
+                            ); ?>
+                        </div>
+                        <div class="col-sm-3 text-right">
+                            <?php if ($model->isNewRecord) {
+                                $model->enable_chat = $moduleCommunity->chatOptions['defaultValueOnCreate'];
+                            } ?>
+                            <?= $form->field($model, 'enable_chat')->widget(SwitchInput::classname(), [
+                                'pluginOptions' => $switchInputPluginOptions,
+                                'options' => ['id' => 'enable_chat-id']
+                            ])->label(false); ?>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
             </div>
-       
+        <?php } ?>
+
+        <?php if ($enableBookmarksField) { ?>
+            <!-- Enable bookmarks -->
+            <div class="col-xs-12">
+                <div class="subcommunity-section m-b-30" style="padding:24px 24px 0 24px">
+                    <div class="row">
+                        <div class="col-sm-9 form-group m-b-0">
+                            <?= Html::label(
+                                $model->getAttributeLabel('enable_bookmarks'),
+                                'enable_bookmarks-id',
+                                ['class' => 'control-label m-t-15']
+                            ); ?>
+                        </div>
+                        <div class="col-sm-3 text-right">
+                            <?php if ($model->isNewRecord) {
+                                $model->enable_bookmarks = $moduleCommunity->linksOptions['defaultValueOnCreate'];
+                            } ?>
+                            <?= $form->field($model, 'enable_bookmarks')->widget(SwitchInput::classname(), [
+                                'pluginOptions' => $switchInputPluginOptions,
+                                'options' => ['id' => 'enable_bookmarks-id']
+                            ])->label(false); ?>
+                        </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <div class="col-xs-12">
+            <?php
+            $moduleSeo = \Yii::$app->getModule('seo');
+            if (isset($moduleSeo)) : ?>
+            <div class="col-xs-12<?= $hideSeoModuleClass?>">
+                <?= AccordionWidget::widget([
+                    'items' => [
+                        [
+                            'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
+                            'content' => \open20\amos\seo\widgets\SeoWidget::widget([
+                                'contentModel' => $model,
+                            ]),
+                        ]
+                    ],
+                    'headerOptions' => ['tag' => 'h2'],
+                    'clientOptions' => [
+                        'collapsible' => true,
+                        'active' => 'false',
+                        'icons' => [
+                            'header' => 'ui-icon-amos am am-plus-square',
+                            'activeHeader' => 'ui-icon-amos am am-minus-square',
+                        ]
+                    ],
+                ]);
+                ?>
+            </div>
+            <?php endif; ?>
+        </div>
 
 
-        
-            <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>
-            <?= $form->field($model, 'visible_on_edit')->hiddenInput()->label(false) ?>
-        
+
+
+        <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>
+        <?= $form->field($model, 'visible_on_edit')->hiddenInput()->label(false) ?>
+
         <div class="m-t-20 col-xs-12"><?= RequiredFieldsTipWidget::widget() ?></div>
 
         <?php

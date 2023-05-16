@@ -412,6 +412,23 @@ class CommunityUtil
     }
 
     /**
+     *
+     * @param integer $communityId
+     * @return string or null
+     */
+    public static function getRole($communityId)
+    {
+        $communityUserMm = CommunityUserMm::find()
+            ->andWhere(['user_id' => \Yii::$app->user->id])
+            ->andWhere(['community_id' => $communityId])
+            ->one();
+        if (!empty($communityUserMm)) {
+            return $communityUserMm->role;
+        }
+        return null;
+    }
+
+    /**
      * @param Community $community
      * @return bool
      */
@@ -540,9 +557,10 @@ class CommunityUtil
 
     /**
      * This method check if the user is membre active for the community
-     * @param type $communityId
-     * @param type $userId
-     * @return type
+     * @param $communityId
+     * @param $userId
+     * @return bool|int
+     * @throws \yii\base\InvalidConfigException
      */
     public static function userIsCommunityMemberActive($communityId, $userId = null)
     {
@@ -692,7 +710,7 @@ class CommunityUtil
      * @param string $managerRole
      * @return array
      */
-    protected static function getAlreadyManagerForACommunityUserIds($communityId, $managerRole)
+    public static function getAlreadyManagerForACommunityUserIds($communityId, $managerRole)
     {
         $query                 = new Query();
         $query->select(['user_id'])

@@ -49,9 +49,9 @@ class WidgetIconToValidateCommunities extends WidgetIcon
         }
 
         $url        = ['/community/community/to-validate-communities'];
-        $checkScope = $this->checkScope('cwh');
-        if ($checkScope != false) {
-            $url = ['/community/subcommunities/to-validate-communities', 'id' => $scope['community']];
+        $checkScope = $this->checkScope('community');
+        if (!empty($checkScope)) {
+            $url = ['/community/subcommunities/to-validate-communities', 'id' => $checkScope];
         }
 
         $this->setUrl($url);

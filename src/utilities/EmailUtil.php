@@ -284,7 +284,7 @@ class EmailUtil
 
     public static function getEmailFrequencyValueAndLabels()
     {
-        $notifyModule = Yii::$app->getModule('notify');
+        $notifyModule = \Yii::$app->getModule('notify');
         if (!empty($notifyModule)) {
             $notificationConfOpt = $notifyModule->createModel('NotificationsConfOpt');
             return $notificationConfOpt::emailFrequencyValueAndLabels();

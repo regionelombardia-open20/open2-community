@@ -24,6 +24,7 @@ use open20\amos\dashboard\controllers\TabDashboardControllerTrait;
 use Yii;
 use yii\helpers\Url;
 use open20\amos\core\widget\WidgetAbstract;
+use open20\amos\notificationmanager\utility\NotifyUtility;
 
 /**
  * Class CommunityController
@@ -216,6 +217,18 @@ class CommunityController extends CrudController
                 $ok = $userCommunity->save(false);
                 $this->addFlash('success',
                     AmosCommunity::t('amoscommunity', 'Community created successfully.'));
+                
+                $module = \Yii::$app->getModule('community');
+                if($module && $module->hasProperty(setDefaultCommunityNotification)){
+                    $notification = $module->setDefaultCommunityNotification;
+                    if (!empty($loggedUserId) && !empty($model->id)) {
+                        (new NotifyUtility())->saveNetworkNotification($loggedUserId,
+                        [
+                            'notifyCommunity' => [$model->id => $notification]
+                        ]);
+                    }
+                }
+                
                 return  $this->redirectOnCreate($model);
             } else {
                 $this->addFlash('danger',
@@ -252,6 +265,19 @@ class CommunityController extends CrudController
         if (\Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             if ($model->validate()) {
                 if ($model->save()) {
+                    
+                    $module = \Yii::$app->getModule('community');
+                    if($module && $module->hasProperty(setDefaultCommunityNotification)){
+                        $loggedUserId = Yii::$app->getUser()->getId();
+                        $notification = $module->setDefaultCommunityNotification;
+                        if (!empty($loggedUserId) && !empty($model->id)) {
+                            (new NotifyUtility())->saveNetworkNotification($loggedUserId,
+                            [
+                                'notifyCommunity' => [$model->id => $notification]
+                            ]);
+                        }
+                    }
+                    
                     return json_encode($model->toArray());
                 } else {
                     return $this->renderAjax('_formAjax', [
@@ -331,9 +357,15 @@ class CommunityController extends CrudController
      */
     public function actionDelete($id, $communityParentId = null)
     {
+        $communityModule = \Yii::$app->getModule(AmosCommunity::getModuleName());
         $model = $this->findModel($id);
-        if ($model) {
+        if ($model) { 
             try{
+                if ($communityModule->deleteCommunityWithSubcommunities) {         
+                    foreach ($model->subcommunities as $subcommunity) {
+                        $subcommunity->delete();
+                    } 
+                }
                 $model->delete();
                 $this->addFlash('success', AmosCommunity::t('amoscommunity', 'Community deleted successfully.'));
             } catch (\Exception $exception) {

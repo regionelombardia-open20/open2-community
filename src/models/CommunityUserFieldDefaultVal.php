@@ -50,9 +50,9 @@ class CommunityUserFieldDefaultVal extends \open20\amos\community\models\base\Co
     }
 
 
-    public static function getEditFields()
+    public function getEditFields()
     {
-        $labels = self::attributeLabels();
+        $labels = $this->attributeLabels();
 
         return [
             [

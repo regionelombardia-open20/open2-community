@@ -136,6 +136,7 @@ if (!$isGuest) {
             'actionDelete' => "/community/community/delete?id=" . $model->id,
             'mainDivClasses' => '',
             'optionsDelete' => ['class' => 'delete-community-btn'],
+            'labelDeleteConfirm' =>AmosCommunity::t('amoscommunity', 'delete_confirm'),
             'additionalButtons' => $additionalButtons
         ]);
         ?>

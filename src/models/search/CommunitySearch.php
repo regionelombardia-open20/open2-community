@@ -353,6 +353,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function filterByContext($query)
     {
         $communityId = null;
+        $parentCommunity = null;
         /** @var AmosCommunity $moduleCommunity */
         $moduleCommunity = Yii::$app->getModule('community');
         $showSubscommunities = $moduleCommunity->showSubcommunities;
@@ -375,7 +376,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         if (!empty($query)) {
             if ($showSubscommunities) {
                 $contextParentCommunity = null;
-                if($parentCommunity){
+                if ($parentCommunity) {
                     $contextParentCommunity = $parentCommunity->context;
                 }
                 $query->andWhere(['OR',
@@ -573,6 +574,40 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         return $dataProvider;
     }
 
+    /**
+     * @param $params
+     * @param null $limit
+     */
+    public function cmsSearchAdminAll($params, $limit = null)
+    {
+        $params = array_merge($params, Yii::$app->request->get());
+        $this->load($params);
+        if(\Yii::$app->user->isGuest){
+            $query = Community::find()->andWhere(0);
+        }else{
+            $query = $this->buildQuery($params, 'admin-all');
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        if (!empty($params["withPagination"])) {
+            $dataProvider->setPagination(['pageSize' => $limit]);
+            $query->limit(null);
+        } else {
+            $query->limit($limit);
+        }
+
+        if (!empty($params["conditionSearch"])) {
+            $commands = explode(";", $params["conditionSearch"]);
+            foreach ($commands as $command) {
+                    $query->andWhere(eval("return " . $command . ";"));
+            }
+        }
+        return $dataProvider;
+
+    }
 
     /**
      *
@@ -601,6 +636,13 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
             $dataProvider->query->limit($limit);
         }
 
+        if (!empty($params["conditionSearch"])) {
+            $commands = explode(";", $params["conditionSearch"]);
+            foreach ($commands as $command) {
+                $dataProvider->query->andWhere(eval("return " . $command . ";"));
+            }
+        }
+
         return $dataProvider;
     }
 
@@ -618,6 +660,7 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
         } else {
             $dataProvider = $this->search($params, 'own-interest', $limit, true);
         }
+
         return $dataProvider;
     }
 }

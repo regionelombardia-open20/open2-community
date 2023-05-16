@@ -14,7 +14,7 @@ class CommunityUserFieldSearch extends CommunityUserField
 {
 
     public $isSearch;
-//private $container; 
+//private $container;
 
     public function __construct(array $config = [])
     {

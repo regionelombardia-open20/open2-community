@@ -11,7 +11,7 @@
 
 namespace open20\amos\community\models;
 
-use yii\base\Model;
+use open20\amos\core\models\AmosModel as Model;
 
 
 /**

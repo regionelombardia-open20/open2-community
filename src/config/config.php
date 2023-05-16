@@ -13,7 +13,8 @@ return [
     'params' => [
         //active the search
         'searchParams' => [
-            'community' => true
+            'community' => true,
+            'bookmarks' => true
         ],
         //active the order
         'orderParams' => [
@@ -22,8 +23,15 @@ return [
                 'fields' => [
                     'name',
                     'created_at'
-                ] ,
+                ],
                 'default_field' => 'created_at',
+                'order_type' => SORT_DESC,
+            ],
+            'bookmarks' => [
+                'enable' => true,
+                'fields' => [
+                    'titolo',
+                ],
                 'order_type' => SORT_DESC,
             ]
         ]

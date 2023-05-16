@@ -16,7 +16,7 @@ class WidgetGraphicsCommunityPartecipants extends WidgetGraphic
     /**
      * @var int $pageSize
      */
-    public $pageSize = 8;
+    public $pageSize = 20;
 
     /**
      * @var int $maxButtonCount
@@ -49,7 +49,7 @@ class WidgetGraphicsCommunityPartecipants extends WidgetGraphic
             $viewToRender .= '_old';
         }
         $moduleCwh = \Yii::$app->getModule('cwh');
-        if (is_null($id) && isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
+        if (isset($moduleCwh) && !empty($moduleCwh->getCwhScope())) {
             $scope = $moduleCwh->getCwhScope();
             if (isset($scope['community'])) {
 
@@ -81,7 +81,7 @@ class WidgetGraphicsCommunityPartecipants extends WidgetGraphic
                 $query->andWhere(['!=', 'notificationconf_network.email', NotificationsConfOpt::EMAIL_OFF]);
                 $query->andWhere(['models_classname.classname' => \open20\amos\community\models\Community::className()]);
 
-                $query->distinct()->orderBy('id DESC');
+                $query->distinct()->orderBy('role ASC, id DESC');
 
                 $dp_params = [
                     'query' => $query,
@@ -106,7 +106,7 @@ class WidgetGraphicsCommunityPartecipants extends WidgetGraphic
                                 'name' => 'icon'
                             ],
                             'iconView' => [
-                                'itemView' => '_user',
+                                'itemView' => '_icon_partecipant',
                                 'options' => [
                                     'class' => 'list-items-wrapper'
                                 ],

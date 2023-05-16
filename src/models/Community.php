@@ -269,7 +269,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
                 return [];
                 break;
             case CommunityUserMm::ROLE_AUTHOR:
-                return ['CWH_PERMISSION_VALIDATE'];
+                return ['CWH_PERMISSION_CREATE'];
                 break;
             case CommunityUserMm::ROLE_EDITOR:
                 return ['CWH_PERMISSION_CREATE', 'CWH_PERMISSION_VALIDATE'];
@@ -440,8 +440,10 @@ class Community extends \open20\amos\community\models\base\Community implements 
      */
     public function setCwhAuthAssignments($communityUserMmRow, $delete = false)
     {
+
         /** @var AmosCwh $cwhModule */
         $cwhModule = Yii::$app->getModule("cwh");
+        $moduleCommunity = Yii::$app->getModule('community');
         $cwhNodeId = 'community-' . $this->id;
         $userId = $communityUserMmRow->user_id;
         $cwhConfigId = self::getCwhConfigId();
@@ -483,8 +485,10 @@ class Community extends \open20\amos\community\models\base\Community implements 
                     }
                 }
             }
+
+            $enabledForContext = $moduleCommunity && in_array($this->context, $moduleCommunity->enableCwhAuthAssignmentContext);
             // if role is CM add permissions of creation/validation of subcommunities of current community (N.B. only for community not created by events/projects)
-            if ($this->context == self::className() && $communityUserMmRow->role == CommunityUserMm::ROLE_COMMUNITY_MANAGER) {
+            if (($enabledForContext || $this->context == self::className()) && $communityUserMmRow->role == CommunityUserMm::ROLE_COMMUNITY_MANAGER) {
                 $cwhCreateSubCommunities = new CwhAuthAssignment();
                 $cwhCreateSubCommunities->user_id = $userId;
                 $cwhCreateSubCommunities->item_name = $cwhModule->permissionPrefix . "_CREATE_" . self::className();
@@ -910,22 +914,25 @@ class Community extends \open20\amos\community\models\base\Community implements 
     {
         $id = $this->id;
         $canPersonalize = \Yii::$app->user->can('COMMUNITY_WIDGETS_ADMIN_PERSONALIZE');
-        $ids = \Yii::$app->request->post('amosWidgetsIds');
-        if ($canPersonalize) {
-            CommunityAmosWidgetsMm::deleteAll(['community_id' => $id]);
-        } else {
-            CommunityAmosWidgetsMm::deleteAll(['community_id' => $id, 'personalized' => 0]);
-        }
 
-        foreach ((Array)$ids as $amos_widgets_id) {
-            $communityWidget = new CommunityAmosWidgetsMm();
-            $communityWidget->community_id = $id;
-            $communityWidget->amos_widgets_id = $amos_widgets_id;
+        $ids = \Yii::$app->request->post('amosWidgetsIds');
+        if (isset($_POST['amosWidgetsIds'])) {
             if ($canPersonalize) {
-                $communityWidget->personalized = 1;
+                CommunityAmosWidgetsMm::deleteAll(['community_id' => $id]);
+            } else {
+                CommunityAmosWidgetsMm::deleteAll(['community_id' => $id, 'personalized' => 0]);
             }
-            $communityWidget->save(false);
-        }
+
+            foreach ((array)$ids as $amos_widgets_id) {
+                $communityWidget = new CommunityAmosWidgetsMm();
+                $communityWidget->community_id = $id;
+                $communityWidget->amos_widgets_id = $amos_widgets_id;
+                if ($canPersonalize) {
+                    $communityWidget->personalized = 1;
+                }
+                $communityWidget->save(false);
+            }
+        };
     }
 
     public function isBslRegistered($userId)
@@ -1019,5 +1026,26 @@ class Community extends \open20\amos\community\models\base\Community implements 
             }
         }
         return $role;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPublicatedFrom()
+    {
+        return $this->created_at;
+    }
+
+    /** Ritorna gli ultimi N link
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSomeLinks()
+    {
+        return \open20\amos\community\models\Bookmarks::find()->andWhere([
+            'community_id' => $this->id,
+            'status' => \open20\amos\community\models\Bookmarks::BOOKMARKS_STATUS_PUBLISHED])
+            ->orderBy('id DESC')
+            ->limit(\open20\amos\community\models\Bookmarks::LINK_VIEW_NUMBER)
+            ->all();
     }
 }

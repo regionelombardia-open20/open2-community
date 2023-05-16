@@ -50,9 +50,9 @@ class CommunityUserFieldType extends \open20\amos\community\models\base\Communit
     }
 
 
-    public static function getEditFields()
+    public function getEditFields()
     {
-        $labels = self::attributeLabels();
+        $labels = $this->attributeLabels();
 
         return [
             [

@@ -77,6 +77,9 @@ class CommunityCardWidget extends Widget
         if ($this->inEmail) {
             $htmlOptions['style'] = 'width:50px; height:auto;';
         }
+        elseif(\Yii::$app->controller->id === 'user-profile') {
+            $htmlOptions['style'] = 'max-width:120px;';
+        }
 
         $styleHierachy    = '';
         $htmlTagHierarchy = '';

@@ -11,7 +11,7 @@
 
 namespace open20\amos\community\models;
 
-use yii\base\Model;
+use open20\amos\core\models\AmosModel as Model;
 
 /**
  * Class CommunityReport
@@ -23,17 +23,17 @@ class CommunityReport extends Model
      * @var int $id
      */
     public $id;
-    
+
     /**
      * @var string $title
      */
     public $title;
-    
+
     /**
      * @var mixed $reportValue
      */
     public $reportValue;
-    
+
     /**
      * @inheritdoc
      */

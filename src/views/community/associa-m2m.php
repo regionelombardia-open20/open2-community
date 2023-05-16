@@ -123,6 +123,5 @@ echo M2MWidget::widget([
     ],
 ]);
 
-?>
 
 

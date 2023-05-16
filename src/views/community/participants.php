@@ -28,5 +28,4 @@ echo CommunityMembersWidget::widget([
     'invitationModule' => $invitationModule,
 ]);
 
-?>
 

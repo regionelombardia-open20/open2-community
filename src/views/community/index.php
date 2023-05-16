@@ -34,7 +34,7 @@ use yii\web\View;
 $communityModule = Yii::$app->getModule('community');
 $fixedCommunityType = !is_null($communityModule->communityType);
 $bypassWorkflow = $communityModule->forceWorkflow($model);
-
+$canAdministratorCommunity = \Yii::$app->user->can('AMMINISTRATORE_COMMUNITY');
 
 
 $isDemo = (isset(\Yii::$app->params['isDemo']) && (\Yii::$app->params['isDemo'])) ? true : false;
@@ -147,20 +147,20 @@ $actionColumns = [
             }
             return $btn;
         },
-        'joinCommunity' => function ($url, $model) {
-            if (\Yii::$app->user->can(UpdateOwnNetworkCommunity::className(), ['model' => $model])) {
+        'joinCommunity' => function ($url, $model) use ( $canAdministratorCommunity) {
+            if ($canAdministratorCommunity || \Yii::$app->user->can(UpdateOwnNetworkCommunity::className(), ['model' => $model])) {
                 return JoinCommunityWidget::widget(['model' => $model, 'isGridView' => true, 'useIcon' => true]);
             }
             return '';
         },
-        'move' => function ($url, $model) {
-            if (\Yii::$app->user->can('AMMINISTRATORE_COMMUNITY')) {
+        'move' => function ($url, $model) use ( $canAdministratorCommunity) {
+            if ($canAdministratorCommunity) {
                 return Html::a(AmosIcons::show('swap'),[ '/community/community/move','id' => $model->id], ['title' => AmosCommunity::t('amoscommunity', 'Sposta community'), 'class' => 'btn btn-tool-secondary']);
             }
             return '';
         },
-        'transform' => function ($url, $model) {
-            if (\Yii::$app->user->can('AMMINISTRATORE_COMMUNITY')) {
+        'transform' => function ($url, $model) use ( $canAdministratorCommunity){
+            if ($canAdministratorCommunity && !is_null($model->parent_id)) {
                 return Html::a(AmosIcons::show('transform'), [ '/community/community/transform-to-community-parent','id' => $model->id], ['title' => AmosCommunity::t('amoscommunity', 'Trasforma sottocommunity in community'), 'class' => 'btn btn-tool-secondary']);
             }
             return '';
@@ -186,6 +186,16 @@ if (Yii::$app->controller->id == 'subcommunities') {
         'url' => ['/community/community/delete'],
         'defaultUrlIdParam' => true
     ];
+    
+}else{
+    //aggiunto per personalizzare la label di conferma di cancellazione 
+    $actionColumns['deleteOptions'] = [
+        'class' => 'btn btn-danger-inverse',
+        'url' => ['/community/community/delete'],
+        'defaultUrlIdParam' => true,
+        'data-confirm'=>AmosCommunity::t('amoscommunity', 'delete_confirm'),
+    ];
+    
 }
 
 $columns[] = $actionColumns;

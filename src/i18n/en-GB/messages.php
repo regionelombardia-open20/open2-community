@@ -587,5 +587,15 @@ return [
     'Clicca qui' => 'Click here',
     'Clicca e scopri tutte le community di {platformName}' => 'Click and discover all the communities of {platformName}',
     'e scopri ora tutte le community di {platformName}' => 'and discover now all the communities of{platformName}',
-    'Non sono presenti community' => 'There are no communities'
+    'Non sono presenti community' => 'There are no communities',
+    '#article_singular_bookmark' => 'the',
+    '#article_plural_bookmark' => 'the',
+    '#article_indefinite_bookmark' => 'a',
+    '#accedi' => 'Sign in',
+    'Sei sicuro di voler cancellare questo bookmark?' => 'Are you sure you want to delete this bookmark?',
+    '#bookmarkPublished' => 'Published by',
+    '#bookmarkToValidate' => 'Validation request by',
+    '#bookmarkDraft' => 'Draft added by',
+    'il {date}' => 'on {date}',
+    'Un amministratore ha accettato la richiesta di pubblicazione del bookmark:' => 'An administrator accepted the publish request for the bookmark:'
 ];

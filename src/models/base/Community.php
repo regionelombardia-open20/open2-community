@@ -44,6 +44,9 @@ use yii\helpers\ArrayHelper;
  * @property integer $visible_on_edit
  * @property string $context
  * @property integer $parent_id
+ * @property integer $hide_participants
+ * @property integer $enable_chat
+ * @property integer $enable_bookmarks
  *
  * @property \open20\amos\community\models\CommunityType $communityType
  * @property \open20\amos\core\user\User $createdByUser
@@ -52,6 +55,11 @@ use yii\helpers\ArrayHelper;
  * @property \open20\amos\community\models\CommunityUserMm[] $communityUserMms
  * @property AmosWidgets[] $amosWidgetsIcons
  * @property AmosWidgets[] $amosWidgetsIGraphics
+ * @property-read \yii\db\ActiveQuery $amosWidgetsGraphics
+ * @property-read \yii\db\ActiveQuery $communityAmosWidgetsMms
+ * @property-read string $communityTypeName
+ * @property-read \yii\db\ActiveQuery $communityUserField
+ * @property-read \yii\db\ActiveQuery $parent
  * @property \open20\amos\community\models\Community[] $subcommunities
  *
  * @package open20\amos\community\models\base
@@ -94,7 +102,7 @@ abstract class Community extends NetworkModel
             [['logo_id', 'cover_image_id'], 'number'],
             [['hide_participants', 'force_workflow', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id',
-                'hits', 'for_all_user'], 'integer'],
+                'hits', 'for_all_user', 'enable_chat', 'enable_bookmarks'], 'integer'],
             [['status', 'name'], 'string', 'max' => 255],
         ];
     }
@@ -111,6 +119,8 @@ abstract class Community extends NetworkModel
             'description' => AmosCommunity::t('amoscommunity', 'Description'),
             'logo_id' => AmosCommunity::t('amoscommunity', 'Logo'),
             'cover_image_id' => AmosCommunity::t('amoscommunity', 'Cover image'),
+            'enable_chat' => AmosCommunity::t('amoscommunity', 'Enable chat module'),
+            'enable_bookmarks' => AmosCommunity::t('amoscommunity', 'Enable bookmarks module'),
             'created_at' => AmosCommunity::t('amoscommunity', 'Created at'),
             'updated_at' => AmosCommunity::t('amoscommunity', 'Updated at'),
             'deleted_at' => AmosCommunity::t('amoscommunity', 'Deleted at'),

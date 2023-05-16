@@ -110,11 +110,11 @@ class UserNetworkWidget extends Widget
             [
                 'attribute' => 'name',
                 'format' => 'raw',
-                'value' => function ($model) use ($confirm) {
+                'value' => function ($model) {
                     /** @var Community $model */
-                    return Html::a($model->name, ['/community/community/view', 'id' => $model->id], [
-                        'title' => AmosCommunity::t('amoscommunity', 'Apri il profilo della community {community_name}', ['community_name' => $model->name]),
-                        'data' => $confirm
+                    return Html::a($model->name, ['/community/join', 'id' => $model->id], [
+                            'title' => AmosCommunity::t('amoscommunity', 'Apri il profilo della community {community_name}', ['/community/join', 'id' => $model->id]),
+                            'class' => 'linkToCommunityJquery'
                     ]);
                 }
             ],
@@ -276,10 +276,11 @@ class UserNetworkWidget extends Widget
             ],
             'itemsMittente' => $itemsMittente,
         ]);
-        
+        // Rendering della modale per richiedere conferma
+        $modal = $this->render('parts/_modalConfirmNetworkTabUserProfile.php');
         return "<div id='" . $gridId . "' data-pjax-container='" . $gridId . "-pjax' data-pjax-timeout=\"1000\">"
             . "<h3>" . AmosCommunity::tHtml('amoscommunity', 'Community to which you participate') . "</h3>"
-            . $widget . "</div>";
+            . $widget . "</div>" . $modal;
     }
     
     /**
