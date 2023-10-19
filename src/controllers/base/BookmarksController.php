@@ -87,9 +87,10 @@ class BookmarksController extends CrudController
      * Lists all Bookmarks models.
      * @return mixed
      */
-    public function actionIndex($id, $layout = NULL)
+    public function actionIndex($layout = NULL)
     {
         Url::remember();
+        $id = \Yii::$app->request->get('id');
         $query = CommunityUserMm::find()->where(['community_id' => $id, 'user_id' => \Yii::$app->user->id, 'deleted_at' => null, 'status' => CommunityUserMm::STATUS_ACTIVE])->one();
         if (is_null($query)) $query = Community::find()->where(['id' => $id])->one();
 
