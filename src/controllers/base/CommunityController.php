@@ -219,7 +219,7 @@ class CommunityController extends CrudController
                     AmosCommunity::t('amoscommunity', 'Community created successfully.'));
                 
                 $module = \Yii::$app->getModule('community');
-                if($module && $module->hasProperty(setDefaultCommunityNotification)){
+                if($module && $module->hasProperty('setDefaultCommunityNotification')){
                     $notification = $module->setDefaultCommunityNotification;
                     if (!empty($loggedUserId) && !empty($model->id)) {
                         (new NotifyUtility())->saveNetworkNotification($loggedUserId,
