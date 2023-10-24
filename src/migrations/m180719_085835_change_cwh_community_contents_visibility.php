@@ -57,7 +57,10 @@ from `community`';
      */
     public function safeUp()
     {
-        $this->addColumn(self::COMMUNITY, 'contents_visibility', $this->boolean()->notNull()->defaultValue(0)->after('hide_participants'));
+        $tableSchemaComm = \Yii::$app->db->schema->getTableSchema(self::COMMUNITY);
+        if (!isset($tableSchemaComm->columns['contents_visibility'])) {
+            $this->addColumn(self::COMMUNITY, 'contents_visibility', $this->boolean()->notNull()->defaultValue(0)->after('hide_participants'));
+        }
         $tableSchema = $this->db->schema->getTableSchema(self::CWH_CONFIG);
         $rawSqlColumn = $tableSchema->getColumn('raw_sql');
         if (!is_null($rawSqlColumn)) {
