@@ -180,7 +180,7 @@ class JoinController extends CrudController
             $user = User::findOne(Yii::$app->user->id);
             
             $module = \Yii::$app->getModule('community');
-            if($module && $module->hasProperty(setDefaultCommunityNotification)){
+            if($module && $module->hasProperty('setDefaultCommunityNotification')){
                 $notification = $module->setDefaultCommunityNotification;
                 if (!empty($user) && !empty($id)) {
                     $nu->saveNetworkNotification(Yii::$app->user->id,
@@ -292,9 +292,9 @@ class JoinController extends CrudController
                         $nu   = new NotifyUtility();
                         $user = User::findOne(Yii::$app->user->id);
                         $notification = NotificationsConfOpt::EMAIL_OFF;
-                        if($module->hasProperty(setDefaultCommunityNotification)){
+                        if($module->hasProperty('setDefaultCommunityNotification')){
                             $notification = $module->setDefaultCommunityNotification;
-                        }elseif($module->hasProperty(setDefaultCommunityNotificationImmediate) && $module->setDefaultCommunityNotificationImmediate){
+                        }elseif($module->hasProperty('setDefaultCommunityNotificationImmediate') && $module->setDefaultCommunityNotificationImmediate){
                             $notification = NotificationsConfOpt::EMAIL_IMMEDIATE;
                         }
                         if (!empty($user) && !empty($id)) {

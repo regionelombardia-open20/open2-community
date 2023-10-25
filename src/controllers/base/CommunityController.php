@@ -267,7 +267,7 @@ class CommunityController extends CrudController
                 if ($model->save()) {
                     
                     $module = \Yii::$app->getModule('community');
-                    if($module && $module->hasProperty(setDefaultCommunityNotification)){
+                    if($module && $module->hasProperty('setDefaultCommunityNotification')){
                         $loggedUserId = Yii::$app->getUser()->getId();
                         $notification = $module->setDefaultCommunityNotification;
                         if (!empty($loggedUserId) && !empty($model->id)) {

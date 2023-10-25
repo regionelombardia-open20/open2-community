@@ -1106,7 +1106,7 @@ class CommunityController extends BaseCommunityController
                     $this->sendMail(null, $user->email, $subjectToUser, $textToUser, [], []);
                     $nu = new NotifyUtility();
 
-                    if ($module && $module->hasProperty(setDefaultCommunityNotification)) {
+                    if ($module && $module->hasProperty('setDefaultCommunityNotification')) {
                         $notification = $module->setDefaultCommunityNotification;
                         if (! empty($user) && ! empty($communityId)) {
                             $nu->saveNetworkNotification(Yii::$app->user->id, [
@@ -1157,7 +1157,7 @@ class CommunityController extends BaseCommunityController
                 $textToUser = $emailUtilToUser->getText();
                 $nu = new NotifyUtility();
 
-                if ($module && $module->hasProperty(setDefaultCommunityNotification)) {
+                if ($module && $module->hasProperty('setDefaultCommunityNotification')) {
                     $notification = $module->setDefaultCommunityNotification;
                     if (! empty($user) && ! empty($communityId)) {
                         $nu->saveNetworkNotification(Yii::$app->user->id, [
@@ -1250,7 +1250,7 @@ class CommunityController extends BaseCommunityController
 
         if ($ok) {
             $nu = new NotifyUtility();
-            if ($module && $module->hasProperty(setDefaultCommunityNotification)) {
+            if ($module && $module->hasProperty('setDefaultCommunityNotification')) {
                 $notification = $module->setDefaultCommunityNotification;
                 if (! empty($user) && ! empty($communityId)) {
                     $nu->saveNetworkNotification(Yii::$app->user->id, [
