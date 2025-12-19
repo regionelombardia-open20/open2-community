@@ -35,7 +35,8 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     /** @var bool|false $subcommunityMode - true if navigating child communities of a main community */
     public
         $subcommunityMode = false,
-        $isSearch = true;
+        $isSearch = true,
+		$fixedId = null;
 
     /**
      * @inheritdoc
@@ -114,7 +115,9 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     {
         return $this->search($params, 'admin-all', $limit);
     }
-
+	
+	
+	
     /**
      * Search for communities whose the logged user belongs
      *
@@ -125,9 +128,38 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
      */
     public function searchMyCommunities($params, $limit = null, $onlyActiveStatus = false)
     {
+        if(\Yii::$app->user->isGuest){
+            $dataProvider = new \yii\data\ArrayDataProvider([
+                'allModels' => [],    
+            ]);
+            return $dataProvider;
+        }
         $dataProvider = $this->search($params, 'own-interest', $limit, true, $onlyActiveStatus);
         $dataProvider->query
             ->orderBy([CommunityUserMm::tableName() . '.created_at' => SORT_DESC]);
+
+        return $dataProvider;
+    }
+    /**
+     * Search for communities with prioritiy of interest
+     *
+     * @param array $params $_GET search parameters array
+     * @param int|null $limit
+     * @param bool|false $onlyActiveStatus
+     * @return ActiveDataProvider $dataProvider
+     */
+    public function searchCommunitiesOfInterest($params, $limit = null, $onlyActiveStatus = false)
+    {
+        if(\Yii::$app->user->isGuest){
+            $dataProvider = new \yii\data\ArrayDataProvider([
+                'allModels' => [],    
+            ]);
+            return $dataProvider;
+        }
+        $dataProvider = $this->search($params, 'all', $limit, true, $onlyActiveStatus);
+        $dataProvider->query
+            ->leftJoin('community_user_mm cu', 'cu.community_id = community.id AND cu.user_id = :userId', [':userId' => \Yii::$app->user->id])
+    ->orderBy([new \yii\db\Expression('ISNULL(cu.id) ASC, community.created_at DESC')]);
 
         return $dataProvider;
     }
@@ -364,6 +396,9 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
                 $scope = $moduleCwh->getCwhScope();
                 if (!empty($scope) && isset($scope[self::tableName()])) {
                     $communityId = $scope[self::tableName()];
+					if($this->fixedId){
+						$communityId = $this->fixedId;
+					}
                     //filter by communities chlid of the community ID in cwh scope
                     $query->andWhere([self::tableName() . '.parent_id' => $communityId]);
                     //and show subcommunities in the list anyway (we are in community dashboard)
@@ -421,6 +456,11 @@ class CommunitySearch extends Community implements SearchModelInterface, CmsMode
     public function cmsSearch($params, $limit = null)
     {
         $dataProvider = $this->search($params, 'all', $limit);
+
+        if(isset($params['orderByTitle']) && $params['orderByTitle']) {
+            $dataProvider->query->orderBy('name ASC');
+        }
+
         return $dataProvider;
     }
 

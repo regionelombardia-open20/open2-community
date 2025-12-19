@@ -109,6 +109,7 @@ class UserNetworkWidget extends Widget
             ],
             [
                 'attribute' => 'name',
+                'label' => AmosCommunity::t('amoscommunity', 'Nome'),
                 'format' => 'raw',
                 'value' => function ($model) {
                     /** @var Community $model */
@@ -149,6 +150,7 @@ class UserNetworkWidget extends Widget
             */
             'status' => [
                 'attribute' => 'status',
+                'enableSorting' => false,
                 'label' => AmosCommunity::t('amoscommunity', 'Status'),
                 'headerOptions' => [
                     'id' => AmosCommunity::t('amoscommunity', 'Status'),
@@ -204,8 +206,10 @@ class UserNetworkWidget extends Widget
                 $communities->andWhere(['LIKE', 'community.name', $searchName]);
             }
         }
-        
-        $model = User::findOne($this->userId)->getProfile();
+
+        $userProfileInstance = AmosAdmin::instance()->createModel('UserProfile');
+        $model = $userProfileInstance::find()->andWhere(['user_id' => $this->userId])->one();
+
         $loggedUserId = Yii::$app->getUser()->id;
         $this->isUpdate = $this->isUpdate && ($loggedUserId == $model->user_id);
         $module = \Yii::$app->getModule(AmosCommunity::getModuleName());
@@ -291,7 +295,7 @@ class UserNetworkWidget extends Widget
         $controller = Yii::$app->controller;
         $isActionUpdate = ($controller->action->id == 'update');
         $confirm = $isActionUpdate ?
-            ['confirm' => BaseAmosModule::t('amoscore', '#confirm_exit_without_saving')]
+            ['confirm' => AmosCommunity::t('amoscommunity','#confirm_exit_without_saving')]
             : null;
         
         return $confirm;

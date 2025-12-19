@@ -5,6 +5,7 @@ namespace open20\amos\community\models;
 use open20\amos\core\interfaces\ContentModelInterface;
 use open20\amos\core\interfaces\ViewModelInterface;
 use open20\amos\notificationmanager\behaviors\NotifyBehavior;
+use open20\amos\workflow\behaviors\WorkflowLogFunctionsBehavior;
 use raoul2000\workflow\base\SimpleWorkflowBehavior;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -83,6 +84,9 @@ class Bookmarks extends \open20\amos\community\models\base\Bookmarks implements 
                     'class' => SimpleWorkflowBehavior::className(),
                     'defaultWorkflowId' => self::BOOKMARKS_WORKFLOW,
                     'propagateErrorsToModel' => true
+                ],
+                'WorkflowLogFunctionsBehavior' => [
+                    'class' => WorkflowLogFunctionsBehavior::class,
                 ],
             ]
         );
@@ -168,6 +172,38 @@ class Bookmarks extends \open20\amos\community\models\base\Bookmarks implements 
      */
     public function getCommunityName(){
         return $this->community->name;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getToValidateStatus()
+    {
+        return self::BOOKMARKS_STATUS_TOVALIDATE;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getValidatedStatus()
+    {
+        return self::BOOKMARKS_STATUS_PUBLISHED;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDraftStatus()
+    {
+        return self::BOOKMARKS_STATUS_DRAFT;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getValidatorRole()
+    {
+        return 'VALIDATORE_BOOKMARK';
     }
 
 

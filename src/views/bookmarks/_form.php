@@ -30,9 +30,11 @@ use open20\amos\community\AmosCommunity;
  */
 
 ?>
+
 <div class="bookmarks-form col-xs-12 nop">
 
-    <?php $form = ActiveForm::begin([
+    <?php
+    $form = ActiveForm::begin([
         'options' => [
             'id' => 'bookmarks_' . ((isset($fid)) ? $fid : 0),
             'data-fid' => (isset($fid)) ? $fid : 0,
@@ -42,19 +44,18 @@ use open20\amos\community\AmosCommunity;
         ]
     ]);
     ?>
-    <?php // $form->errorSummary($model, ['class' => 'alert-danger alert fade in']);
-    echo \open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget::widget([
-    'form' => $form,
-    'model' => $model,
-    'workflowId' => Bookmarks::BOOKMARKS_WORKFLOW,
-    'classDivIcon' => '',
-    'classDivMessage' => 'message',
-    'viewWidgetOnNewRecord' => false
+
+    <?= \open20\amos\workflow\widgets\WorkflowTransitionStateDescriptorWidget::widget([
+        'form' => $form,
+        'model' => $model,
+        'workflowId' => Bookmarks::BOOKMARKS_WORKFLOW,
+        'classDivIcon' => '',
+        'classDivMessage' => 'message',
+        'viewWidgetOnNewRecord' => false
     ]); ?>
 
     <div class="row">
         <div class="col-xs-12 m-t-20">
-
 
 
             <div class="content-form-statisticframe"><!-- titolo string -->
@@ -71,17 +72,12 @@ use open20\amos\community\AmosCommunity;
                         $append = NULL;
                     } ?>
                 </div>
-                <div class="col-md-12 m-b-30">
-                    <?= RequiredFieldsTipWidget::widget(); ?>
-                </div>
 
                 <!-- TAG -->
                 <?php
                 $moduleTag = \Yii::$app->getModule('tag');
                 $moduleCwh = \Yii::$app->getModule('cwh');
-                isset($moduleCwh) ? $showReceiverSection = true : null;
-                isset($moduleCwh) ? $scope = $moduleCwh->getCwhScope() : null;
-                if (isset($moduleTag) && in_array(get_class($model), $moduleTag->modelsEnabled) && $moduleTag->behaviors) { ?>
+                if (isset($moduleTag) && isset($moduleCwh) && in_array(get_class($model), $moduleTag->modelsEnabled) && $moduleTag->behaviors) { ?>
                     <div class="col-md-12">
                         <div class="receiver-section m-b-10">
                             <div class="tag-section-bookmarks">
@@ -89,7 +85,7 @@ use open20\amos\community\AmosCommunity;
                                     <?= \open20\amos\cwh\widgets\DestinatariPlusTagWidget::widget([
                                         'model' => $model,
                                         'moduleCwh' => $moduleCwh,
-                                        'scope' => $scope,
+                                        'scope' => $moduleCwh->getCwhScope(),
                                     ]); ?>
                                 </div>
                             </div>
@@ -97,40 +93,43 @@ use open20\amos\community\AmosCommunity;
                     </div>
                 <?php } ?>
 
-                    <div class="row">
-                        <?php
-                        echo \open20\amos\workflow\widgets\WorkflowTransitionButtonsWidget::widget([
-                            'form' => $form,
-                            'model' => $model,
-                            'workflowId' => Bookmarks::BOOKMARKS_WORKFLOW,
-                            'viewWidgetOnNewRecord' => true,
-                            //'closeSaveButtonWidget' => CloseSaveButtonWidget::widget($config),
-                            'closeButton' => Html::a(
-                                \Yii::t('amoscore', 'Annulla'),
-                                ['bookmarks/index', 'id' => $community->id],
-                                ['class' => 'btn btn-secondary']
-                            ),
-                            'initialStatusName' => "BOZZA",
-                            'initialStatus' => Bookmarks::BOOKMARKS_STATUS_DRAFT,
-                            'statusToRender' => [
-                                Bookmarks::BOOKMARKS_STATUS_DRAFT => 'Modifica in corso'
-                            ],
-                            'hideSaveDraftStatus' => [
-                                //1 => CollaborationProposals::STATUS_PUBLISHED
-                                //2 => Bookmarks::BOOKMARKS_STATUS_TOVALIDATE
-                            ],
-                            'additionalButtons' => [],
-                            'draftButtons' => [
-                                'default' => [
-                                    'button' => Html::submitButton(
-                                        \Yii::t('amoscore', 'Salva'),
-                                        ['class' => 'btn btn-workflow']
-                                    ),
-                                    'description' => $model->isNewRecord ? \Yii::t('amoscollaborations', 'Potrai pubblicare la proposta in seguito') : \Yii::t('amoscollaborations', 'Salva e mantieni lo stato attuale'),
-                                ]
-                            ],
-                        ]); ?>
-                    </div>
+                <div class="col-md-12 m-b-30">
+                    <?= RequiredFieldsTipWidget::widget(); ?>
+                </div>
+
+                <div class="row">
+                    <?php
+                    echo \open20\amos\workflow\widgets\WorkflowTransitionButtonsWidget::widget([
+                        'form' => $form,
+                        'model' => $model,
+                        'workflowId' => Bookmarks::BOOKMARKS_WORKFLOW,
+                        'viewWidgetOnNewRecord' => true,
+                        //'closeSaveButtonWidget' => CloseSaveButtonWidget::widget($config),
+                        'closeButton' => Html::a(
+                            \Yii::t('amoscore', 'Annulla'),
+                            ['bookmarks/index', 'id' => $community->id],
+                            ['class' => 'btn btn-secondary']
+                        ),
+                        'initialStatusName' => "BOZZA",
+                        'initialStatus' => Bookmarks::BOOKMARKS_STATUS_DRAFT,
+                        'statusToRender' => [
+                            Bookmarks::BOOKMARKS_STATUS_DRAFT => 'Modifica in corso'
+                        ],
+                        'hideSaveDraftStatus' => [
+                            //1 => CollaborationProposals::STATUS_PUBLISHED
+                            //2 => Bookmarks::BOOKMARKS_STATUS_TOVALIDATE
+                        ],
+                        'additionalButtons' => [],
+                        'draftButtons' => [
+                            'default' => [
+                                'button' => Html::submitButton(
+                                    \Yii::t('amoscore', 'Salva'),
+                                    ['class' => 'btn btn-workflow']
+                                ),
+                                'description' => $model->isNewRecord ? \Yii::t('amoscommunity', 'Potrai pubblicare il bookmark in seguito') : \Yii::t('amoscommunity', 'Salva e mantieni lo stato attuale'),
+                            ]
+                        ],
+                    ]); ?>
                 </div>
             </div>
         </div>

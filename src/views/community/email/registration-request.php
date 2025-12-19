@@ -25,7 +25,7 @@ if(!empty($profile)) {
         </div>
         <div
             style="border:1px solid #cccccc;padding:10px;margin-bottom: 10px;background-color: #ffffff; margin-top: 20px;">
-            <h2 style="font-size:2em;line-height: 1;"><?= $util->userName . " " . AmosCommunity::t('amoscommunity', '#registration_request_mail_text_1') . $util->contextLabel ?></h2>
+            <h2 style="font-size:2em;line-height: 1;"><?= $util->userName . " " . AmosCommunity::t('amoscommunity', '#registration_request_mail_text_1') . $util->contextLabelInvitation ?></h2>
 
             <div style="display: flex; padding: 10px;">
                 <?php if ($util->isCommunityContext): ?>

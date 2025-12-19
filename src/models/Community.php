@@ -13,10 +13,13 @@ namespace open20\amos\community\models;
 use open20\amos\attachments\behaviors\FileBehavior;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\i18n\grammar\CommunityGrammar;
+use open20\amos\community\models\clients\MsGraphBuilder;
+use open20\amos\community\models\clients\MsTeamsClient;
 use open20\amos\community\models\search\CommunitySearch;
 use open20\amos\community\utilities\CommunityUtil;
 use open20\amos\community\widgets\icons\WidgetIconCommunityDashboard;
 use open20\amos\community\widgets\UserNetworkWidget;
+use open20\amos\core\helpers\Html;
 use open20\amos\core\user\User;
 use open20\amos\cwh\AmosCwh;
 use open20\amos\cwh\behaviors\TaggableInterestingBehavior;
@@ -916,7 +919,13 @@ class Community extends \open20\amos\community\models\base\Community implements 
         $canPersonalize = \Yii::$app->user->can('COMMUNITY_WIDGETS_ADMIN_PERSONALIZE');
 
         $ids = \Yii::$app->request->post('amosWidgetsIds');
+        $orderWidgets = [];
         if (isset($_POST['amosWidgetsIds'])) {
+            if (isset($_POST['orderWidgets'])) {
+                foreach ($_POST['orderWidgets'] as $order => $idWidget) {
+                    $orderWidgets[$idWidget] = $order;
+                }
+            }
             if ($canPersonalize) {
                 CommunityAmosWidgetsMm::deleteAll(['community_id' => $id]);
             } else {
@@ -927,6 +936,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
                 $communityWidget = new CommunityAmosWidgetsMm();
                 $communityWidget->community_id = $id;
                 $communityWidget->amos_widgets_id = $amos_widgets_id;
+                $communityWidget->n_order = $orderWidgets[$amos_widgets_id] + 1;
                 if ($canPersonalize) {
                     $communityWidget->personalized = 1;
                 }
@@ -975,6 +985,20 @@ class Community extends \open20\amos\community\models\base\Community implements 
             ->orderBy(['cognome' => SORT_ASC, 'nome' => SORT_ASC]);
 
         return $userQuery;
+    }
+
+    /**
+     * @param Community $community
+     * @return Community community
+     */
+    public static function getCommunityRoot($community)
+    {
+        if ($community->parent_id) {
+            while ($community->parent_id) {
+                $community = Community::findOne($community->parent_id);
+            }
+        }
+        return $community;
     }
 
     /**
@@ -1048,4 +1072,285 @@ class Community extends \open20\amos\community\models\base\Community implements 
             ->limit(\open20\amos\community\models\Bookmarks::LINK_VIEW_NUMBER)
             ->all();
     }
+
+    public function isSavedCommunityAmosDashoardMm()
+    {
+        return \open20\amos\community\models\CommunityAmosWidgetsMm::find()
+            ->andWhere(['community_id' => $this->id])
+            ->andWhere(['type' => \open20\amos\dashboard\models\AmosWidgets::TYPE_GRAPHIC])
+            ->andWhere(['IS NOT', 'n_order', null])
+            ->innerJoin('amos_widgets', 'amos_widgets.id = community_amos_widgets_mm.amos_widgets_id')->count();
+    }
+
+    public function getColorClassCommunityType()
+    {
+        $classCommunityType = '';
+        if ($this->community_type_id == CommunityType::COMMUNITY_TYPE_OPEN) {
+            $classCommunityType = 'community-open';
+        } else if ($this->community_type_id == CommunityType::COMMUNITY_TYPE_CLOSED) {
+            $classCommunityType = 'community-closed';
+        } else if ($this->community_type_id == CommunityType::COMMUNITY_TYPE_PRIVATE) {
+            $classCommunityType = 'community-private';
+        }
+        return $classCommunityType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSubChannel()
+    {
+        if (!empty($this->parent_id)) {
+            $community = $this->parent;
+            if ($community) {
+                if (!empty($community->parent_id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public function createMicrosoftTeam()
+    {
+        $msBuilder = new MsGraphBuilder();
+        $msBuilder->assignProscriptionToUser(\Yii::$app->user->id);
+        if (!empty($this->parent_id)) {
+            $parent = Community::getCommunityRoot($this);
+            if ($parent && $parent->msgraph_team_id) {
+                $channel = $msBuilder->createChannel($this, $parent->msgraph_team_id, $this->name, $this->description);
+                $member = $msBuilder->getUserChannelMembership($parent->msgraph_team_id, $channel->id, \Yii::$app->user->id);
+                $subscription = $msBuilder->subscribeToWebHookChannelMember($parent->msgraph_team_id);
+                $subscription = $msBuilder->subscribeToWebHookDriveFolder($parent->msgraph_team_id, $this->msgraph_channel_id);
+
+                //salvo folder id
+                if ($this->enable_msgraph_teams && empty($this->msgraph_drive_id)) {
+                    $parent = Community::getCommunityRoot($this);
+                    if ($parent) {
+                        $folder = $msBuilder->getChannelFolderInfo($parent->msgraph_team_id, $this->msgraph_channel_id);
+                        $this->msgraph_drive_id = $folder->getDriveId();
+                        $this->msgraph_folder_id = $folder->id;
+                        $this->save(false);
+                    }
+                }
+
+                $userMm = CommunityUserMm::find()->andWhere(['user_id' => \Yii::$app->user->id, 'community_id' => $this->id])->one();
+                if ($member->id && $userMm) {
+                    $userMm->msgraph_membership_id = $member->id;
+                    $userMm->save(false);
+                }
+            }
+        } else {
+            $teamId = $msBuilder->createTeam($this->name, strip_tags($this->description));
+            $channel = $msBuilder->getGeneralChannel($teamId);
+            $member = $msBuilder->getUserChannelMembership($teamId, $channel->id, \Yii::$app->user->id);
+            $subscription = $msBuilder->subscribeToWebHookTeamMember($teamId);
+            $subscription = $msBuilder->subscribeToWebHookDriveFolder($teamId, $channel->id);
+
+
+            if ($channel) {
+                $this->msgraph_team_id = $teamId;
+                $this->msgraph_channel_id = $channel->id;
+
+                //salvo folder id
+                if ($this->enable_msgraph_teams && empty($this->msgraph_driver_folder_id)) {
+                    $parent = Community::getCommunityRoot($this);
+                    if ($parent) {
+                        $folder = $msBuilder->getChannelFolderInfo($parent->msgraph_team_id, $this->msgraph_channel_id);
+                        $this->msgraph_drive_id = $folder->getDriveId();
+                        $this->msgraph_folder_id = $folder->id;
+                    }
+                }
+                $this->save(false);
+            }
+            $userMm = CommunityUserMm::find()->andWhere(['user_id' => \Yii::$app->user->id, 'community_id' => $this->id])->one();
+            if ($member->id && $userMm) {
+                $userMm->msgraph_membership_id = $member->id;
+                $userMm->save(false);
+            }
+        }
+    }
+
+    /**
+     * @return false|int|mixed
+     */
+    public function isEnableMsGraph()
+    {
+        $enableMsTeams = false;
+        if (empty($this->parent_id)) {
+            $enableMsTeams = $this->enable_msgraph_teams;
+        } else {
+            $parent = $this->parent;
+            if ($parent) {
+                $enableMsTeams = $parent->enable_msgraph_teams;
+            }
+        }
+        return $enableMsTeams;
+    }
+
+    public function getMessageAlertMsTeams()
+    {
+        $communityRoot = Community::getCommunityRoot($this);
+        $isTeamMember = false;
+        $isAccountTeamsConnected = false;
+        $isCommunityManager = $this->isCommunityManager(\Yii::$app->user->id);
+
+        $moduleCommunity = \Yii::$app->getModule('community');
+        if ($moduleCommunity && $moduleCommunity->enableMicrosoftTeams && $communityRoot->enable_msgraph_teams) {
+            $title = '';
+            $actionTeams = '';
+            $tokenTeams = \open20\amos\community\models\CommunityMsgraphTokens::find()->andWhere(['user_id' => \Yii::$app->user->id])->one();
+            $member = \open20\amos\community\models\CommunityUserMm::find()->andWhere([
+                'user_id' => \Yii::$app->user->id, 'community_id' => $this->id,
+                'status' => CommunityUserMm::STATUS_ACTIVE
+            ])->one();
+            if ($tokenTeams->msgraph_user_id) {
+                $isAccountTeamsConnected = true;
+            }
+            if ($member && $member->msgraph_membership_id) {
+                $isTeamMember = true;
+            }
+            if ($member) {
+                if ($isCommunityManager && $communityRoot->enable_msgraph_teams && empty($communityRoot->msgraph_team_id)) {
+                    $title = AmosCommunity::t('amoscommunity', 'Il Team di microsoft team non è collegato');
+                    $actionTeams = AmosCommunity::t('amoscommunity', '<a href="{urlCreateTeam}">Crea</a> il team su Microsoft Teams.', [
+                        'urlCreateTeam' => '/community/ms-teams/create-team-or-channel?communityId=' . $this->id,
+                    ]);
+                } else if ($communityRoot->msgraph_team_id && empty($this->msgraph_channel_id)) {
+                    if (!empty($this->parent_id)) {
+                        $title = AmosCommunity::t('amoscommunity', 'Il canale di microsoft team è stato eliminato');
+                        $actionTeams = AmosCommunity::t('amoscommunity', 'Il canale continuerà a funzionare normalmente ma non interagirà più con Micrososft Teams.');
+                       if($isCommunityManager) {
+                           $actionTeams .= AmosCommunity::t('amoscommunity', 'Clicca <a href="{urlCreateTeam}">qui</a> per ricrearlo.', [
+                               'urlCreateTeam' => '/community/ms-teams/create-team-or-channel?communityId=' . $this->id,
+                           ]);
+                       }
+                    } else {
+                        $title = AmosCommunity::t('amoscommunity', 'Il Team è stato eliminato');
+                        $actionTeams = AmosCommunity::t('amoscommunity', 'La community continuerà a funzionare normalmente ma non interagirà più con Micrososft Teams');
+                    }
+                } else if (!$isAccountTeamsConnected) {
+                    $title = AmosCommunity::t('amoscommunity', 'Abilita le funzionalità avanzate Microsoft con Open2.0');
+                    $actionTeams = "<strong>" . Html::a(AmosCommunity::t('amoscommunity', 'Collega il tuo account Microsoft Teams'), ['/community/ms-teams/choose-mail-microsoft', 'urlRedirect' => Url::current()], ['title' => AmosCommunity::t('amoscomments', 'Collega il tuo account Microsoft')]) . "</strong>"
+                        . ' ' . AmosCommunity::t('amoscommunity', 'per abilitare le funzionalità avanzate di Open 2.0, quali Canali Teams, TO-DO, File sharing e molto altro.');
+                } else if (!$isTeamMember && $communityRoot->msgraph_team_id) {
+                    $title = AmosCommunity::t('amoscommunity', 'Iscriviti al team per abilitare le funzionalità avanzate Microsoft con Open2.0');
+                    $actionTeams = AmosCommunity::t('amoscommunity', 'Hai già collegato il tuo account Microsoft ma non fai parte di questo Team.') . ' '
+                        . "<strong>" . Html::a(AmosCommunity::t('amoscommunity', 'Iscriviti ora'), ['/community/ms-teams/subscribe-to-team', 'community_id' => $this->id, 'urlRedirect' => Url::current()], ['title' => AmosCommunity::t('amoscomments', 'Iscriviti al team')]) . "</strong>";
+                }
+            }
+            return [
+                'textDescription' => $actionTeams,
+                'title' => $title
+            ];
+
+        }
+        return [];
+    }
+
+    /**
+     * @param $user_id
+     * @param $role
+     * @return clients\msmodels\MsTeamMember|mixed|null
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function addMemberToChannel($user_id, $role = CommunityUserMm::ROLE_PARTICIPANT, $createUser = true)
+    {
+        $moduleCommunity = \Yii::$app->getModule('community');
+        if ($createUser) {
+            $moduleCommunity->createCommunityUser($this->id, CommunityUserMm::STATUS_ACTIVE, $role, $user_id);
+        }
+        $communityUserMm = CommunityUserMm::find()->andWhere(['community_id' => $this->id, 'user_id' => $user_id])->one();
+        if ($communityUserMm) {
+            $parent = Community::getCommunityRoot($this);
+            $msBuilder = new MsGraphBuilder();
+            $msRole = CommunityUserMm::mapRoleMsTeams($role);
+            $msTeamMember = $msBuilder->addMemberToChannel($communityUserMm, $parent->msgraph_team_id, $this->msgraph_channel_id, \Yii::$app->user->id, $msRole);
+            return $msTeamMember;
+        }
+        return null;
+    }
+
+    public function deleteMsTeams()
+    {
+        $module = \Yii::$app->getModule('community');
+        if ($module && $module->enableMicrosoftTeams) {
+            $parent = Community::getCommunityRoot($this);
+            if ($parent->enable_msgraph_teams) {
+                $msBuilder = new MsGraphBuilder();
+                if (empty($this->parent_id)) {
+                    if ($this->msgraph_team_id) {
+                        $msBuilder->deleteTeam($this->msgraph_team_id);
+                    }
+                } else {
+                    if ($this->msgraph_channel_id) {
+                        $msBuilder->deleteChannel($parent->msgraph_team_id, $this->msgraph_channel_id);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $member
+     * @return void
+     */
+    public function addMemberToMicrosoftTeams($member)
+    {
+        $parent = Community::getCommunityRoot($this);
+        if ($parent->enable_msgraph_teams) {
+            $msBuilder = new MsGraphBuilder();
+            if (empty($this->parent_id)) {
+                $msTeamMember = $msBuilder->addMemberToTeam($member, $this->msgraph_team_id, $member->user_id);
+            } else {
+                $this->addMemberToChannel($member->user_id);
+            }
+        }
+    }
+
+    /**
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function removeMemberMsTeamsFromCommunity($user_id = null)
+    {
+        if (empty($user_id)) {
+            $user_id = \Yii::$app->user->id;
+        }
+        $module = \Yii::$app->getModule('community');
+        if ($module && $module->enableMicrosoftTeams) {
+            $msBuilder = new MsGraphBuilder();
+            $parent = Community::getCommunityRoot($this);
+            if ($parent->enable_msgraph_teams) {
+                $userMm = CommunityUserMm::find()->andWhere(['community_id' => $this->id, 'user_id' => $user_id])->one();
+                if ($userMm && !empty($userMm->msgraph_membership_id)) {
+                    if (!empty($this->parent_id)) {
+                        $msBuilder->removeMemberFromChannel($parent->msgraph_team_id, $this->msgraph_channel_id, $userMm->msgraph_membership_id);
+//                        \Yii::$app->session->addFlash('success', "Disiscritto da canale");
+                    } else {
+                        $msBuilder->removeMemberFromTeam($parent->msgraph_team_id, $userMm->msgraph_membership_id);
+//                        \Yii::$app->session->addFlash('success', "Disiscritto da team");
+
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return void
+     * @package open20\amos\core\record\Record
+     */
+    protected function setUseBullet()
+    {
+        parent::setUseBullet();
+
+        // Don't update bullet count
+        if ($this->context != $this::className() || $this->community_type_id == CommunityType::COMMUNITY_TYPE_CLOSED) {
+            $this->useBullet = false;
+        }
+    }
+
 }

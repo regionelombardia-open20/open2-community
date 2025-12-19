@@ -28,7 +28,7 @@ $this->params['widgetSelected'] = $widgetSelected;
 
     <input type="hidden" id="saveDashboardUrl" value="<?= Yii::$app->urlManager->createUrl(['dashboard/manager/save-dashboard-order']); ?>"/>
 
-    <div class="col-xs-12">
+    <div>
         <h2><?= AmosDashboard::tHtml('amosdashboard', 'Plugins'); ?></h2>
     </div>
 
@@ -114,7 +114,7 @@ $this->params['widgetSelected'] = $widgetSelected;
         ]);
         ?>
 
-        <div class="col-xs-12">
+        <div>
             <h2><?= AmosDashboard::tHtml('amosdashboard', 'Widget'); ?></h2>
         </div>
 

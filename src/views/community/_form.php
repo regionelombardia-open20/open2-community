@@ -29,6 +29,7 @@ use kartik\select2\Select2;
 use kartik\widgets\SwitchInput;
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
+use open20\amos\core\icons\AmosIcons;
 
 
 /**
@@ -43,6 +44,7 @@ $idTabContents = 'tab-contents';
 $idTabSheet = 'tab-registry';
 $idTabParticipants = 'tab-participants';
 $idTabSubcommunities = 'tab-subcommunities';
+//check if a specific tab must be the active one
 //check if a specific tab must be the active one
 $tabContentsActive = isset($tabActive) ? ((strcmp($tabActive, $idTabContents) == 0) ? true : false) : false;
 $tabSheetActive = isset($tabActive) ? ((strcmp($tabActive, $idTabSheet) == 0) ? true : false) : true;
@@ -61,6 +63,7 @@ $hideContentsModels = $moduleCommunity->hideContentsModels;
 $enableConfigureCommunityDashboard = $moduleCommunity->enableConfigureCommunityDashboard;
 $enableChatField = $moduleCommunity->activateChat && $moduleCommunity->chatOptions['showEnableDisableInForm'];
 $enableBookmarksField = $moduleCommunity->activateLinks && $moduleCommunity->linksOptions['showEnableDisableInForm'];
+$enableMicrosoftTeams = $moduleCommunity->enableMicrosoftTeams;
 
 $hideSeoModuleClass = $moduleCommunity->hideSeoModule ? ' hidden' : '';
 
@@ -138,7 +141,12 @@ $form = ActiveForm::begin([
 ?>
 
 <?= $form->errorSummary($model, ['class' => 'alert-danger alert fade in']); ?>
-
+<?php if (!$model->isNewRecord) { ?>
+    <?= Html::a(AmosCommunity::t('amoscommunity', "Vai alla dashboard") . AmosIcons::show('arrow-right'), ['/community/join/open-join', 'id' => $model->id], [
+        'title' => AmosCommunity::t('amoscommunity', "Vai alla dashboard"),
+        'class' => 'btn btn-secondary-outline'
+    ]) ?>
+<?php } ?>
 <?= WorkflowTransitionStateDescriptorWidget::widget([
     'form' => $form,
     'model' => $model,
@@ -147,7 +155,7 @@ $form = ActiveForm::begin([
     'viewWidgetOnNewRecord' => false
 ]); ?>
 
-<div class="community-form">
+    <div class="community-form">
 
     <div class="row">
 
@@ -158,7 +166,9 @@ $form = ActiveForm::begin([
                     'model' => $model,
                 ]), ['class' => 'subtitle-form']) ?>
 
-            <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => AmosCommunity::t('amoscommunity', '#title_field_plceholder')])->label(AmosCommunity::t('amoscommunity', '#community_name'))->hint(AmosCommunity::t('amoscommunity', '#title_field_hint')) ?>
+            <?= $form->field($model, 'name')
+                ->textInput(['maxlength' => true, 'placeholder' => AmosCommunity::t('amoscommunity', '#title_field_plceholder')])
+                ->label($model->parent_id ? CommunityUtil::SubcommToChannelTrad('Nome canale') : AmosCommunity::t('amoscommunity', '#community_name'))->hint(AmosCommunity::t('amoscommunity', '#title_field_hint')) ?>
             <?= $form->field($model, 'description')->widget(TextEditorWidget::className(), [
                 'options' => [
                     'id' => 'description' . $model->id,
@@ -166,7 +176,7 @@ $form = ActiveForm::begin([
                 ],
                 'clientOptions' => [
                     'lang' => substr(Yii::$app->language, 0, 2),
-                    'placeholder' => AmosCommunity::t('amoscommunity', 'Insert the community description'),
+                    'placeholder' => $model->parent_id ? CommunityUtil::SubcommToChannelTrad('Inserisci descrizione del canale') : AmosCommunity::t('amoscommunity', 'Insert the community description'),
                 ],
             ])->label($model->getAttributeLabel('description'), ['for' => 'description' . $model->id]);
             ?>
@@ -230,6 +240,50 @@ $form = ActiveForm::begin([
                     </div>
                 </div>
             <?php endif; ?>
+
+            <?php if ($enableMicrosoftTeams) { ?>
+                <div class="row">
+                    <div class="col-md-12">
+                        <?php if (\Yii::$app->user->can('MSTEAMS_CREATOR')) { ?>
+
+                            <?php if (empty($model->parent_id) && CommunityUtil::canUseMsTeamsFeatures()) { ?>
+                                <div class="content-community-enable-ms-teams">
+                                    <div class="icon-svg-ms-teams">
+                                        <?= \open20\amos\community\utilities\CommunityUtil::showIconSvgTeams() ?>
+                                    </div> <?php if (!empty($model->msgraph_channel_id)) { ?>
+                                        <?php echo AmosCommunity::t('amoscommunity', 'Microsoft Teams collegato alla community') . \open20\amos\core\icons\AmosIcons::show('check-circle', ['title' => 'Team ' . $model->msgraph_team_id]); ?>
+                                    <?php } else {
+                                        if (\Yii::$app->user->can('MSTEAMS_CREATOR') && $model->isNewRecord) {
+                                            echo $form->field($model, 'enable_msgraph_teams')->widget(\kartik\widgets\SwitchInput::className(), [
+                                                'options' => [
+                                                    'id' => 'enable_msgraph_teams_id',
+                                                    'label' => AmosCommunity::t('amoscommunity', 'Collega Microsoft Teams alla community')
+                                                ],
+                                                'pluginOptions' => [
+                                                    'size' => 'mini',
+                                                    'onText' => 'Si',
+                                                    'offText' => 'No'
+                                                ],
+                                            ])->label(false);
+                                        }
+                                    } ?>
+                                    <div class="hint-teams">
+                                        <span class="mdi mdi-information-outline m-r-5"></span><small><?= AmosCommunity::t('amoscommunity', "E' possibile collegare un Team solo al momento della creazione, inoltre non potrà essere disattivata in seguito"); ?></small>
+                                    </div>
+
+                                </div>
+
+                            <?php } else { ?>
+                                <?= \open20\amos\community\widgets\MsTeamsConnectWidget::widget() ?>
+                            <?php } ?>
+                        <?php } else {
+                            if (empty($model->parent_id) && !empty($model->msgraph_channel_id)) {
+                                echo AmosCommunity::t('amoscommunity', 'Microsoft Teams collegato alla community') . \open20\amos\core\icons\AmosIcons::show('check-circle', ['title' => 'Team ' . $model->msgraph_team_id]);
+                            }
+                        } ?>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
         <div class="col-sm-4 section-form">
             <h2 class="subtitle-form"><?= AmosCommunity::t('amoscommunity', 'Immagine principale') ?></h2>
@@ -238,7 +292,9 @@ $form = ActiveForm::begin([
                     'jcropOptions' => ['aspectRatio' => '1.7']
                 ])->label(AmosCommunity::t('amoscommunity', '#image_field'))->hint(AmosCommunity::t('amoscommunity', '#image_field_hint')) ?>
             </div>
-
+            <div>
+                <?= $form->field($model, 'alt')->textInput(['maxlength' => true, 'placeholder' => AmosCommunity::t('amoscommunity', "Inserisci l'alt")])->label(AmosCommunity::t('amoscommunity', 'Alt'))->hint(AmosCommunity::t('amoscommunity', '#title_field_hint')) ?>
+            </div>
         </div>
 
         <div class="col-xs-12 section-form">
@@ -252,14 +308,16 @@ $form = ActiveForm::begin([
                     ]); ?>
                 </div>
             </div>
-            <div class="subcommunity-section">
-                <div>
-                    <?= SubcommunitiesMiniWidget::widget([
-                        'model' => $model,
-                        'isUpdate' => true
-                    ]); ?>
+            <?php if (($model->enable_msgraph_teams && empty($model->parent_id)) || (!$model->enable_msgraph_teams && !($moduleCommunity->disableSubChannel && !empty($model->parent_id)))) { ?>
+                <div class="subcommunity-section">
+                    <div>
+                        <?= SubcommunitiesMiniWidget::widget([
+                            'model' => $model,
+                            'isUpdate' => true
+                        ]); ?>
+                    </div>
                 </div>
-            </div>
+            <?php } ?>
         </div>
 
         <div class="col-xs-12 section-form">
@@ -277,57 +335,59 @@ $form = ActiveForm::begin([
                 isset($moduleTag) ? $showReceiverSection = true : null;
 
                 if ($showReceiverSection) : ?>
-                    <div>
-                        <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_receiver_title'), ['class' => 'subtitle-form']) ?>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <div class="content-mod-pubb">
-                                    <?php
-                                    $config = [
-                                        'model' => $model
-                                    ];
-                                    $tmp = new DestinatariPlusTagWidget();
+                <div>
+                    <?= Html::tag('h2', AmosCommunity::t('amoscommunity', '#settings_receiver_title'), ['class' => 'subtitle-form']) ?>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="content-mod-pubb">
+                                <?php
+                                $config = [
+                                    'model' => $model
+                                ];
+                                $tmp = new DestinatariPlusTagWidget();
 
-                                    if ($tmp->hasProperty('moduleCwh')) {
-                                        $config['moduleCwh'] = $moduleCwh;
-                                    }
-                                    ?>
-                                    <?= DestinatariPlusTagWidget::widget($config); ?>
-                                </div>
+                                if ($tmp->hasProperty('moduleCwh')) {
+                                    $config['moduleCwh'] = $moduleCwh;
+                                }
+                                ?>
+                                <?= DestinatariPlusTagWidget::widget($config); ?>
                             </div>
-                            <div class="clearfix"></div>
                         </div>
-                    <?php endif; ?>
+                        <div class="clearfix"></div>
                     </div>
+                    <?php endif; ?>
+                </div>
             </div>
 
         </div>
         <div class="clearfix"></div>
         <?php if ($enableConfigureCommunityDashboard) { ?>
-            <div class="row">
-                <div class="col-xs-12 community-accordion-plus">
-                    <?=
-                    AccordionWidget::widget([
-                        'items' => [
-                            [
-                                'header' => AmosCommunity::t('amoscommunity', '#settings_optional'),
-                                'content' => \open20\amos\community\widgets\ConfigureDashboardCommunityWidget::widget(['model' => $model]),
-                            ]
-                        ],
-                        'headerOptions' => ['tag' => 'h2'],
-                        'clientOptions' => [
-                            'collapsible' => true,
-                            'active' => 'false',
-                            'icons' => [
-                                'header' => 'ui-icon-amos am am-plus-square',
-                                'activeHeader' => 'ui-icon-amos am am-minus-square',
-                            ]
-                        ],
-                    ]);
-                    ?>
-                </div>
-                <div class="clearfix"></div>
+            <div class="col-xs-12 community-accordion-plus">
+                <?=
+                AccordionWidget::widget([
+                    'items' => [
+                        [
+                            'header' => AmosCommunity::t('amoscommunity', '#settings_optional'),
+                            'content' => \open20\amos\community\widgets\ConfigureDashboardCommunityWidget::widget([
+                                'model' => $model,
+                                'defaultWidgetSelected' => $defaultIdsWidgetSelected,
+                                'disableTotalConfigurationInUpdate' => true,
+                            ]),
+                        ]
+                    ],
+                    'headerOptions' => ['tag' => 'h2'],
+                    'clientOptions' => [
+                        'collapsible' => true,
+                        'active' => 'false',
+                        'icons' => [
+                            'header' => 'ui-icon-amos am am-plus-square',
+                            'activeHeader' => 'ui-icon-amos am am-minus-square',
+                        ]
+                    ],
+                ]);
+                ?>
             </div>
+            <div class="clearfix"></div>
         <?php } ?>
 
         <?php
@@ -347,11 +407,11 @@ $form = ActiveForm::begin([
             $labelClass = 'control-label';
         }
         ?>
-        <?php if ($moduleCommunity->forceWorkflowSingleCommunity) : ?>
+        <?php if ($moduleCommunity->forceWorkflowSingleCommunity) { ?>
             <!-- Flag moderazione -->
 
-            <div class="col-xs-12">
-                <div class="subcommunity-section m-b-30" style="padding:24px 24px 0 24px">
+            <div class="col-xs-12" style="<?= $moduleCommunity->forceDisableContentsWorkflow ? 'display:none' : '' ?>">
+                <div class="subcommunity-section m-b-30 m-t-30">
                     <div class="row">
                         <div class="<?= $divLabelCol ?> form-group m-b-0">
                             <?= Html::label(
@@ -361,8 +421,14 @@ $form = ActiveForm::begin([
                             ); ?>
                         </div>
                         <div class="<?= $divSwitchInputCol ?> text-right">
-                            <?php if ($model->isNewRecord) {
-                                $model->force_workflow = true;
+
+                            <?php
+                            if ($moduleCommunity->forceDisableContentsWorkflow) {
+                                $model->force_workflow = false;
+                            } else {
+                                if ($model->isNewRecord) {
+                                    $model->force_workflow = true;
+                                }
                             } ?>
                             <?= $form->field($model, 'force_workflow')->widget(SwitchInput::classname(), [
                                 'pluginOptions' => $switchInputPluginOptions,
@@ -373,13 +439,23 @@ $form = ActiveForm::begin([
                     </div>
                 </div>
             </div>
-        <?php endif; ?>
+        <?php } else { ?>
+            <div style="display: none">
+                <?php $model->force_workflow = true;?>
+                <?= $form->field($model, 'force_workflow')->hiddenInput()->label(false); ?>
+            </div>
+        <?php } ?>
 
         <?php if ($enableChatField) { ?>
-
+            <?php
+            $hideChat = '';
+            if ($enableConfigureCommunityDashboard) {
+                $hideChat = 'display:none';
+                $model->enable_chat = true;
+            } ?>
             <!-- Enable chat -->
-            <div class="col-xs-12">
-                <div class="subcommunity-section m-b-30" style="padding:24px 24px 0 24px">
+            <div class="col-xs-12" style="<?= $hideChat ?>">
+                <div class="subcommunity-section m-b-30 m-t-30" style="padding:24px 24px 0 24px">
                     <div class="row">
                         <div class="col-sm-9 form-group m-b-0">
                             <?= Html::label(
@@ -404,9 +480,15 @@ $form = ActiveForm::begin([
         <?php } ?>
 
         <?php if ($enableBookmarksField) { ?>
+            <?php
+            $hideBookmarks = '';
+            if ($enableConfigureCommunityDashboard) {
+                $hideBookmarks = 'display:none';
+                $model->enable_bookmarks = true;
+            } ?>
             <!-- Enable bookmarks -->
-            <div class="col-xs-12">
-                <div class="subcommunity-section m-b-30" style="padding:24px 24px 0 24px">
+            <div class="col-xs-12" style="<?= $hideBookmarks ?>">
+                <div class="subcommunity-section m-b-30 m-t-30" style="padding:24px 24px 0 24px">
                     <div class="row">
                         <div class="col-sm-9 form-group m-b-0">
                             <?= Html::label(
@@ -435,32 +517,30 @@ $form = ActiveForm::begin([
             <?php
             $moduleSeo = \Yii::$app->getModule('seo');
             if (isset($moduleSeo)) : ?>
-            <div class="col-xs-12<?= $hideSeoModuleClass?>">
-                <?= AccordionWidget::widget([
-                    'items' => [
-                        [
-                            'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
-                            'content' => \open20\amos\seo\widgets\SeoWidget::widget([
-                                'contentModel' => $model,
-                            ]),
-                        ]
-                    ],
-                    'headerOptions' => ['tag' => 'h2'],
-                    'clientOptions' => [
-                        'collapsible' => true,
-                        'active' => 'false',
-                        'icons' => [
-                            'header' => 'ui-icon-amos am am-plus-square',
-                            'activeHeader' => 'ui-icon-amos am am-minus-square',
-                        ]
-                    ],
-                ]);
-                ?>
-            </div>
+                <div class="<?= $hideSeoModuleClass ?>">
+                    <?= AccordionWidget::widget([
+                        'items' => [
+                            [
+                                'header' => AmosCommunity::t('amoscommunity', '#settings_seo_title'),
+                                'content' => \open20\amos\seo\widgets\SeoWidget::widget([
+                                    'contentModel' => $model,
+                                ]),
+                            ]
+                        ],
+                        'headerOptions' => ['tag' => 'h2'],
+                        'clientOptions' => [
+                            'collapsible' => true,
+                            'active' => 'false',
+                            'icons' => [
+                                'header' => 'ui-icon-amos am am-plus-square',
+                                'activeHeader' => 'ui-icon-amos am am-minus-square',
+                            ]
+                        ],
+                    ]);
+                    ?>
+                </div>
             <?php endif; ?>
         </div>
-
-
 
 
         <?= $form->field($model, 'backToEdit')->hiddenInput()->label(false) ?>
@@ -481,8 +561,8 @@ $form = ActiveForm::begin([
                 AmosCommunity::t('amoscommunity', 'Yes'),
                 ['class' => 'btn btn-navigation-primary', 'id' => 'visibleYes']
             )
-                . Html::submitButton(AmosCommunity::t('amoscommunity', 'No'), ['class' => 'btn btn-secondary', 'id' => 'visibleNot'])
-                . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
+            . Html::submitButton(AmosCommunity::t('amoscommunity', 'No'), ['class' => 'btn btn-secondary', 'id' => 'visibleNot'])
+            . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
             ['class' => 'pull-right m-15-0']
         );
         Modal::end();
@@ -496,7 +576,7 @@ $form = ActiveForm::begin([
         echo Html::tag(
             'div',
             Html::a(AmosCommunity::t('amoscommunity', 'Ok'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary', 'id' => 'ok-warning'])
-                . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
+            . Html::a(AmosCommunity::t('amoscommunity', 'Annulla'), null, ['data-dismiss' => 'modal', 'class' => 'btn btn-secondary']),
             ['class' => 'pull-right m-15-0']
         );
         Modal::end();
@@ -545,7 +625,7 @@ $form = ActiveForm::begin([
                 'draftButtons' => [
                     Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE => [
                         'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva'), ['class' => 'btn btn-workflow']),
-                        'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni la community in "richiesta di pubblicazione"'),
+                        'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni {community} in "richiesta di pubblicazione"', ['community' => $model->parent_id ? 'il Canale' : 'la Community']),
                     ],
                     Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED => [
                         'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva'), [
@@ -554,7 +634,7 @@ $form = ActiveForm::begin([
                             //                    'data-target' => (!$bypassWorkflow && ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) && !$model->isNewRecord ? '#visibleOnEditPopup-' . $model->id : ''),
                             //                    'data-toggle' => 'modal'
                         ]),
-                        'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni la community "pubblicata"'),
+                        'description' => AmosCommunity::t('amoscommunity', 'le modifiche e mantieni la community "pubblicata"', ['community' => $model->parent_id ? 'il Canale' : 'la Community']),
                     ],
                     'default' => [
                         'button' => Html::submitButton(Yii::t('amoscommunity', 'Salva in bozza'), [
@@ -569,6 +649,6 @@ $form = ActiveForm::begin([
 
     </div>
 
-    <?php
-    ActiveForm::end();
-    ?>
+<?php
+ActiveForm::end();
+?>

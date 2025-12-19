@@ -9,6 +9,9 @@
  * @category   CategoryName
  */
 
+/**
+ * @var $model \open20\amos\community\models\Community
+ */
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\widgets\icons\WidgetIconAccademyDocument;
 use open20\amos\core\icons\AmosIcons;
@@ -16,7 +19,7 @@ use open20\amos\community\utilities\CommunityUtil;
 
 \open20\amos\dashboard\assets\DashboardFullsizeAsset::register($this);
 $this->params['checkedByDefault'] = false;
-
+$this->title = \Yii::t('amoscommunity',"Community")." '".$model->name."'";
 /**
  * @var $this \yii\web\View
  * @var $model \open20\amos\community\models\Community
@@ -28,11 +31,12 @@ $this->params['checkedByDefault'] = false;
 //}
 
 $module = AmosCommunity::instance();
+$disableRender  = $module->enableNewCommunityHeader;
 ?>
+
 <div class="actions-dashboard-container community-dashboard-container">
     <?php
-    if (!$module->showIconsPluginOnlyAdmin || ($module->showIconsPluginOnlyAdmin && (Yii::$app->user->can('ADMIN') || CommunityUtil::isManagerUser($model, 'id')))) {
-
+    if (!$disableRender && (!$module->showIconsPluginOnlyAdmin || ($module->showIconsPluginOnlyAdmin && (Yii::$app->user->can('ADMIN') || CommunityUtil::isManagerUser($model, 'id'))))) {
         ?>
         <nav>
             <div class="container nop">
@@ -42,10 +46,12 @@ $module = AmosCommunity::instance();
                             <?php
                             $urlDisplayParticipantsMm = '';
                             $showBox = true;
+                            $titleParticipants = AmosCommunity::t('amoscommunity', "#platform_user_list");
+                            $nameShowParticipants = AmosCommunity::tHtml('amoscommunity', 'Participants');
                             if ($model->context == 'open20\amos\events\models\Event') {
                                 $urlDisplayParticipantsMm = "/events/event/participants?communityId={$model->id}";
                                 if (method_exists(new \open20\amos\events\utility\EventsUtility(),
-                                    'hasPrivilegesLoggedUser')) {
+                                                'hasPrivilegesLoggedUser')) {
                                     $showBox = false;
                                     $event = \open20\amos\events\models\Event::findOne(['community_id' => $model->id]);
                                     if ($event) {
@@ -54,69 +60,117 @@ $module = AmosCommunity::instance();
                                 } else {
                                     $showBox = true;
                                 }
-                            } else {
-                                $urlDisplayParticipantsMm = "/community/community/participants?communityId={$model->id}";
-                            }
-                            if (($showBox) && (!($model->context == 'open20\amos\moodle\models\MoodleCourse')))  :
-                                ?>
+                            } else if ($model->context == 'open20\amos\organizzazioni\models\Profilo') {
+                                $titleParticipants = AmosCommunity::t('amoscommunity', "Collaboratori");
+                                $nameShowParticipants = AmosCommunity::tHtml('amoscommunity', 'Collaboratori');
+                                $paramsOrg = [];
+                                $paramsOrg['showAdditionalAssociateButton'] = true;
+                                $paramsOrg['viewEmail'] = true;
+                                $paramsOrg['checkManagerRole'] = true;
+                                $paramsOrg['addPermission'] = true;
+                                $paramsOrg['manageAttributesPermission'] = true;
+                                $paramsOrg['forceActionColumns'] = false;
+                                $paramsOrg['viewM2MWidgetGenericSearch'] = true;
+                                $paramsOrg['enableModal'] = true;
+                                $paramsOrg['gridId'] = 'organizations-employees-grid';
+                                $paramsOrg['organizationManagerRoleName'] = '';
+                                $paramsOrg['redirectUrlAfterAssociate'];
+                                $paramsOrg['filterForRole'] = '';
+                                $paramsOrg['userStatusAssociate'] = true;
+                                $paramsOrg['isUpdate'] = true;
 
-                                <?php
-                                if (
-                                    \Yii::$app->getModule('community')->showCommunitiesParticipantPluging == true
-                                    ||
-                                    (\Yii::$app->getModule('community')->showCommunitiesParticipantPluging == false && CommunityUtil::loggedUserIsCommunityManager($model->id))) :
+                                $profiloModel = \open20\amos\organizzazioni\models\Profilo::find()->andWhere(['community_id' => $model->id])->one();
+                                if (!empty($profiloModel)) {
+                                    $urlDisplayParticipantsMm = \yii\helpers\Url::to(['/organizzazioni/profilo/organization-employees',
+                                                'id' => $profiloModel->id,
+                                                'classname' => $model->context,
+                                                'params' => $paramsOrg,
+                                    ]);
+                                } else {
+                                    $urlDisplayParticipantsMm = "/community/community/participants?communityId={$model->id}";
+                                }
+                                if (($showBox) && (!($model->context == 'open20\amos\moodle\models\MoodleCourse'))) :
                                     ?>
-                                    <div class="square-box"
-                                         data-code="open20\amos\admin\widgets\icons\WidgetIconUserProfile">
-                                        <div class="square-content item-widget plugin-partecipants">
-                                            <a class="dashboard-menu-item" href="<?= $urlDisplayParticipantsMm ?>"
-                                               title=<?= AmosCommunity::t('amoscommunity', "#platform_user_list") ?> role="menuitem"
-                                               class="sortableOpt1">
-                                            <span class="">
-                                                <?=
-                                                AmosIcons::show('user', [], AmosIcons::IC)
-                                                ?>
-                                                <span class="icon-dashboard-name pluginName">
-                                                    <?=
-                                                    AmosCommunity::tHtml('amoscommunity', 'Participants')
-                                                    ?>
-                                                </span>
-                                            </span>
-                                            </a>
+
+                                    <?php
+                                    if (
+                                            \Yii::$app->getModule('community')->showCommunitiesParticipantPluging == true ||
+                                            (\Yii::$app->getModule('community')->showCommunitiesParticipantPluging == false && CommunityUtil::loggedUserIsCommunityManager($model->id))) :
+                                        ?>
+                                        <div class="square-box"
+                                             data-code="open20\amos\admin\widgets\icons\WidgetIconUserProfile">
+                                            <div class="square-content item-widget plugin-partecipants">
+                                                <a class="dashboard-menu-item" href="<?= $urlDisplayParticipantsMm ?>"
+                                                   title=<?= $titleParticipants ?> role="menuitem"
+                                                   class="sortableOpt1">
+                                                    <span class="">
+                                                        <?=
+                                                        AmosIcons::show('user', [], AmosIcons::IC)
+                                                        ?>
+                                                        <span class="icon-dashboard-name pluginName">
+                                                            <?=
+                                                            $nameShowParticipants
+                                                            ?>
+                                                        </span>
+                                                    </span>
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
+                                    <?php endif; ?>
                                 <?php endif; ?>
-                            <?php endif; ?>
-                        <?php } ?>
+                            <?php }else{
+                                $urlDisplayParticipantsMm = "/community/community/participants?communityId={$model->id}";
+                                ?>
+                            		<div class="square-box"
+                                             data-code="open20\amos\admin\widgets\icons\WidgetIconUserProfile">
+                                            <div class="square-content item-widget plugin-partecipants">
+                                                <a class="dashboard-menu-item" href="<?= $urlDisplayParticipantsMm ?>"
+                                                   title=<?= $titleParticipants ?> role="menuitem"
+                                                   class="sortableOpt1">
+                                                    <span class="">
+                                                        <?=
+                                                        AmosIcons::show('user', [], AmosIcons::IC)
+                                                        ?>
+                                                        <span class="icon-dashboard-name pluginName">
+                                                            <?=
+                                                            $nameShowParticipants
+                                                            ?>
+                                                        </span>
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                            <?php } ?>
+
+                            <?php
+                            if ($module->showSubcommunitiesWidget === true && $model->showSubCommunityWidget()) {
+                                $widgetSubcommunities = Yii::createObject($model->getPluginWidgetClassname());
+                                echo $widgetSubcommunities::widget();
+                            }
+                            if ($model->context == 'open20\amos\projectmanagement\models\Projects') {
+                                /** @var \open20\amos\core\record\Record $contentObject */
+                                $contentObject = Yii::createObject(open20\amos\projectmanagement\models\Projects::className());
+                                $widgetClassname = $contentObject->getPluginWidgetClassname();
+                                $widget = Yii::createObject($widgetClassname);
+                                echo $widget::widget();
+                            }
+                            ?>
 
                         <?php
-                        if (\Yii::$app->getModule('community')->showSubcommunitiesWidget === true && $model->showSubCommunityWidget()) {
-                            $widgetSubcommunities = Yii::createObject($model->getPluginWidgetClassname());
-                            echo $widgetSubcommunities::widget();
-                        }
-                        if ($model->context == 'open20\amos\projectmanagement\models\Projects') {
-                            /** @var \open20\amos\core\record\Record $contentObject */
-                            $contentObject = Yii::createObject(open20\amos\projectmanagement\models\Projects::className());
-                            $widgetClassname = $contentObject->getPluginWidgetClassname();
-                            $widget = Yii::createObject($widgetClassname);
-                            echo $widget::widget();
-                        }
-                        ?>
-
-                        <?php
-
                         echo \open20\amos\dashboard\widgets\SubDashboardWidget::widget([
                             'model' => $model,
                             'widgets_type' => 'ICON',
+                            'disableRender' => $disableRender
                         ]);
 
-                        // Chat widget
-                        if(\Yii::$app->getModule('community')->canChat($model)) {
-                            echo \open20\amos\comments\widgets\CommentsWidget::widget([
-                                'model' => $model,
-                                'layoutInverted' => true,
-                                'chat' => true
-                            ]);
+                            // Chat widget
+                            if (AmosCommunity::instance()->canChat($model) && !AmosCommunity::instance()->placesChatInLastPosition) {
+                                echo \open20\amos\comments\widgets\CommentsWidget::widget([
+                                    'model' => $model,
+                                    'layoutInverted' => true,
+                                    'chat' => true
+                                ]);
+                            }
                         }
                         ?>
                     </div>
@@ -126,17 +180,36 @@ $module = AmosCommunity::instance();
         <?php
     }
     ?>
+
     <?php
+    $isSaved = $model->isSavedCommunityAmosDashoardMm();
+    $attributeOrder = 'default_order';
+    if($isSaved){
+        $attributeOrder  = 'n_order';
+    }
     echo \open20\amos\dashboard\widgets\SubDashboardFullsizeWidget::widget([
         'model' => $model,
         'widgets_type' => 'GRAPHIC',
+        'orderAttribute' => $attributeOrder
     ]);
 
     // Links Widget
-    if(\Yii::$app->getModule('community')->canLinks($model)) {
+    if (!$module->enableConfigureCommunityDashboard && $module->canLinks($model)) {
         echo \open20\amos\community\widgets\graphics\WidgetGraphicsLinks::widget([
             'community' => $model,
         ]);
     }
+
+    echo'<div class="container">';
+    echo'<div class="widgets-icon">';
+    if (AmosCommunity::instance()->canChat($model) && AmosCommunity::instance()->placesChatInLastPosition) {
+        echo \open20\amos\comments\widgets\CommentsWidget::widget([
+            'model' => $model,
+            'layoutInverted' => true,
+            'chat' => true
+        ]);
+    }
+    echo '</div>';
+    echo '</div>';
     ?>
 </div>

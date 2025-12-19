@@ -11,6 +11,7 @@
 
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
+use open20\amos\community\models\search\CommunitySearch;
 use open20\amos\community\widgets\CommunityCardWidget;
 use open20\amos\community\widgets\JoinCommunityWidget;
 use open20\amos\core\forms\editors\m2mWidget\M2MWidget;
@@ -32,12 +33,20 @@ $community = new Community();
 $query = $community->getUserNetworkAssociationQuery($userId);
 
 $post = Yii::$app->request->post();
-if (isset($post['genericSearch'])) {
-    $query->andFilterWhere(['like', 'community.name', $post['genericSearch']]);
+if(!empty($post['orderAttribute']) && !empty($post['orderType'])){
+
+    $query->orderBy([
+        $post['orderAttribute'] => $post['orderType'] == 3 ? SORT_DESC : SORT_ASC,     
+    ]);
+    
 }
 
+if (empty($post['enableSearch']) && !empty($post['genericSearch']) ) {
+    $query->andFilterWhere(['like', 'community.name', $post['genericSearch']]);
+}
 ?>
 <?= M2MWidget::widget([
+    'pjaxContainer' => true,
     'model' => $model,
     'modelId' => $model->id,
     'modelData' => $query,
@@ -46,11 +55,11 @@ if (isset($post['genericSearch'])) {
         'to' => 'id'
     ],
     'modelTargetSearch' => [
-        'class' => Community::className(),
+        'class' => CommunitySearch::className(),
         'query' => $query,
     ],
     'targetFooterButtons' => Html::a(AmosCommunity::t('amoscommunity', 'Close'), Yii::$app->urlManager->createUrl([
-        '/community/community/annulla-m2m',
+        '/amosadmin/user-profile/update',
         'id' => $userId
     ]), ['class' => 'btn btn-secondary', 'AmosCommunity' => Yii::t('amoscommunity', 'Close')]),
     'renderTargetCheckbox' => false,
@@ -61,6 +70,11 @@ if (isset($post['genericSearch'])) {
     'moduleClassName' => AmosCommunity::className(),
     'postName' => 'Community',
     'postKey' => 'community',
+    'iconView' => '@vendor/open20/amos-community/src/views/community/_icon_m2m',
+    'currentView' => 'icon',
+    'advancedSearch' => true,
+    'viewFilter' => '@vendor/open20/amos-community/src/views/community/_search_m2m',
+    'viewOrder' => '@vendor/open20/amos-community/src/views/community/_order_m2m',
     'targetColumnsToView' => [
         'logo_id' => [
             'headerOptions' => [
@@ -70,7 +84,7 @@ if (isset($post['genericSearch'])) {
                 'headers' => AmosCommunity::t('amoscommunity', 'Logo'),
             ],
             'label' => AmosCommunity::t('amoscommunity', 'Logo'),
-            'format' => 'html',
+            'format' => 'raw',
             'value' => function ($model) {
                 return CommunityCardWidget::widget(['model' => $model]);
             }

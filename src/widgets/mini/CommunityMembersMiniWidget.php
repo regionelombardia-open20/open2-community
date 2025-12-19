@@ -471,7 +471,7 @@ JS
                                     'data-toggle' => 'modal',
                                     'data-target' => '#' . $modalId,
                                     'class' => 'btn btn-icon btn-secondary',
-                                    'onclick' => 'checkSelect2Init("' . $modalId . '", "' . $selectId . '");'
+                                    'onclick' => "checkSelect2Init('" . $modalId . "', '" . $selectId . "');"
                                 ]);
 
 

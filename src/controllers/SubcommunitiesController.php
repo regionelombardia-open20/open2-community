@@ -13,6 +13,7 @@ namespace open20\amos\community\controllers;
 
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\models\Community;
+use open20\amos\community\utilities\CommunityUtil;
 use open20\amos\community\models\search\CommunitySearch;
 use open20\amos\community\widgets\icons\WidgetIconAdminAllCommunity;
 use open20\amos\community\widgets\icons\WidgetIconToValidateCommunities;
@@ -111,7 +112,7 @@ class SubcommunitiesController extends CommunityController
                 $parentId = $scope['community'];
                 $communityParent = Community::findOne($parentId);
                 if (isset($communityParent)) {
-                    $translatedTitle = AmosCommunity::t('amoscommunity', '#subcommunities_in') . ' ' . $communityParent->name;
+                    $translatedTitle = CommunityUtil::SubcommToChannelTrad('#subcommunities_in'). ' ' . $communityParent->name;
                 }
             }
         }
@@ -130,27 +131,27 @@ class SubcommunitiesController extends CommunityController
 
         if (get_class(Yii::$app->controller) != 'open20\amos\community\controllers\CommunityController') {
             $links[] = [
-                'title' => AmosCommunity::t('amoscommunity', 'Visualizza tutte le community'),
-                'label' => AmosCommunity::t('amoscommunity', 'Tutte'),
+                'title' =>  CommunityUtil::SubcommToChannelTrad('Visualizza tutte le community'), //AmosCommunity::t('amoscommunity', 'Visualizza tutte le community'),
+                'label' => CommunityUtil::SubcommToChannelTrad('Tutte'),
                 'url' => '/community/subcommunities/index'
             ];
         }
 
         $links[] = [
-            'title' => AmosCommunity::t('amoscommunity', 'Visualizza le community create da me'),
-            'label' => AmosCommunity::t('amoscommunity', 'Create da me'),
+            'title' => CommunityUtil::SubcommToChannelTrad('Visualizza le community create da me'),
+            'label' => CommunityUtil::SubcommToChannelTrad('Create da me'),
             'url' => '/community/subcommunities/created-by-communities'
         ];
 
         $links[] = [
-            'title' => AmosCommunity::t('amoscommunity', 'Le mie community'),
-            'label' => AmosCommunity::t('amoscommunity', 'Le mie community'),
+            'title' => CommunityUtil::SubcommToChannelTrad('Le mie community'),
+            'label' => CommunityUtil::SubcommToChannelTrad('Le mie community'),
             'url' => '/community/subcommunities/my-communities'
         ];
 
         if (\Yii::$app->user->can(WidgetIconToValidateCommunities::class)) {
             $links[] = [
-                'title' => AmosCommunity::t('amoscommunity', 'Visualizza community da validare'),
+                'title' => CommunityUtil::SubcommToChannelTrad('Visualizza community da validare'),
                 'label' => AmosCommunity::t('amoscommunity', 'Da validare'),
                 'url' => '/community/subcommunities/to-validate-communities'
             ];
@@ -158,7 +159,7 @@ class SubcommunitiesController extends CommunityController
 
         if (\Yii::$app->user->can(WidgetIconAdminAllCommunity::class)) {
             $links[] = [
-                'title' => AmosCommunity::t('amoscommunity', 'Amministra tutte le community'),
+                'title' =>  CommunityUtil::SubcommToChannelTrad('Amministra tutte le community'),
                 'label' => AmosCommunity::t('amoscommunity', 'Amministra'),
                 'url' => '/community/subcommunities/admin-all-communities'
             ];

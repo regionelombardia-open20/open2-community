@@ -52,6 +52,7 @@ class JoinCommunityWidget extends Widget
     public $useIcon = false;
     public $onlyModals = false;
     public $onlyButton = false;
+    public $joinRedirect = null;
 
     /**
      * widget initialization
@@ -196,7 +197,7 @@ class JoinCommunityWidget extends Widget
                 echo Html::tag('div',
                     Html::a(AmosCommunity::t('amoscommunity', 'Cancel'), null, $this->modalButtonCancelOptions)
                     . Html::a(AmosCommunity::t('amoscommunity', 'Yes'),
-                        ['/community/community/join-community', 'communityId' => $model->id],
+                        ['/community/community/join-community', 'communityId' => $model->id, 'redirectAction' => $this->joinRedirect],
                         $this->modalButtonConfirmationOptions), ['class' => 'pull-right m-15-0']
                 );
                 Modal::end();
@@ -226,10 +227,10 @@ class JoinCommunityWidget extends Widget
                         $invitedBy . " " . AmosCommunity::t('amoscommunity', "invited you to join this community"));
                     echo Html::tag('div',
                         Html::a(AmosCommunity::t('amoscommunity', 'Reject invitation'),
-                            ['/community/community/join-community', 'communityId' => $model->id, 'accept' => false],
+                            ['/community/community/join-community', 'communityId' => $model->id, 'accept' => false, 'redirectAction' => $this->joinRedirect],
                             $btnRejectOpts)
                         . Html::a(AmosCommunity::t('amoscommunity', 'Accept invitation'),
-                            ['/community/community/join-community', 'communityId' => $model->id, 'accept' => true],
+                            ['/community/community/join-community', 'communityId' => $model->id, 'accept' => true, 'redirectAction' => $this->joinRedirect],
                             $this->modalButtonConfirmationOptions), ['class' => 'pull-right m-15-0']
                     );
                     Modal::end();

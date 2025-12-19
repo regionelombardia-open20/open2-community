@@ -37,7 +37,7 @@ class AmosCommunityAsset extends AssetBundle
         $moduleL = \Yii::$app->getModule('layout');
 
         if(!empty(\Yii::$app->params['dashboardEngine']) && \Yii::$app->params['dashboardEngine'] == WidgetAbstract::ENGINE_ROWS){
-            $this->css = ['less/community_fullsize.less','less/community_design_bi.less','less/scope_organizzazioni_design_bi.less'];
+            $this->css = ['less/community_fullsize.less','less/community_design_bi.less','less/scope_organizzazioni_design_bi.less', 'less/new_community_design_bi.less'];
         }
 
         if(!empty($moduleL))

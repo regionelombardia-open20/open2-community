@@ -200,6 +200,10 @@ if (Yii::$app->controller->id == 'subcommunities') {
 
 $columns[] = $actionColumns;
 
+if($this->title){
+    $this->params['forceBreadcrumbs'][] = ['label' => $this->title];
+    $this->params['breadcrumbs'][] = $this->title;
+}
 ?>
 
 <div class="community-index">

@@ -15,6 +15,7 @@ use open20\amos\community\models\Community;
 use open20\amos\community\models\CommunityUserMm;
 use open20\amos\core\helpers\Html;
 use open20\amos\core\icons\AmosIcons;
+use open20\amos\community\utilities\CommunityUtil;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
@@ -49,7 +50,7 @@ class SubcommunitiesMiniWidget extends Widget
         parent::init();
     
         if (!$this->title) {
-            $this->title = AmosCommunity::t('amoscommunity', 'Subcommunities');
+            $this->title = CommunityUtil::SubcommToChannelTrad('Subcommunities');
         }
         
         if (!$this->model) {
@@ -72,7 +73,7 @@ class SubcommunitiesMiniWidget extends Widget
         if (!$this->model->isNewRecord) {
             return $this->renderWidget();
         } else {
-            return Html::tag('h2', $this->title) . Html::tag('div', AmosCommunity::t('amoscommunity', '#subcommunity_mini_widget_new_form'), ['class' => 'no-items']);
+            return Html::tag('h2', $this->title) . Html::tag('div',CommunityUtil::SubcommToChannelTrad('#subcommunity_mini_widget_new_form'), ['class' => 'no-items']);
         }
     }
     
@@ -94,8 +95,9 @@ class SubcommunitiesMiniWidget extends Widget
                 'value' => function ($model) {
                     /** @var Community $model */
                     $url = (!is_null($model->communityLogo) ? $model->communityLogo->getUrl('square_small', false, true) : '/img/img_default.jpg');
-                    return Html::a(Html::img($url, ['class' => 'gridview-image', 'alt' => $model->getAttributeLabel('communityLogo')]), ['/community/community/view', 'id' => $model->id], [
-                        'alt' => $model->getAttributeLabel('communityLogo')
+                    return Html::a(Html::img($url, ['class' => 'gridview-image', 'alt' => $model->getAttributeLabel('communityLogo'), 'style' => 'max-width: 150px']), ['/community/community/view', 'id' => $model->id], [
+                        'alt' => $model->getAttributeLabel('communityLogo'),
+                        'target' => '_blank',
                     ]);
                 }
             ],

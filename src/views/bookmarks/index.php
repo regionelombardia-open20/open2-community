@@ -7,7 +7,6 @@
  * @package    @vendor/open20/amos-community/src/views
  */
 
-use open20\amos\core\helpers\Html;
 use open20\amos\core\views\DataProviderView;
 use open20\amos\community\models\Community;
 
@@ -20,9 +19,18 @@ use open20\amos\community\models\Community;
 $this->title = Yii::t('amoscore', 'tutti i bookmarks', [
     'modelClass' => 'Bookmarks',
 ]);
-
-$this->params['forceBreadcrumbs'][] = ['label' => 'Community', 'url' => ['/community/community/index']];
-$this->params['forceBreadcrumbs'][] = ['label' => Community::findOne(Yii::$app->request->get()['id'])->name, 'url' => ['/community/join/open-join', 'id' => Yii::$app->request->get()['id']]];
+$setCommunityBreadcrumbs = true;
+$cwhmodule = Yii::$app->getModule('cwh');
+if($cwhmodule) {
+    $scope = $cwhmodule->getCwhScope();
+    if (!is_null($scope)) {
+        $setCommunityBreadcrumbs = false;
+    }
+}
+if($setCommunityBreadcrumbs) {
+    $this->params['forceBreadcrumbs'][] = ['label' => 'Community', 'url' => ['/community/community/index']];
+    $this->params['forceBreadcrumbs'][] = ['label' => Community::findOne(Yii::$app->request->get()['id'])->name, 'url' => ['/community/join/open-join', 'id' => Yii::$app->request->get()['id']]];
+}
 $this->params['forceBreadcrumbs'][] = ['label' => $this->title];
 $this->params['breadcrumbs'][] = $this->title;
 ?>

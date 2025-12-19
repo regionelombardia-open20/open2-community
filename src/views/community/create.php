@@ -10,6 +10,7 @@
  */
 
 use open20\amos\community\AmosCommunity;
+use open20\amos\community\utilities\CommunityUtil;
 
 /**
  * @var yii\web\View $this
@@ -18,7 +19,7 @@ use open20\amos\community\AmosCommunity;
 
 $this->title = AmosCommunity::t('amoscommunity', 'New Community');
 if(!is_null($model->parent_id)){
-    $this->title = AmosCommunity::t('amoscommunity', '#new_subcommunity');
+    $this->title = CommunityUtil::SubcommToChannelTrad('#new_subcommunity');
 }
 $this->params['breadcrumbs'][] = ['label' => AmosCommunity::t('amoscommunity', 'Community'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
@@ -29,6 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'fid' => NULL,
         'dataField' => NULL,
         'dataEntity' => NULL,
+        'defaultIdsWidgetSelected' => $defaultIdsWidgetSelected,
     ]) ?>
 
 </div>

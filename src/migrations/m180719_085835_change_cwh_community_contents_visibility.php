@@ -8,21 +8,18 @@
  * @package    open20\amos\community\migrations
  * @category   CategoryName
  */
-
 use yii\db\Migration;
 
 /**
  * Class m180719_085835_change_cwh_community_contents_visibility
  */
-class m180719_085835_change_cwh_community_contents_visibility extends Migration
-{
+class m180719_085835_change_cwh_community_contents_visibility extends Migration {
+
     /**
      * string TABLENAME
      */
     const COMMUNITY = '{{%community}}';
-    
     const CWH_CONFIG = '{{%cwh_config}}';
-    
     const RAW_SQL_COMMUNITY = 'select 
 concat(\'community-\',`community`.`id`) AS `id`,
 3 AS `cwh_config_id`,
@@ -51,7 +48,7 @@ concat(\'community-\',`community`.`id`) AS `id`,
 `community`.`deleted_by` AS `deleted_by` 
 
 from `community`';
-    
+
     /**
      * @inheritdoc
      */
@@ -69,9 +66,8 @@ from `community`';
         \open20\amos\cwh\utility\CwhUtil::createCwhView();
         return true;
     }
-    
-    public function safeDown()
-    {
+
+    public function safeDown() {
         $this->dropColumn(self::COMMUNITY, 'contents_visibility');
         $tableSchema = $this->db->schema->getTableSchema(self::CWH_CONFIG);
         $rawSqlColumn = $tableSchema->getColumn('raw_sql');

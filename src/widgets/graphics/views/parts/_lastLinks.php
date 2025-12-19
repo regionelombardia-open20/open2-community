@@ -34,11 +34,12 @@ use open20\amos\community\rules\UpdateBookmarksRule;
             } ?>
             <div class="item-link-list">
                 <div class="item-link-header">
-                    <p class="m-b-0"><strong><a href="<?= $link ?>" data-toggle="tooltip" title="<?= $link ?>" target="_blank"><?= $titolo ?></a></strong></p>
+                    <p class="m-b-0"><strong><a href="<?= $link ?>" data-toggle="tooltip" aria-label="<?= BaseAmosModule::t('amoscommunity', 'Vai al bookmark {titolo}',['titolo' => $titolo])?>" title="<?= $link ?>" target="_blank"><?= $titolo ?></a></strong></p>
 
 
                     <?php
                     echo ContextMenuWidget::widget([
+                        'title' => BaseAmosModule::t('community', 'Menu contestuale del bookmark {titolo}?',['titolo' => $titolo]),
                         'model' => $element,
                         'actionModify' => "/community/bookmarks/update?id=" . $element->id,
                         'actionDelete' => "/community/bookmarks/delete?id=" . $element->id . "&community=" . $model->id,
@@ -52,6 +53,6 @@ use open20\amos\community\rules\UpdateBookmarksRule;
     <?php
         }
     } else {
-        echo 'Nessun bookmark presente';
+        echo BaseAmosModule::t('community', 'Nessun bookmark presente');
     } ?>
 </div>

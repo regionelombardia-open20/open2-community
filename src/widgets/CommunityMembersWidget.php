@@ -219,7 +219,21 @@ class CommunityMembersWidget extends Widget
         $contextModelModuleName = $communityContext->getPluginModule();
         /** @var AmosModule $contextModelModuleObj */
         $contextModelModuleObj = Yii::$app->getModule($contextModelModuleName);
-        
+
+        $js = <<<JS
+
+        $('#$gridId').on('pjax:end', function() {
+            $(this).find('.kv-plugin-loading').hide(); // Could be improved!
+            $('select').each(function() {
+                if ($(this).data('krajee-select2')) {
+                    $(this).select2(window[$(this).data('krajee-select2')]);
+                }
+            });
+        })
+
+        JS;
+        $this->getView()->registerJs($js);
+
         $params = [];
         $params['showRoles'] = $this->showRoles;
         $params['showAdditionalAssociateButton'] = $this->showAdditionalAssociateButton;
@@ -584,7 +598,7 @@ class CommunityMembersWidget extends Widget
                         $btn = Html::a(
                             AmosCommunity::t('amoscommunity', 'Accept user'),
                             Yii::$app->urlManager->createUrl($createUrlParams),
-                            ['class' => 'btn btn-primary', 'style' => 'font-size: 0.8em']);
+                            ['class' => 'btn btn-primary', 'title' =>  AmosCommunity::t('amoscommunity', 'Accept user')]);
                     }
                     return $btn;
                 },
@@ -596,7 +610,7 @@ class CommunityMembersWidget extends Widget
                         $btn = Html::a(
                             AmosCommunity::t('amoscommunity', 'Reject user'),
                             Yii::$app->urlManager->createUrl($createUrlParams),
-                            ['class' => 'btn btn-primary', 'style' => 'font-size: 0.8em']);
+                            ['class' => 'btn btn-primary', 'title' => AmosCommunity::t('amoscommunity', 'Reject user')]);
                     }
                     return $btn;
                 },
@@ -675,7 +689,7 @@ class CommunityMembersWidget extends Widget
                                         'title' => AmosCommunity::t('amoscommunity', 'Change role'),
                                         'data-toggle' => 'modal',
                                         'data-target' => '#' . $modalId,
-                                        'onclick' => 'checkSelect2Init("' . $modalId . '", "' . $selectId . '");'
+                                        'onclick' => "checkSelect2Init('" . $modalId . "', '" . $selectId . "');"
                                     ]);
 
 //                        $btn = Html::a(
@@ -730,7 +744,7 @@ class CommunityMembersWidget extends Widget
         if ($tmp->hasProperty('exportMittenteConfig')) {
             if (empty($this->exportMittenteConfig)) {
                 $this->exportMittenteConfig = [
-                    'exportEnabled' => true,
+                    'exportEnabled' => $this->checkManager(),
                     'exportColumns' => $exportColumns
                 ];
             }
@@ -740,7 +754,7 @@ class CommunityMembersWidget extends Widget
         $widget = M2MWidget::widget($configM2MW);
         
         $message = $associateBtnDisabled ? AmosCommunity::t('amoscommunity', '#invite_users_disabled_msg') : '';
-        return $message . "<div id='" . $gridId . "' data-pjax-container='" . $gridId . "-pjax' data-pjax-timeout=\"9000\"  class=\"table-responsive\">" . $widget . "</div>"
+        return $message . "<div id='" . $gridId . "' data-pjax-container='" . $gridId . "-pjax' data-pjax-timeout=\"9000\" >" . $widget . "</div>"
             . "<div class=\"loading\" id=\"loader\" hidden></div>";
     }
     

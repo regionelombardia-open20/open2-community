@@ -12,6 +12,7 @@ namespace open20\amos\community\controllers\base;
 use open20\amos\community\models\base\CommunityUserMm;
 use open20\amos\community\models\Community;
 use open20\amos\community\utilities\CommunityUtil;
+use open20\amos\cwh\exceptions\CwhException;
 use open20\amos\notificationmanager\base\BuilderFactory;
 use Yii;
 use open20\amos\community\models\Bookmarks;
@@ -85,19 +86,42 @@ class BookmarksController extends CrudController
 
     /**
      * Lists all Bookmarks models.
+     * @param int $id
+     * @param string|null $layout
      * @return mixed
+     * @throws NotFoundHttpException
      */
-    public function actionIndex($layout = NULL)
+    public function actionIndex($layout = NULL, $id = null)
     {
         Url::remember();
-        $id = \Yii::$app->request->get('id');
-        $query = CommunityUserMm::find()->where(['community_id' => $id, 'user_id' => \Yii::$app->user->id, 'deleted_at' => null, 'status' => CommunityUserMm::STATUS_ACTIVE])->one();
-        if (is_null($query)) $query = Community::find()->where(['id' => $id])->one();
 
-        $this->setParametro($query);
-        $this->setDataProvider($this->modelSearch->search(Yii::$app->request->getQueryParams()));
-        return parent::actionIndex($layout);
+        if (Yii::$app->request->get('id')) {
+            $communityId = Yii::$app->request->get('id');
+        } else {
+            $cwhModule = Yii::$app->getModule('cwh');
+            if ($cwhModule) {
+                $scope = $cwhModule->getCwhScope();
+                $communityId = $scope['community'];
+            }
+        }
+        if (!empty($communityId)) {
+            $query = CommunityUserMm::find()->andWhere([
+                'community_id' => $communityId,
+                'user_id' => \Yii::$app->user->id,
+                'status' => CommunityUserMm::STATUS_ACTIVE
+            ])->one();
+            if (is_null($query)) {
+                $query = Community::find()->andWhere(['id' => $communityId])->one();
+            }
+
+            $this->setParametro($query);
+            $this->setDataProvider($this->modelSearch->search(Yii::$app->request->getQueryParams()));
+            return parent::actionIndex($layout);
+        } else {
+            throw new CwhException(BaseAmosModule::t('amoscore', 'Missing scope or parameter "id".'));
+        }
     }
+
 
     /**
      * Displays a single Bookmarks model.
@@ -195,13 +219,7 @@ class BookmarksController extends CrudController
                 $this->model->data_pubblicazione = Yii::$app->getFormatter()->asDate('now', 'yyyy-MM-dd');
             }
             elseif($this->model->status === Bookmarks::BOOKMARKS_STATUS_TOVALIDATE){
-                // Id dei community manager
-                $managerIds = CommunityUtil::getAlreadyManagerForACommunityUserIds($this->model->community_id, 'COMMUNITY_MANAGER');
-                $managerIds = ArrayHelper::getColumn($managerIds, function($element){return intval($element);});
-                // Invio mail richiesta validazione ai community manager
-                $factory = new BuilderFactory();
-                $builder = $factory->create(BuilderFactory::BOOKMARKS_VALIDATORS_MAIL_BUILDER);
-                $builder->sendEmail($managerIds,[$this->model]);
+                //funzionamento standard in notify
             }
             if ($this->model->save()) {
                 Yii::$app->getSession()->addFlash('success', Yii::t('amoscore', 'Item updated'));

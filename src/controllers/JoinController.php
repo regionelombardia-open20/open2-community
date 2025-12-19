@@ -13,6 +13,7 @@ namespace open20\amos\community\controllers;
 use open20\amos\admin\models\UserProfile;
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\models\clients\MsGraphBuilder;
 use open20\amos\community\models\Community;
 use open20\amos\community\models\CommunityUserMm;
 use open20\amos\community\models\search\CommunitySearch;
@@ -105,12 +106,16 @@ class JoinController extends CrudController
         return $behaviors;
     }
 
-    public function actionIndex($layout = null, $id = null, $subscribe = null, $urlRedirect = null)
+    public function actionIndex($layout = null)
     {
+        $id = Yii::$app->request->get('id');
+        $subscribe = Yii::$app->request->get('subscribe');
+        $urlRedirect = Yii::$app->request->get('urlRedirect');
+
         /** @var  $model Community */
         $model = $this->findModel($id);
         if(!empty(\Yii::$app->params['befe'])){
-            return $this->redirect(['/community/join/open-join','id' => $id]);
+            return $this->redirect(['/community/join/open-join','id' => $id, 'subscribe' => $subscribe, 'urlRedirect' => $urlRedirect]);
         }
 
 
@@ -260,6 +265,17 @@ class JoinController extends CrudController
 
         /** @var  $model Community */
         $model = $this->findModel($id);
+
+        if($model->enable_msgraph_teams && empty($model->msgraph_drive_folder_id)){
+            $msBuilder = new MsGraphBuilder();
+            $parent = Community::getCommunityRoot($model);
+            if($parent) {
+                $folder = $msBuilder->getChannelFolderInfo($parent->msgraph_team_id, $model->msgraph_channel_id);
+                $model->msgraph_drive_id = $folder->getDriveId();
+                $model->msgraph_folder_id = $folder->id;
+                $model->save(false);
+            }
+        }
 
         /**
          * If The User is not subscribed to community

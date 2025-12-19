@@ -1,6 +1,7 @@
 <?php
 
 use open20\amos\core\module\BaseAmosModule;
+use open20\amos\community\AmosCommunity;
 
 $js = <<< JS
     $(document).on('click', '.linkToCommunityJquery', function(event){ // Click su un link community
@@ -24,7 +25,7 @@ $this->registerJs($js);
                 </button>
             </div>
             <div class="modal-body">
-                <p><?= BaseAmosModule::t('amoscore', '#confirm_exit_without_saving'); ?></p>
+                <p><?= AmosCommunity::t('amoscommunity','#confirm_exit_without_saving'); ?></p>
             </div>
             <div class="modal-footer">
                 <a class="btn btn-default" data-dismiss="modal">

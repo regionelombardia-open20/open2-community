@@ -12,7 +12,7 @@ use open20\amos\core\module\BaseAmosModule;
 $controller = Yii::$app->controller;
 $isActionUpdate = ($controller->action->id == 'update');
 $confirm = $isActionUpdate ? [
-    'confirm' => BaseAmosModule::t('amoscore', '#confirm_exit_without_saving')
+    'confirm' => AmosCommunity::t('amoscommunity','#confirm_exit_without_saving')
 ] : null;
 
 ?>

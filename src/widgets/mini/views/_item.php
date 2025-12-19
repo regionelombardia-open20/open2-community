@@ -12,7 +12,7 @@ use open20\amos\community\models\CommunityUserMm;
 $controller = Yii::$app->controller;
 $isActionUpdate = ($controller->action->id == 'update');
 $confirm = $isActionUpdate ? [
-    'confirm' => \open20\amos\core\module\BaseAmosModule::t('amoscore', '#confirm_exit_without_saving')
+    'confirm' => AmosCommunity::t('amoscommunity','#confirm_exit_without_saving')
 ] : null;
 
 $view_email_partecipants = false;

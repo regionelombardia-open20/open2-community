@@ -65,10 +65,13 @@ class CommunityCardWidget extends Widget
     {
         $model   = $this->model;
         $html    = '';
-        $confirm = $this->getConfirm();
+       //$confirm = $this->getConfirm();
+       $confirm = '';
 
         $url = $model->getAvatarUrl($this->avatarCropSize, $this->absoluteUrl, true);
 
+        $class = 'gridview-image';
+        
         $htmlOptions = [
             'class' => !empty($class) ? 'img-responsive '.$class : 'img-responsive',
             'alt' => $model->getAttributeLabel('communityLogo')
@@ -77,10 +80,8 @@ class CommunityCardWidget extends Widget
         if ($this->inEmail) {
             $htmlOptions['style'] = 'width:50px; height:auto;';
         }
-        elseif(\Yii::$app->controller->id === 'user-profile') {
-            $htmlOptions['style'] = 'max-width:120px;';
-        }
-
+        
+        $htmlOptions['style'] = 'max-width:100px;';
         $styleHierachy    = '';
         $htmlTagHierarchy = '';
         if ($this->enableHierarchy && $this->model->level > 1) {
@@ -109,26 +110,33 @@ class CommunityCardWidget extends Widget
                 }
             }
 
-            $html .= $htmlTagHierarchy;
-            if (!empty($urlRedirect)) {
-
-                $html .= Html::a($img, $urlRedirect,
-                        [
-                        'data-html' => 'true',
-                        'data-toggle' => 'tooltip',
-                        'title' => \Yii::$app->formatter->asHtml($model->name),
-                        'data' => $confirm,
-                        'target' => '_blank',
-                ]);
-            } else {
-                $html .= Html::a($img, $link,
-                        [
-                        'data-html' => 'true',
-                            'data-toggle' => 'tooltip',
-                        'title' => \Yii::$app->formatter->asHtml($model->name),
-                        'data' => $confirm
-                ]);
+            $modal = '';
+            $controller = Yii::$app->controller;
+            if($controller->action->id == 'update'){
+                $modal='
+                <!-- Modal -->
+                <div class="modal fade" id="myModal'.$model->id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel'.$model->id.'">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title text-danger" id="myModalLabel'.$model->id.'">'.AmosCommunity::t('amoscommunity', 'Conferma').'</h4>
+                      </div>
+                      <div class="modal-body">
+                      '.AmosCommunity::t('amoscommunity','#confirm_exit_without_saving').'
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"> '.BaseAmosModule::t('amoscore', 'Annulla').' </button>
+                        <a class="btn btn-primary" href="'.$link.'" title="'.$model->name.'">'.AmosCommunity::t('amoscommunity', 'Conferma').'</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>';
+                $confirm = ['toggle' => 'modal', 'target' => '#myModal'.$model->id];
+                $link = '#';
             }
+            $html .=  $modal.  Html::a($img, $link, ['title' => $model->name, 'data' => $confirm]);
+        
         } else {
             $modals = JoinCommunityWidget::widget([
                     'model' => $this->model,
@@ -243,7 +251,7 @@ class CommunityCardWidget extends Widget
         $controller     = Yii::$app->controller;
         $isActionUpdate = ($controller->action->id == 'update');
         $confirm        = $isActionUpdate ?
-            ['confirm' => BaseAmosModule::t('amoscore', '#confirm_exit_without_saving')] : null;
+            ['confirm' => AmosCommunity::t('amoscommunity','#confirm_exit_without_saving')] : null;
 
         return $confirm;
     }

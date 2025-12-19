@@ -29,7 +29,8 @@ $this->params['breadcrumbs'][] = AmosCommunity::t('amoscommunity', 'Update');
         'dataField' => NULL,
         'dataEntity' => NULL,
         'visibleOnEdit' => $visibleOnEdit,
-        'tabActive' => $tabActive
+        'tabActive' => $tabActive,
+        'defaultIdsWidgetSelected' => [],
     ]) ?>
 
 </div>

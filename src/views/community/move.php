@@ -67,6 +67,7 @@ $actionColumns = [
         'move' => function ($url, $model) use ($currentCommunity) {
             if ($model->id != $currentCommunity->id) {
                 return Html::a(AmosCommunity::t('amoscommunity', 'Seleziona'), ['/community/community/move', 'id' => $currentCommunity->id, 'toId' => $model->id], [
+                    'title' => AmosCommunity::t('amoscommunity', 'Sposta in questa community'),
                     'class' => 'btn btn-primary',
                     'data-confirm' => AmosCommunity::t('amoscommunity', "Vuoi spostare la tua community sotto la community <strong>{name}</strong>?", [
                             'name' => $model->title]

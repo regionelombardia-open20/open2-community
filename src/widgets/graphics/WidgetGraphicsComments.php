@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Aria S.p.A.
  * OPEN 2.0
@@ -11,7 +12,9 @@
 namespace open20\amos\community\widgets\graphics;
 
 use open20\amos\community\AmosCommunity;
+use open20\amos\community\models\Community;
 use open20\amos\community\models\search\CommunitySearch;
+use open20\amos\community\utilities\CommunityUtil;
 use open20\amos\core\widget\WidgetGraphic;
 use open20\amos\notificationmanager\base\NotifyWidgetDoNothing;
 
@@ -23,13 +26,20 @@ class WidgetGraphicsComments extends WidgetGraphic
 {
     private $community, $refresh, $numberToView;
 
+
     /**
      * @inheritdoc
      */
     public function init()
     {
         parent::init();
-        $this->setDefaultValues();
+        $this->setLabel(AmosCommunity::t('amoscommunity', 'Live chat'));
+        $this->setDescription(AmosCommunity::t('amoscommunity', 'Messaggia con i partecipanti della community'));
+        $communityId = CommunityUtil::getCommunityScope();
+        if ($communityId) {
+            $this->community = Community::findOne($communityId);
+        }
+        $this->setClassCustom('square-widget-graphic');
     }
 
     /**
@@ -37,17 +47,12 @@ class WidgetGraphicsComments extends WidgetGraphic
      */
     public function getHtml()
     {
-        $viewPath     = '@vendor/open20/amos-community/src/widgets/graphics/views/';
-        $viewToRender = $viewPath.'comments';
-    
-       // $commentList = $search->searchMyCommunities($_GET, $this->getNumberToView());
-
-        return $this->render( 
-                $viewToRender,
-                [
-                'widget' => $this,                
-                ]
-        );
+        return "<div class='widget-graphic-cms-bi-less widgets-icon widgets-chat-community'>" . \open20\amos\comments\widgets\CommentsWidget::widget([
+            'model' => $this->community,
+            'layoutInverted' => true,
+            'chat' => true
+        ]) . "</div> 
+        <div class='placeholder-widget placeholder-widget-chat'>".$this->view->render('@vendor/open20/amos-community/src/widgets/graphics/views/_placeholder_widget')."</div>";
     }
 
     /**
@@ -90,7 +95,8 @@ class WidgetGraphicsComments extends WidgetGraphic
      *
      * @return integer
      */
-    public function getNumberToView(){
+    public function getNumberToView()
+    {
         return $this->numberToView;
     }
 
@@ -98,36 +104,8 @@ class WidgetGraphicsComments extends WidgetGraphic
      *
      * @param integer $numberToView
      */
-    public function setNumberToView($numberToView){
+    public function setNumberToView($numberToView)
+    {
         $this->numberToView = $numberToView;
-    }
-
-    public function setDefaultValues()
-    {
-        $this->setCode('COMMENTSCOMMUNITY_GRAPHIC');
-        $this->setLabel(AmosCommunity::t('amoscommunity', 'Comments'));
-        $this->setDescription(AmosCommunity::t('amoscommunity', 'View the list of my communities'));
-        if (empty($this->getCommunity())) {
-            /** @var \open20\amos\cwh\AmosCwh $moduleCwh */
-            $moduleCwh = \Yii::$app->getModule('cwh');
-            if (!empty($moduleCwh)) {
-                $scope = $moduleCwh->getCwhScope();
-                if (!empty($scope) && isset($scope['community'])) {
-                    $this->setCommunity($scope['community']);
-                }
-            }
-        }
-        $moduleCommunity = \Yii::$app->getModule(AmosCommunity::getModuleName());
-        if (empty($this->getRefresh())) {
-            $this->setRefresh($moduleCommunity->refreshWidgetGraphicsComments);
-        }
-        if(empty($this->getNumberToView())){
-            $this->setNumberToView($moduleCommunity->numberToViewWidgetGraphicsComments);
-        }
-    }
-
-    public function isVisible()
-    {
-        return true;
     }
 }

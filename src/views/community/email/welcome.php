@@ -25,12 +25,11 @@ if(!empty($profile)) {
         </div>
         <div
             style="border:1px solid #cccccc;padding:10px;margin-bottom: 10px;background-color: #ffffff; margin-top: 20px;">
-            <h2 style="font-size:2em;line-height: 1;"><?= AmosCommunity::t('amoscommunity', '#welcome_mail_text_1') . $util->contextLabel ?></h2>
+            <h2 style="font-size:2em;line-height: 1;"><?= AmosCommunity::t('amoscommunity', '#welcome_mail_text_1') . ' ' . $util->contextLabelWelcome ?></h2>
 
             <div style="display: flex; padding: 10px;">
                 <?php if ($util->isCommunityContext): ?>
-                    <div
-                        style="width: 50px; height: 50px; -webkit-border-radius: 50%; -moz-border-radius: 50%; border-radius: 50%;float: left;">
+                    <div>
                         <?= \open20\amos\community\widgets\CommunityCardWidget::widget([
                             'model' => $util->community,
                             'onlyLogo' => true,

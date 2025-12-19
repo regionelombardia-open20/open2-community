@@ -32,7 +32,8 @@ use yii\log\Logger;
  * @var string $tabActive
  */
 
-$this->title = strip_tags($model);
+$this->title = \Yii::t('amoscommunity',"Community")." '".$model->name."'";
+
 $this->params['breadcrumbs'][] = ['label' => AmosCommunity::t('amoscommunity', 'Community'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 

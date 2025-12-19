@@ -16,6 +16,7 @@ use open20\amos\community\utilities\EmailUtil;
 use open20\amos\core\record\NetworkModel;
 use open20\amos\core\user\User;
 use open20\amos\core\utilities\Email;
+use open20\amos\core\validators\StringHtmlValidator;
 use open20\amos\cwh\models\CwhAuthAssignment;
 use open20\amos\cwh\utility\CwhUtil;
 use open20\amos\dashboard\models\AmosWidgets;
@@ -33,6 +34,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $hits
  * @property string $logo_id
  * @property string $cover_image_id
+ * @property string $alt
  * @property string $created_at
  * @property string $updated_at
  * @property string $deleted_at
@@ -47,7 +49,12 @@ use yii\helpers\ArrayHelper;
  * @property integer $hide_participants
  * @property integer $enable_chat
  * @property integer $enable_bookmarks
- *
+ * @property integer $enable_msgraph_teams
+ * @property string $msgraph_team_id
+ * @property string $msgraph_channel_id
+ * @property string $msgraph_drive_id
+ * @property string $msgraph_folder_id
+ * @property string $msgraph_channel_message_nextlink
  * @property \open20\amos\community\models\CommunityType $communityType
  * @property \open20\amos\core\user\User $createdByUser
  * @property \open20\amos\core\user\User $updatedByUser
@@ -98,12 +105,42 @@ abstract class Community extends NetworkModel
         return [
             [$requiredArray, 'required'],
             [['description'], 'string' /* , 'max' => 500 */],
+            [['description'], StringHtmlValidator::className()],
             [['context', 'redirect_url'], 'string'],
             [['logo_id', 'cover_image_id'], 'number'],
+            [['msgraph_channel_message_nextlink', 'msgraph_channel_id','msgraph_team_id'], 'safe'],
             [['hide_participants', 'force_workflow', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['created_by', 'updated_by', 'deleted_by', 'community_type_id', 'validated_once', 'visible_on_edit', 'parent_id',
-                'hits', 'for_all_user', 'enable_chat', 'enable_bookmarks'], 'integer'],
+                'hits', 'for_all_user', 'enable_chat', 'enable_bookmarks','enable_msgraph_teams'], 'integer'],
             [['status', 'name'], 'string', 'max' => 255],
+            [['alt'], 'string', 'max' => 100],
+            ['name', 'match',
+                'pattern' => '/^[^\\\\\/:*?"<>|]+$/',
+                'message' => "Il titolo contiene qualcuno dei seguenti caratteri non consentiti: \\/:*?<>|\" '",
+                'when' => function($model) {
+                    // Validazione lato server
+                    return $model->enable_msgraph_teams == true;
+                },
+                'whenClient' => "function (attribute, value) {
+                        // Validazione lato client con pattern corretto per JS
+                        var pattern = /^[^\\\\/:*?\"<>|]+$/; // Adatta il pattern per JavaScript
+                        if ($('#enable_msgraph_teams_id').is(':checked')) {
+                            return pattern.test(value); // Verifica il valore con il pattern
+                        }
+                        return true;
+                }",
+            ],
+            ['name', 'string',
+                'max' => 50,
+                'when' => function($model) {
+                    // Validazione lato server
+                    return $model->enable_msgraph_teams == true;
+                },
+                'whenClient' => "function (attribute, value) {
+                    // Validazione lato client
+                    return $('#enable_msgraph_teams_id').is(':checked');
+                }",
+            ],
         ];
     }
 
@@ -135,6 +172,7 @@ abstract class Community extends NetworkModel
             'visible_on_edit' => AmosCommunity::t('amoscommunity', 'Visible while editing'),
             'context' => AmosCommunity::t('amoscommunity', 'Context'),
             'parent_id' => AmosCommunity::t('amoscommunity', 'Parent id'),
+            'alt' => AmosCommunity::t('amoscommunity', 'Alt'),
         ]);
     }
 
@@ -193,6 +231,12 @@ abstract class Community extends NetworkModel
     {
         return $this->hasMany(\open20\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere([
                 'context' => self::className()]);
+    }
+    public function getSubcommunitiesOfInterest($limit = null)
+    {
+        return $this->hasMany(\open20\amos\community\models\Community::className(), ['parent_id' => 'id'])->andWhere([
+                'context' => self::className()])->leftJoin('community_user_mm cu', 'cu.community_id = community.id AND cu.user_id = :userId', [':userId' => \Yii::$app->user->id])
+    ->orderBy([new \yii\db\Expression('ISNULL(cu.id) ASC, community.created_at DESC')])->limit($limit);
     }
     /**
      * @return \yii\db\ActiveQuery

@@ -23,6 +23,7 @@ use open20\amos\core\record\Record;
  * @property integer $user_id
  * @property string $status
  * @property string $role
+ * @property string $msgraph_membership_id
  * @property string $invited_at
  * @property string $invitation_accepted_at
  * @property string $invitation_partner_of
@@ -75,7 +76,7 @@ class CommunityUserMm extends Record
             [['community_id', 'user_id', 'status', 'role'], 'required'],
             [['community_id', 'user_id', 'invitation_partner_of', 'created_by', 'updated_by', 'deleted_by'], 'integer'],
             [['status', 'role'], 'string'],
-            [['created_at', 'updated_at', 'deleted_at', 'invited_at', 'invitation_accepted_at'], 'safe'],
+            [['created_at', 'updated_at', 'deleted_at', 'invited_at', 'invitation_accepted_at','msgraph_membership_id'], 'safe'],
             [['community_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\community\models\Community::className(),
                 'targetAttribute' => ['community_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => \open20\amos\core\user\User::className(),

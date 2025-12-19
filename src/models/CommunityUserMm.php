@@ -10,6 +10,8 @@
  */
 
 namespace open20\amos\community\models;
+use open20\amos\community\models\clients\MsGraphBuilder;
+use open20\amos\community\models\clients\msmodels\MsTeamMember;
 use yii\db\ActiveQuery;
 
 /**
@@ -41,5 +43,42 @@ class CommunityUserMm extends \open20\amos\community\models\base\CommunityUserMm
         $emailArray = $queryManagers->column();
         return $emailArray;
     }
-    
+
+    /**
+     * @param $role
+     * @return mixed|string
+     */
+    public static function mapRoleMsTeams($role){
+        $roles = [
+            CommunityUserMm::ROLE_COMMUNITY_MANAGER => MsTeamMember::ROLE_OWNER,
+            CommunityUserMm::ROLE_PARTICIPANT => MsTeamMember::ROLE_MEMBER,
+        ];
+        if(!empty($roles[$role])){
+            return $roles[$role];
+        }
+        return MsTeamMember::ROLE_MEMBER;
+    }
+
+    /**
+     * @param $community
+     * @param $userCommunity CommunityUserMm
+     * @return void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public static function updateMsChannelMemberRole($community, $userCommunity){
+        $parent = Community::getCommunityRoot($community);
+        if($parent->enable_msgraph_teams) {
+            if($userCommunity->msgraph_membership_id) {
+                $msBuilder = new MsGraphBuilder();
+                if ($userCommunity->role == CommunityUserMm::ROLE_COMMUNITY_MANAGER) {
+                    $msBuilder->assignProscriptionToUser($userCommunity->user_id);
+                }
+
+                $channelId = $community->msgraph_channel_id;
+                $teamId = $parent->msgraph_team_id;
+                $msRole = CommunityUserMm::mapRoleMsTeams($userCommunity->role);
+                $msBuilder->updateChannelMemberRole($teamId, $channelId, $userCommunity, $msRole);
+            }
+        }
+    }
 }

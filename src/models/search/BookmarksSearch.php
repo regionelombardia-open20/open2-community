@@ -38,7 +38,7 @@ class BookmarksSearch extends \open20\amos\community\models\Bookmarks
         return Model::scenarios();
     }
 
-    public function search($params)
+    public function search($params, $queryType = null, $limit = null, $onlyDrafts = false, $pageSize = null)
     {
         //init the default search values
         #$this->initOrderVars();

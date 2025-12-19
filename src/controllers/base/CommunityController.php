@@ -13,6 +13,8 @@ namespace open20\amos\community\controllers\base;
 
 use open20\amos\community\AmosCommunity;
 use open20\amos\community\assets\AmosCommunityAsset;
+use open20\amos\community\models\clients\MsGraphBuilder;
+use open20\amos\dashboard\models\AmosWidgets;
 use open20\amos\community\models\Community;
 use open20\amos\community\models\CommunityUserMm;
 use open20\amos\community\models\search\CommunitySearch;
@@ -169,67 +171,84 @@ class CommunityController extends CrudController
         Yii::$app->view->params['textHelp']['filename'] = 'create_community_dashboard_description';
         $model = new Community;
         $model->context = Community::className();
+        $parentCommunity = null;
 
         $parentId = Yii::$app->request->getQueryParam('parentId');
-        if(!is_null($parentId)){
+        if (!is_null($parentId)) {
             $model->parent_id = $parentId;
             /** @var Community $communityModel */
             $communityModel = $this->communityModule->createModel('Community');
             $parentCommunity = $communityModel::findOne($parentId);
-            if($parentCommunity){
+            if ($parentCommunity) {
+                $is_child = !empty($parentCommunity->parent_id);
+                if ($is_child && $this->communityModule->disableSubChannel) {
+                    throw new \yii\web\UnauthorizedHttpException('Unable to create a community of a subcommunity');
+                }
                 $model->context = $parentCommunity->context;
             }
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+        $defaultIdsWidgetSelected = [];
 
-            if (Yii::$app->getModule('community')->forceWorkflow($model)) {
-                $model->validated_once = 1;
-            }
-            $validateOnSave = true;
-            if($model->status == Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE){
-                $model->status = Community::COMMUNITY_WORKFLOW_STATUS_DRAFT;
-                $model->save();
-                $model->status = Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE;
-                $validateOnSave = false;
-            }
-            if($model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED){
-                $model->status = Community::COMMUNITY_WORKFLOW_STATUS_DRAFT;
-                $model->save();
-                $model->status = Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED;
-                $validateOnSave = false;
-            }
-            if(!empty($model->status) && $model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED){
-                $model->validated_once = 1;
-            }
-            if ($model->save($validateOnSave)) {
-                $model->saveDashboardCommunity();
-                //the loggerd user creating community will be automatically a participant of the community with role community manager
-                $loggedUserId = Yii::$app->getUser()->getId();
-                $userCommunity = new CommunityUserMm();
-                $userCommunity->community_id = $model->id;
-                $userCommunity->user_id = $loggedUserId;
-                $userCommunity->status = CommunityUserMm::STATUS_ACTIVE;
-                $userCommunity->role = $model->getRoleContextCommunity(CommunityUserMm::ROLE_COMMUNITY_MANAGER);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()) {
 
-                // add cwh auth-assignment permission for community/user
-                $model->setCwhAuthAssignments($userCommunity);
-                $ok = $userCommunity->save(false);
-                $this->addFlash('success',
-                    AmosCommunity::t('amoscommunity', 'Community created successfully.'));
-                
-                $module = \Yii::$app->getModule('community');
-                if($module && $module->hasProperty('setDefaultCommunityNotification')){
-                    $notification = $module->setDefaultCommunityNotification;
-                    if (!empty($loggedUserId) && !empty($model->id)) {
-                        (new NotifyUtility())->saveNetworkNotification($loggedUserId,
-                        [
-                            'notifyCommunity' => [$model->id => $notification]
-                        ]);
-                    }
+                if (Yii::$app->getModule('community')->forceWorkflow($model)) {
+                    $model->validated_once = 1;
                 }
-                
-                return  $this->redirectOnCreate($model);
+                $validateOnSave = true;
+                if ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE) {
+                    $model->status = Community::COMMUNITY_WORKFLOW_STATUS_DRAFT;
+                    $model->save();
+                    $model->status = Community::COMMUNITY_WORKFLOW_STATUS_TO_VALIDATE;
+                    $validateOnSave = false;
+                }
+                if ($model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) {
+                    $model->status = Community::COMMUNITY_WORKFLOW_STATUS_DRAFT;
+                    $model->save();
+                    $model->status = Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED;
+                    $validateOnSave = false;
+                }
+                if (!empty($model->status) && $model->status == Community::COMMUNITY_WORKFLOW_STATUS_VALIDATED) {
+                    $model->validated_once = 1;
+                }
+
+                if ($model->save($validateOnSave)) {
+                    $model->saveDashboardCommunity();
+
+                    //the loggerd user creating community will be automatically a participant of the community with role community manager
+                    $loggedUserId = Yii::$app->getUser()->getId();
+                    $userCommunity = new CommunityUserMm();
+                    $userCommunity->community_id = $model->id;
+                    $userCommunity->user_id = $loggedUserId;
+                    $userCommunity->status = CommunityUserMm::STATUS_ACTIVE;
+                    $userCommunity->role = $model->getRoleContextCommunity(CommunityUserMm::ROLE_COMMUNITY_MANAGER);
+
+                    // add cwh auth-assignment permission for community/user
+                    $model->setCwhAuthAssignments($userCommunity);
+                    $ok = $userCommunity->save(false);
+
+                    //salvatagio su teams
+                    if(!empty($model->parent_id) && $parentCommunity->enable_msgraph_teams ||  empty($model->parent_id) && $model->enable_msgraph_teams){
+                        $model->createMicrosoftTeam();
+                    }
+                    $this->addFlash('success',
+                        AmosCommunity::t('amoscommunity', 'Community created successfully.'));
+
+                    $module = \Yii::$app->getModule('community');
+                    if ($module && $module->hasProperty('setDefaultCommunityNotification')) {
+                        $notification = $module->setDefaultCommunityNotification;
+                        if (!empty($loggedUserId) && !empty($model->id)) {
+                            (new NotifyUtility())->saveNetworkNotification($loggedUserId,
+                                [
+                                    'notifyCommunity' => [$model->id => $notification]
+                                ]);
+                        }
+                    }
+    return $this->redirectOnCreate($model);
+                }
+
+                return $this->redirectOnCreate($model);
             } else {
                 $this->addFlash('danger',
                     AmosCommunity::t('amoscommunity', 'Community not created. Please, check data entry.'));
@@ -241,13 +260,19 @@ class CommunityController extends CrudController
                 ]);
             }
         } else {
-            return $this->render('create', [
-                'model' => $model,
-                'fid' => NULL,
-                'dataField' => NULL,
-                'dataEntity' => NULL,
-            ]);
+            $defaultWidgetSelected = $this->communityModule->defaultWidgetSelected;
+            if (!empty($defaultWidgetSelected)) {
+                $defaultIdsWidgetSelected = AmosWidgets::find()->andWhere(['classname' => $defaultWidgetSelected])
+                    ->andWhere(['module' => ['community', 'admin']])->andWhere(['status' => AmosWidgets::STATUS_ENABLED])->select('id')->column();
+            }
         }
+        return $this->render('create', [
+            'model' => $model,
+            'fid' => NULL,
+            'dataField' => NULL,
+            'dataEntity' => NULL,
+            'defaultIdsWidgetSelected' => $defaultIdsWidgetSelected,
+        ]);
     }
 
 
@@ -327,6 +352,15 @@ class CommunityController extends CrudController
             if ($model->validate()) {
                 if ($model->save(false)) {
                     $model->saveDashboardCommunity();
+                    if($model->enable_msgraph_teams) {
+                        $msBuilder = new MsGraphBuilder();
+                        if(empty($model->parent_id)){
+                            $msBuilder->updateTeam($model->msgraph_team_id, $model->name, $model->description);
+                        }else{
+                            $parent = Community::getCommunityRoot($model);
+                            $msBuilder->updateChannel($parent->msgraph_team_id, $model->msgraph_channel_id, $model->name, $model->description);
+                        }
+                    }
                     $this->addFlash('success', AmosCommunity::t('amoscommunity', 'Community updated successfully.'));
                     return $this->redirectOnUpdate($model, $previousStatus);
                 } else {
@@ -358,6 +392,7 @@ class CommunityController extends CrudController
     public function actionDelete($id, $communityParentId = null)
     {
         $communityModule = \Yii::$app->getModule(AmosCommunity::getModuleName());
+        /** @var  $model Community */
         $model = $this->findModel($id);
         if ($model) { 
             try{
@@ -366,7 +401,9 @@ class CommunityController extends CrudController
                         $subcommunity->delete();
                     } 
                 }
+                $model->deleteMsTeams();
                 $model->delete();
+
                 $this->addFlash('success', AmosCommunity::t('amoscommunity', 'Community deleted successfully.'));
             } catch (\Exception $exception) {
                 $this->addFlash('danger', $exception->getMessage());

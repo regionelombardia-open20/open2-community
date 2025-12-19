@@ -11,12 +11,8 @@
 namespace open20\amos\community\widgets\graphics;
 
 use open20\amos\community\AmosCommunity;
-use open20\amos\community\models\base\Bookmarks;
-use open20\amos\community\models\base\CommunityUserMm;
 use open20\amos\community\models\Community;
-use open20\amos\community\models\search\CommunitySearch;
 use open20\amos\core\widget\WidgetGraphic;
-use open20\amos\notificationmanager\base\NotifyWidgetDoNothing;
 use open20\amos\community\models\search\BookmarksSearch;
 use open20\amos\community\utilities\CommunityUtil;
 
@@ -34,6 +30,15 @@ class WidgetGraphicsLinks extends WidgetGraphic
     public function init()
     {
         parent::init();
+        $this->setDefaultValues();
+        $this->setLabel(AmosCommunity::t('amoscommunity', 'Bookmark'));
+        $this->setDescription(AmosCommunity::t('amoscommunity', 'Aggiungi e condividi dei link'));
+        $communityId = CommunityUtil::getCommunityScope();
+        if($communityId){
+            $this->community = Community::findOne($communityId);
+        }
+        $this->setClassCustom('square-widget-graphic');
+
         #$this->setDefaultValues();
     }
 
@@ -44,6 +49,10 @@ class WidgetGraphicsLinks extends WidgetGraphic
     {
         $viewPath     = '@vendor/open20/amos-community/src/widgets/graphics/views/';
         $viewToRender = $viewPath.'links';
+
+        if($_GET){
+            $this->setCommunity(Community::findOne($_GET));
+        }
         $communityLinks = $this->community->getSomeLinks();
 
         $isMemberActive = CommunityUtil::userIsCommunityMemberActive($this->community->id);
@@ -60,7 +69,7 @@ class WidgetGraphicsLinks extends WidgetGraphic
                 'isMemberActive' => $isMemberActive,
                 'limit' => $dataProvider->query->limit
             ]
-        );
+        ) . "<div class='placeholder-widget'>".$this->view->render('@vendor/open20/amos-community/src/widgets/graphics/views/_placeholder_widget')."</div>";
     }
 
     /**
