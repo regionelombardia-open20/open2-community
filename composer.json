@@ -1,5 +1,6 @@
 {
     "name": "open20/amos-community",
+    "license": "GPL-3.0-or-later",
     "description": "Sistema AMOS per le community",
     "keywords": ["amos", "yii2", "community"],
     "homepage": "http://git.open20.it/open20/amos-community",
