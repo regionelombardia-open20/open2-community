@@ -1207,8 +1207,8 @@ class MsGraphBuilder extends Model
             $this->client->useOnlyApplicationToken = true;
             $resp = $this->client->getOrganizationsLicenses();
             if (!empty($resp['value'])) {
-                foreach ($resp['value'] as $licenseattr) {
-                    $license = new MsLicense($licenseattr);
+                foreach ($resp['value'] as $licenseAttr) {
+                    $license = new MsLicense($licenseAttr);
                     $licenses[] = $license;
                 }
             }
@@ -1219,7 +1219,7 @@ class MsGraphBuilder extends Model
         }
     }
 
-    public function assignLicensetouser($user_id)
+    public function assignLicenseToUser($user_id)
     {
         $license = $this->getLicense();
         if ($license->skuId) {
@@ -1248,18 +1248,18 @@ class MsGraphBuilder extends Model
     }
 
     /**
-     * @param $licensetype
+     * @param $licenseType
      * @return MsLicense|null
      */
-    public function getLicense($licensetype = null)
+    public function getLicense($licenseType = null)
     {
         try {
-            if (empty($licensetype)) {
-                $licensetype = $this->client->licensetype;
+            if (empty($licenseType)) {
+                $licenseType = $this->client->licenseType;
             }
             $licenses = $this->getOrganizationsLicenses();
             foreach ($licenses as $license) {
-                if ($license->skuPartNumber == $licensetype) {
+                if ($license->skuPartNumber == $licenseType) {
                     return $license;
                 }
             }

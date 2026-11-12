@@ -397,7 +397,7 @@ class AmosCommunity extends AmosModule implements ModuleInterface, SearchModuleI
      * 'tenantId' => '{TENANTID}',
      * 'clientId' => '{CLIENTID}',
      * 'secretValue' => '{SECRETVAALUE}',
-     * 'licensetype' => 'TEAMS_EXPLORATORY',
+     * 'licenseType' => 'TEAMS_EXPLORATORY',
      * 'changeTeamOwner' => false
      */
     public $microsoftTeamsConfigs = [];

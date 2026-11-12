@@ -155,7 +155,7 @@ class MsTeamsController extends BackendController
         $msTeamsClient->auth();
         $redirectUrlSession = \Yii::$app->session->get('redirectUrlConnectTeams');
         $msBuilder = new MsGraphBuilder();
-        $msBuilder->assignLicensetouser(\Yii::$app->user->id);
+        $msBuilder->assignLicenseToUser(\Yii::$app->user->id);
         if (!empty($redirectUrlSession)) {
             return $this->redirect($redirectUrlSession);
         }

@@ -51,7 +51,7 @@ class MsTeamsClient extends Model
     public $tenantId;
     public $clientId;
     public $secretValue;
-    public $licensetype;
+    public $licenseType;
 
 
     public $baseApiUrl = "https://graph.microsoft.com/v1.0";
@@ -75,8 +75,8 @@ class MsTeamsClient extends Model
             if (!empty($configs['secretValue'])) {
                 $this->secretValue = $configs['secretValue'];
             }
-            if (!empty($configs['licensetype'])) {
-                $this->licensetype = $configs['licensetype'];
+            if (!empty($configs['licenseType'])) {
+                $this->licenseType = $configs['licenseType'];
             }
 
         }

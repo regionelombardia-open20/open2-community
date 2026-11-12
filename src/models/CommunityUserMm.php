@@ -87,7 +87,7 @@ class CommunityUserMm extends \open20\amos\community\models\base\CommunityUserMm
             if($userCommunity->msgraph_membership_id) {
                 $msBuilder = new MsGraphBuilder();
                 if ($userCommunity->role == CommunityUserMm::ROLE_COMMUNITY_MANAGER) {
-                    $msBuilder->assignLicensetouser($userCommunity->user_id);
+                    $msBuilder->assignLicenseToUser($userCommunity->user_id);
                 }
 
                 $channelId = $community->msgraph_channel_id;
