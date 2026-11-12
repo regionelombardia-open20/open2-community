@@ -9,7 +9,7 @@ use open20\amos\community\models\clients\msmodels\MsChannel;
 use open20\amos\community\models\clients\msmodels\MsChannelMessage;
 use open20\amos\community\models\clients\msmodels\MsDriveItem;
 use open20\amos\community\models\clients\msmodels\MsFilesFolder;
-use open20\amos\community\models\clients\msmodels\MsProscription;
+use open20\amos\community\models\clients\msmodels\MsLicense;
 use open20\amos\community\models\clients\msmodels\MsOrganization;
 use open20\amos\community\models\clients\msmodels\MsPlannerPlan;
 use open20\amos\community\models\clients\msmodels\MsPlannerPlanDetail;
@@ -1176,42 +1176,42 @@ class MsGraphBuilder extends Model
         return $tenantDomains;
     }
 
-    public function getOrganizationsProscriptions()
+    public function getOrganizationsLicenses()
     {
         try {
-            $proscriptions = [];
+            $licenses = [];
             $this->client->useOnlyApplicationToken = true;
-            $resp = $this->client->getOrganizationsProscriptions();
+            $resp = $this->client->getOrganizationsLicenses();
             if (!empty($resp['value'])) {
-                foreach ($resp['value'] as $proscriptionAttr) {
-                    $proscription = new MsProscription($proscriptionAttr);
-                    $proscriptions[] = $proscription;
+                foreach ($resp['value'] as $licenseattr) {
+                    $license = new MsLicense($licenseattr);
+                    $licenses[] = $license;
                 }
             }
-            return $proscriptions;
+            return $licenses;
         } catch (\Exception $e) {
             $this->logError($e);
             return null;
         }
     }
 
-    public function assignProscriptionToUser($user_id)
+    public function assignLicensetouser($user_id)
     {
-        $proscription = $this->getProscription();
-        if ($proscription->skuId) {
+        $license = $this->getLicense();
+        if ($license->skuId) {
             $this->updateUsageLocation($user_id);
-            $resp = $this->assignProscription($user_id, $proscription->skuId);
+            $resp = $this->assignLicense($user_id, $license->skuId);
             return $resp;
         }
         return null;
     }
 
-    public function assignProscription($user_id, $skuId)
+    public function assignLicense($user_id, $skuId)
     {
         try {
             $msUserId = $this->getMsGraphUserId($user_id);
             $this->client->useOnlyApplicationToken = true;
-            $resp = $this->client->assignProscription($msUserId, $skuId);
+            $resp = $this->client->assignLicense($msUserId, $skuId);
             if ($this->client->error) {
                 pr($this->client->error);
                 \Yii::$app->session->addFlash('warning', $this->client->error);
@@ -1224,19 +1224,19 @@ class MsGraphBuilder extends Model
     }
 
     /**
-     * @param $proscriptionType
-     * @return MsProscription|null
+     * @param $licensetype
+     * @return MsLicense|null
      */
-    public function getProscription($proscriptionType = null)
+    public function getLicense($licensetype = null)
     {
         try {
-            if (empty($proscriptionType)) {
-                $proscriptionType = $this->client->proscriptionType;
+            if (empty($licensetype)) {
+                $licensetype = $this->client->licensetype;
             }
-            $proscriptions = $this->getOrganizationsProscriptions();
-            foreach ($proscriptions as $proscription) {
-                if ($proscription->skuPartNumber == $proscriptionType) {
-                    return $proscription;
+            $licenses = $this->getOrganizationsLicenses();
+            foreach ($licenses as $license) {
+                if ($license->skuPartNumber == $licensetype) {
+                    return $license;
                 }
             }
             return null;

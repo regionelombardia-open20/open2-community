@@ -27,7 +27,7 @@ class MsTeamsClient extends Model
     public $tenantId;
     public $clientId;
     public $secretValue;
-    public $proscriptionType;
+    public $licensetype;
 
 
     public $baseApiUrl = "https://graph.microsoft.com/v1.0";
@@ -51,8 +51,8 @@ class MsTeamsClient extends Model
             if (!empty($configs['secretValue'])) {
                 $this->secretValue = $configs['secretValue'];
             }
-            if (!empty($configs['proscriptionType'])) {
-                $this->proscriptionType = $configs['proscriptionType'];
+            if (!empty($configs['licensetype'])) {
+                $this->licensetype = $configs['licensetype'];
             }
 
         }
@@ -735,25 +735,25 @@ class MsTeamsClient extends Model
 
     }
 
-    public function getOrganizationsProscriptions()
+    public function getOrganizationsLicenses()
     {
         return $this->call($this->baseApiUrl . '/subscribedSkus');
     }
 
-    public function assignProscription($userId, $skuId)
+    public function assignLicense($userId, $skuId)
     {
         $data = [
-            'addProscriptions' => [
+            'addLicenses' => [
                 [
                     'skuId' => $skuId,
                 ],
             ],
-            'removeProscriptions' => []
+            'removeLicenses' => []
         ];
 //        pr($userId);
 //        pr($data);
 //        die;
-        return $this->call($this->baseApiUrl . "/users/{$userId}/assignProscription", 'POST', $data);
+        return $this->call($this->baseApiUrl . "/users/{$userId}/assignLicense", 'POST', $data);
     }
 
     public function updateUser($userId, $data)

@@ -1115,7 +1115,7 @@ class Community extends \open20\amos\community\models\base\Community implements 
     public function createMicrosoftTeam()
     {
         $msBuilder = new MsGraphBuilder();
-        $msBuilder->assignProscriptionToUser(\Yii::$app->user->id);
+        $msBuilder->assignLicensetouser(\Yii::$app->user->id);
         if (!empty($this->parent_id)) {
             $parent = Community::getCommunityRoot($this);
             if ($parent && $parent->msgraph_team_id) {

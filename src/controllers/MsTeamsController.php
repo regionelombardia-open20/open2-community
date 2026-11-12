@@ -131,7 +131,7 @@ class MsTeamsController extends BackendController
         $msTeamsClient->auth();
         $redirectUrlSession = \Yii::$app->session->get('redirectUrlConnectTeams');
         $msBuilder = new MsGraphBuilder();
-        $msBuilder->assignProscriptionToUser(\Yii::$app->user->id);
+        $msBuilder->assignLicensetouser(\Yii::$app->user->id);
         if (!empty($redirectUrlSession)) {
             return $this->redirect($redirectUrlSession);
         }
@@ -228,7 +228,7 @@ class MsTeamsController extends BackendController
         $msTeamsClient = new MsTeamsClient();
         /** @var  $msBuilder MsGraphBuilder */
         $msBuilder = new MsGraphBuilder();
-//        pr($msBuilder->getOrganizationsProscriptions());die;
+//        pr($msBuilder->getOrganizationsLicenses());die;
 //        $community = Community::findOne(3182);
         $community = Community::findOne(3146);
         $res = $msBuilder->getChannelMessages($community->msgraph_team_id, $community->msgraph_channel_id);
@@ -282,9 +282,9 @@ class MsTeamsController extends BackendController
         die;
 
         $msUserId = $msBuilder->getMsGraphUserId(\Yii::$app->user->id);
-        $licence = $msBuilder->getProscription();
+        $licence = $msBuilder->getLicense();
         $msBuilder->updateUsageLocation(\Yii::$app->user->id);
-        $msBuilder->assignProscription(\Yii::$app->user->id, $licence->skuId);
+        $msBuilder->assignLicense(\Yii::$app->user->id, $licence->skuId);
 //        TEAMS_EXPLORATORY
         pr($licence);
         die;
@@ -823,7 +823,7 @@ class MsTeamsController extends BackendController
     public function actionImportDocument($id, $urlRedirect = null)
     {
         $msBuilder = new MsGraphBuilder();
-//        pr($msBuilder->getOrganizationsProscriptions());die;
+//        pr($msBuilder->getOrganizationsLicenses());die;
         $community = Community::findOne($id);
         $folder = $msBuilder->getChannelFolderInfo($community->msgraph_team_id, $community->msgraph_channel_id);
 //        $items = $msBuilder->getFolderChildren($folder->getDriveId(), $folder->id);

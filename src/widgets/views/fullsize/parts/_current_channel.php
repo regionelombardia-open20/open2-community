@@ -12,7 +12,7 @@ use yii\helpers\Url;
  * @var $model \open20\amos\community\models\Community
  */
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Proscriptions/proscription-default.txt to change this proscription
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHP.php to edit this template
  */
 $isInDashboardCommunity =  \Yii::$app->controller->action->id == 'open-join' && \Yii::$app->controller->id == 'join';

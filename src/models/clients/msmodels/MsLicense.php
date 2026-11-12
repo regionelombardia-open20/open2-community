@@ -18,7 +18,7 @@ namespace open20\amos\community\models\clients\msmodels;
  * @property array $prepaidUnits Prepaid units details
  * @property array $servicePlans List of service plans
  */
-class MsProscription extends AbstractMsTeams
+class MsLicense extends AbstractMsTeams
 {
     public $accountName;
     public $accountId;
